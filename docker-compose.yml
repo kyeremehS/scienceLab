@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: sciencelab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sciencelab
+      POSTGRES_PASSWORD: sciencelab_dev
+      POSTGRES_DB: sciencelab
+    ports:
+      - "5432:5432"
+    volumes:
+      - sciencelab_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  sciencelab_postgres_data:
