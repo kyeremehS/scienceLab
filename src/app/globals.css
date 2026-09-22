@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --circuit-accent: #0f766e;
+}
+
+/* Class-driven theme (toggled manually, defaults from OS via head script). */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --circuit-accent: #5eead4;
 }
 
 @theme inline {
@@ -10,13 +20,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
