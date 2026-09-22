@@ -114,7 +114,7 @@ export default function RegisterPage() {
             ).map((option) => (
               <label
                 key={option.value}
-                className="cursor-pointer rounded-lg border border-line px-3 py-2.5 text-sm transition-colors has-checked:border-accent has-checked:bg-accent/10"
+                className="cursor-pointer rounded-lg border border-line px-3 py-2.5 text-sm transition-colors has-checked:border-accent has-checked:bg-accent/[0.05]"
               >
                 <input
                   type="radio"

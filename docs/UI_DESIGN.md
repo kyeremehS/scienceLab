@@ -65,9 +65,9 @@ Split screen:
   dark: zinc-950/zinc-50) with the circuit accent adapting via
   `--circuit-accent` — the whole page flips as one surface, never half-lit.
 - **Right ~55%**: plain background, vertically centered form column capped at
-  480px (`max-w-[480px]`), pulled toward the divider (`lg:justify-start` with
-  left padding) so the middle gap stays narrow.
-
+  520px (`max-w-[520px]`), pulled toward the divider (`lg:justify-start` with
+  left padding) so the middle gap stays narrow. The two surfaces stay
+  distinct (panel `surface` vs page `canvas`) with no hard divider.
 ### 2.2 Layout (mobile <1024px)
 
 Single column, stacked as one flow: compact brand block (wordmark, statement,
@@ -97,7 +97,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 - Heading `Create your account`, subheading `Start learning science by doing.`
 - Fields per requirements (`FR-STU-01`, `FR-TEA-01`): Full name, Email, Password (min 8, shown as helper text), Confirm password (client-side match check only — never sent, never validated server-side), role selector `I am a…` (Student/Teacher radio).
-- Role selection chooses the endpoint (`/api/auth/register/student` vs `/teacher`); the body carries only name/email/password. The selector renders as two selectable cards (Student / Teacher) in a `fieldset` + `legend`; the native radio is visually hidden but remains the accessible control. No Admin option exists anywhere in registration — the server exposes no admin-registration route and ignores body-provided roles.
+- Role selection chooses the endpoint (`/api/auth/register/student` vs `/teacher`); the body carries only name/email/password. The selector renders as two selectable cards (Student / Teacher) in a `fieldset` + `legend`; the native radio is visually hidden but remains the accessible control. Selected card: accent border + very subtle tint (`bg-accent/[0.05]`) — state, not emphasis. No Admin option exists anywhere in registration — the server exposes no admin-registration route and ignores body-provided roles.
 - Primary button: full-width `Create account`, loading state `Creating account…`.
 - Secondary: `Already have an account? Log in`.
 - Errors in `role="alert"`: field validation, or `An account with this email already exists.` on duplicate. No terms/privacy text (no such pages exist in the MVP).
@@ -123,7 +123,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
   (nothing floating mid-page), illustration sizing tier, theme behavior on
   both surfaces, and scroll/keyboard usability. A change that works on only
   one viewport is incomplete.
-- Form column width: capped at 480px on desktop; `max-w-md` on mobile.
+- Form column width: capped at 520px on desktop; `max-w-md` on mobile.
 - Brand and form blocks are each internally compact with no large vertical gaps; both sides vertically centered on desktop.
 - No layout shift between idle/loading/error states (button label swaps, region reserved by flow).
 

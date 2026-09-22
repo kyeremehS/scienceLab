@@ -44,7 +44,7 @@ export function AuthLayout({
         <div className="absolute right-4 top-4 hidden lg:right-8 lg:top-6 lg:block">
           <ThemeToggle />
         </div>
-        <div className="w-full max-w-[480px]">
+        <div className="w-full max-w-[520px]">
           <h1 className="text-2xl font-semibold tracking-tight">{heading}</h1>
           <p className="mt-1 text-sm text-ink-2">{subheading}</p>
           <div className="mt-6">{children}</div>
