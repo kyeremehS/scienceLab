@@ -39,7 +39,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={dark ?? false}
       title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className={`flex h-11 w-11 items-center justify-center rounded-lg border border-black/[.12] text-zinc-500 transition-colors hover:text-zinc-900 dark:border-white/[.2] dark:text-zinc-400 dark:hover:text-zinc-100 ${className}`}
+      className={`flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink-3 transition-colors hover:text-ink ${className}`}
     >
       {dark ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

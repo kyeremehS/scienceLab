@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getPageUser } from "@/lib/page-session";
+import { LearningLoopDiagram } from "./LearningLoopDiagram";
 import { ThemeToggle } from "./ThemeToggle";
 
 export default async function Home() {
@@ -14,26 +15,27 @@ export default async function Home() {
       <div className="absolute right-6 top-6">
         <ThemeToggle />
       </div>
-      <p className="text-sm font-semibold tracking-[0.2em] text-zinc-500">SCIENCELAB</p>
+      <p className="text-sm font-semibold tracking-[0.2em] text-ink-3">SCIENCELAB</p>
       <h1 className="text-4xl font-semibold tracking-tight">Learn science by doing.</h1>
-      <p className="max-w-md text-lg text-zinc-600 dark:text-zinc-400">
+      <p className="max-w-md text-lg text-ink-2">
         Understand, prepare, perform, observe, reflect, and assess —
         practical experiments with structured digital guidance.
       </p>
       <div className="flex gap-4">
         <Link
           href="/register"
-          className="rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background"
+          className="rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background"
         >
           Get started
         </Link>
         <Link
           href="/login"
-          className="rounded-full border border-solid border-black/[.08] px-6 py-3 text-sm font-medium dark:border-white/[.145]"
+          className="rounded-lg border border-solid border-line px-6 py-3 text-sm font-medium"
         >
           Log in
         </Link>
       </div>
+      <LearningLoopDiagram className="mt-4 w-full max-w-md text-ink-2" />
     </main>
   );
 }

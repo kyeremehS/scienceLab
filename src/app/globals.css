@@ -2,22 +2,53 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * ScienceLab design tokens (docs/UI_DESIGN.md §0).
+ * One accent across both themes; light mode is a luminance shift, not a
+ * different identity. Components consume these tokens, not raw palettes.
+ */
 :root {
-  --background: #ffffff;
+  --background: #fafaf9;
   --foreground: #171717;
-  --circuit-accent: #0f766e;
+  --secondary: #525252;
+  --muted: #737373;
+  --surface: #ffffff;
+  --raised: #f5f5f4;
+  --line: rgba(0, 0, 0, 0.1);
+  --accent: #20c9c3;
+  --accent-ink: #0b6e6a;
+  --circuit-accent: var(--accent);
+  --error: #dc2626;
 }
 
 /* Class-driven theme (toggled manually, defaults from OS via head script). */
 .dark {
   --background: #0a0a0a;
-  --foreground: #ededed;
-  --circuit-accent: #5eead4;
+  --foreground: #f5f5f5;
+  --secondary: #a3a3a3;
+  --muted: #737373;
+  --surface: #141414;
+  --raised: #1c1c1c;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #20c9c3;
+  --accent-ink: #5eead4;
+  --circuit-accent: var(--accent);
+  --error: #f87171;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-canvas: var(--background);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-ink: var(--foreground);
+  --color-ink-2: var(--secondary);
+  --color-ink-3: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-error: var(--error);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -26,4 +57,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Consistent, accent-colored keyboard focus across all interactive elements. */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

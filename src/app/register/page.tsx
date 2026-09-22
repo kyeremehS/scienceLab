@@ -64,7 +64,7 @@ export default function RegisterPage() {
             minLength={2}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="rounded-lg border border-black/[.12] bg-transparent px-3 py-2 dark:border-white/[.2]"
+            className="rounded-lg border border-line bg-transparent px-3 py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-black/[.12] bg-transparent px-3 py-2 dark:border-white/[.2]"
+            className="rounded-lg border border-line bg-transparent px-3 py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -91,7 +91,7 @@ export default function RegisterPage() {
             value={password}
             onChange={setPassword}
           />
-          <p id="password-helper" className="text-xs text-zinc-500">At least 8 characters.</p>
+          <p id="password-helper" className="text-xs text-ink-3">At least 8 characters.</p>
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="confirm-password" className="text-sm font-medium">Confirm password</label>
@@ -114,7 +114,7 @@ export default function RegisterPage() {
             ).map((option) => (
               <label
                 key={option.value}
-                className="cursor-pointer rounded-lg border border-black/[.12] px-3 py-2.5 text-sm transition-colors has-checked:border-teal-700 has-checked:bg-teal-700/[.06] dark:border-white/[.2] dark:has-checked:border-teal-400 dark:has-checked:bg-teal-400/10"
+                className="cursor-pointer rounded-lg border border-line px-3 py-2.5 text-sm transition-colors has-checked:border-accent has-checked:bg-accent/10"
               >
                 <input
                   type="radio"
@@ -135,13 +135,13 @@ export default function RegisterPage() {
                   </span>
                   {option.title}
                 </span>
-                <span className="mt-0.5 block text-xs text-zinc-500">{option.hint}</span>
+                <span className="mt-0.5 block text-xs text-ink-3">{option.hint}</span>
               </label>
             ))}
           </div>
         </fieldset>
         {error ? (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p role="alert" className="text-sm text-error">{error}</p>
         ) : null}
         <button
           type="submit"
@@ -151,8 +151,8 @@ export default function RegisterPage() {
           {pending ? "Creating account…" : "Create account"}
         </button>
       </form>
-      <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-        Already have an account? <Link href="/login" className="font-medium text-teal-700 underline dark:text-teal-400">Log in</Link>
+      <p className="mt-4 text-sm text-ink-2">
+        Already have an account? <Link href="/login" className="font-medium text-accent-ink underline">Log in</Link>
       </p>
     </AuthLayout>
   );

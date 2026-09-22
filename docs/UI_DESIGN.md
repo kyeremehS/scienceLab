@@ -10,10 +10,38 @@
 > Near-black + off-white + cyan/teal scientific accent + thin borders +
 > technical diagrams + restrained geometry.
 
+### Design tokens (`src/app/globals.css`)
+
+Components consume these tokens, never raw palette values:
+
+| Token | Light | Dark |
+|---|---|---|
+| Page background (`--background`/`bg-canvas`) | `#FAFAF9` (warm off-white) | Near-black `#0A0A0A` |
+| Surface (`bg-surface`) | `#FFFFFF` | `#141414` |
+| Elevated (`bg-raised`, hovers) | `#F5F5F4` | `#1C1C1C` |
+| Border (`border-line`) | Black 10% | White 12% |
+| Primary text (`text-ink`) | `#171717` | `#F5F5F5` |
+| Secondary text (`text-ink-2`) | `#525252` | `#A3A3A3` |
+| Muted text (`text-ink-3`) | `#737373` | `#737373` |
+| Accent (`--accent`: diagrams, indicators, focus, selection) | `#20C9C3` (single token, both themes) | `#20C9C3` |
+| Accent text (`text-accent-ink`: links) | `#0B6E6A` (readable cut of the accent) | `#5EEAD4` (readable cut of the accent) |
+| Circuit accent (`--circuit-accent`) | Follows `--accent` | Follows `--accent` |
+| Error (`text-error`) | `#DC2626` | `#F87171` |
+| Focus ring | 2px `var(--accent)`, offset 2px (global rule) | Same |
+
+Light mode is a luminance shift of the same identity, never a separate look.
+
 This language carries through the whole application: dashboards reuse the same
 dark foundation and typography (denser for teachers); the experiment workspace
 makes diagram/measurement visuals functional; assessment stays quieter so
 content gets attention. No page introduces a competing visual template.
+
+**Motion:** subtle and purposeful only (label swaps, loading states). No
+decorative animation.
+
+**Tone:** technical, educational, practical. Landing and product copy state
+what ScienceLab does (the Learn → Perform → Observe → Reflect → Assess loop);
+never inflated claims ("AI-powered", "revolutionary", "personalized", "future of").
 
 ## 1. Visual Direction
 
@@ -116,14 +144,15 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 | Token | Light | Dark |
 |---|---|---|
-| Page background (form side) | white/zinc-50 | black |
-| Brand panel | zinc-950 (always) | zinc-950 (always) |
-| Primary text | zinc-950/black | zinc-50 |
-| Secondary text | zinc-600 | zinc-400 |
-| Borders | black/[.08–.12] | white/[.145–.2] |
+| Page background (form side) | token canvas | token canvas |
+| Brand panel | token surface | token surface |
+| Primary text | token ink | token ink |
+| Secondary text | token ink-2 | token ink-2 |
+| Borders | token line | token line |
 | Primary button | foreground fill | foreground fill |
-| Error text | red-600 | red-400 |
-| Accent (links, illustration strokes) | teal-700 | teal-400 |
+| Error text | token error | token error |
+| Accent (illustration, focus, selection) | token accent | token accent |
+| Links | token accent-ink, always underlined | token accent-ink, always underlined |
 
 ## 8.1 Theme (light/dark)
 
@@ -146,4 +175,9 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 ## 10. Landing Alignment
 
-The landing page shares the brand language: wordmark, `Learn science by doing.` statement, product-loop subtext, and the same two actions (Get started / Log in). It must not introduce components, colors, or illustration styles that contradict this document.
+The landing page shares the brand language: wordmark, `Learn science by doing.`
+statement, product-loop subtext, and the same two actions (Get started / Log in). It must not introduce components, colors, or illustration styles that contradict this document.
+
+Below the actions sits a LearningLoopDiagram (Learn → Perform → Observe →
+Reflect → Assess with a return arc) — visually distinct from the auth circuit,
+tied to the product loop. CTA buttons use the standard `rounded-lg` geometry.

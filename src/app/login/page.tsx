@@ -50,7 +50,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-black/[.12] bg-transparent px-3 py-2 dark:border-white/[.2]"
+            className="rounded-lg border border-line bg-transparent px-3 py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -64,7 +64,7 @@ export default function LoginPage() {
           />
         </div>
         {error ? (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p role="alert" className="text-sm text-error">{error}</p>
         ) : null}
         <button
           type="submit"
@@ -74,8 +74,8 @@ export default function LoginPage() {
           {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-        No account yet? <Link href="/register" className="font-medium text-teal-700 underline dark:text-teal-400">Register</Link>
+      <p className="mt-4 text-sm text-ink-2">
+        No account yet? <Link href="/register" className="font-medium text-accent-ink underline">Register</Link>
       </p>
     </AuthLayout>
   );
