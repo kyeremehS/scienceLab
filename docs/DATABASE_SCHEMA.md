@@ -271,6 +271,8 @@ A version contains the complete content package for the experiment.
 | `materials`        | TEXT        |      Yes | Required materials               |
 | `safety`           | TEXT        |      Yes | Safety instructions              |
 | `duration_minutes` | INTEGER     |      Yes | Expected duration                |
+| `difficulty`       | TEXT        |      Yes | Difficulty level (e.g. Beginner) |
+| `topic`            | TEXT        |      Yes | STEM topic (e.g. Physics)        |
 | `created_at`       | TIMESTAMPTZ |      Yes | Creation timestamp               |
 | `updated_at`       | TIMESTAMPTZ |      Yes | Last update timestamp            |
 

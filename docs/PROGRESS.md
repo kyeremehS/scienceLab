@@ -127,42 +127,64 @@ on reset (7-day JWT expiry bounds this).
 
 ---
 
-## Phase 2 — Classes + membership 🟡 (next)
+## Phase 2 — Classes + membership ✅
 
 **Scope:** `FR-TEA-05`–`FR-TEA-14`, `FR-STU-32`, `CR-05` (membership uniqueness,
 history preservation).
 
-**To deliver:**
+**Delivered:**
 
-- `classes`, `class_memberships` tables + migration (partial unique index,
-  `active`/`left_at` history)
-- Teacher: create class (system code), list/own classes, view class + members,
-  share code, remove student (history preserved)
-- Student: join by code, duplicate-join refusal, view own classes
-- Server-side ownership checks on every operation
-- Tests: duplicate membership, non-owned access denied, removal preserves
-  history, invalid code
+- `classes` + `class_memberships` tables + migration (`0002`, restrictive
+  FKs, partial unique `(student_id, class_id) WHERE active`)
+- `src/lib/class-codes.ts` — 6-char Crockford-base32 codes, collision-retry
+- Teacher: create (validated name), list own with counts, detail with
+  members, remove (soft-end, history kept); all ownership-checked
+- Student: join by code (case-insensitive, 409 already-member, 404 bad code),
+  joined list (class + teacher name only)
+- UI: `/dashboard/teacher/classes` (list + create), detail (copy-code,
+  members, confirm-remove), teacher dashboard link, student dashboard joined
+  list + join form
+- Teacher UI pass: hierarchy eyebrows (YOUR CLASSES / ACTIVE ASSIGNMENTS /
+  RECENT ACTIVITY), real class cards with counts, honest empty states naming
+  the delivering phase, shared `PageHeader` (controls wrap on mobile),
+  class-detail order (code → assignments → students); contract §12
+- App shell (`dashboard/layout.tsx` + `AppShell`): top bar with wordmark,
+  role nav (Teacher: Dashboard/Classes; Student: Dashboard), theme + logout;
+  mobile hamburger menu; per-page floating controls removed; designed
+  code-bearing empty members state; contract §§13–14
+- Tests: `class-codes.test.ts`, DB integration `classes.test.ts`
+  (duplicate, ownership denial, history preserved, invalid code, role gates)
 
-**Verification:** _pending_
+**Verification:** 30/30 vitest, `tsc`, eslint clean; live end-to-end
+(create 201 → join 201 → duplicate 409 → detail shows member → wrong-role
+403 → all pages 200 → remove 200 → member list empty, history row inactive
+in DB).
 
 ---
 
-## Phase 3 — Experiments catalogue + versions ⬜
+## Phase 3 — Experiments catalogue + versions ✅
 
-**Scope:** `FR-STU-05`, `FR-STU-06`, experiment lifecycle
-(`DRAFT/PUBLISHED/ARCHIVED`, one published per experiment).
+**Scope:** `FR-STU-05`, `FR-STU-06` (published discovery + pre-start details).
 
-**To deliver:**
+**Delivered:**
 
-- `experiments`, `experiment_versions`, `experiment_steps`,
-  `observation_definitions`, `assessments`, `assessment_questions` tables +
-  migration (version immutability, unique orders, single published)
-- Student catalogue + experiment details (objectives, materials, safety,
-  step overview)
-- Seed: Building a Simple Electrical Circuit (`PRODUCT.md` §12)
-- Tests: draft/archived hidden, step order integrity
+- 6 tables + migrations (`0003` catalogue, `0004` difficulty/topic):
+  `experiments`, `experiment_versions` (one-published partial unique,
+  version-number unique, composite id pair), `experiment_steps`,
+  `observation_definitions`, `assessments`, `assessment_questions`
+- `GET /api/experiments` (published only, step counts),
+  `GET /api/experiments/[id]` (objectives/materials/safety/step overview;
+  no assessment content)
+- Seed `pnpm db:seed`: Simple Electrical Circuit v1 PUBLISHED (5 steps,
+  4 observation definitions, 3 questions); idempotent
+- UI: student catalogue with `ExperimentCard` (diagram visual + CTA),
+  experiment detail page, dashboard v1 (greeting, live first-steps checklist,
+  experiment cards), Experiments nav entry
 
-**Verification:** _pending_
+**Verification:** 33/33 vitest (catalogue integration: drafts hidden,
+details shape, no answer leakage, 404, 401), `tsc`, eslint clean; live
+(catalogue 1 item/5 steps, detail 200, all pages 200, checklist + cards
+render).
 
 ---
 
