@@ -71,7 +71,7 @@ Application/service logic is responsible for rules requiring:
 
 # 3. Final MVP Tables
 
-The MVP contains 16 tables.
+The MVP contains 17 tables.
 
 | # | Table | Purpose |
 |---|---|---|
@@ -91,6 +91,7 @@ The MVP contains 16 tables.
 | 14 | `assessment_submissions` | Student's submitted assessment and result |
 | 15 | `assessment_answers` | Individual answers within a submission |
 | 16 | `ai_interactions` | Student AI interaction history |
+| 17 | `password_reset_tokens` | Single-use password recovery tokens |
 
 ---
 
@@ -827,7 +828,6 @@ Logging is best effort.
 ---
 
 # 21. Composite Foreign Keys
-
 The schema stores both `experiment_id` and `experiment_version_id` on assignments and attempts.
 
 Independent foreign keys would not guarantee that the two values refer to the same experiment.
@@ -951,6 +951,7 @@ Published experiment versions are immutable by design because the application do
 | One question order per assessment          | `UNIQUE(assessment_id, order)`                  |
 | One submission per attempt                 | `UNIQUE(attempt_id)`                            |
 | One answer per submission/question         | `UNIQUE(submission_id, question_id)`            |
+| One reset token hash                     | `UNIQUE(password_reset_tokens.token_hash)`      |
 
 ---
 
@@ -1027,6 +1028,7 @@ The server enforces:
 | ---------------------------------- | --------------------------------------------------------------------------------------- |
 | Student/Teacher/Admin accounts     | `users`                                                                                 |
 | Authentication                     | `users`                                                                                 |
+| Password recovery                  | `password_reset_tokens`                                                                 |
 | Teacher-owned classes              | `classes`                                                                               |
 | Student membership                 | `class_memberships`                                                                     |
 | Membership history                 | `class_memberships.active`, `left_at`                                                   |
@@ -1130,3 +1132,36 @@ Application services should implement business rules that require runtime contex
 Any schema change that affects a rule in this document should first update the relevant product, requirements, domain-model, or architecture documentation.
 
 This document is the database source of truth for the ScienceLab MVP.
+
+---
+
+# 31. `password_reset_tokens`
+
+Stores single-use password recovery tokens (`FR-AUTH-01`, `FR-AUTH-02`).
+
+Only the SHA-256 hash of a token is persisted; the raw token exists solely
+inside the reset link sent to the user.
+
+## Columns
+
+| Column       | Type        | Required | Notes                        |
+| ------------ | ----------- | -------: | ---------------------------- |
+| `id`         | UUID        |      Yes | Primary key                  |
+| `user_id`    | UUID        |      Yes | FK → `users.id`              |
+| `token_hash` | TEXT        |      Yes | SHA-256 hex of the reset token |
+| `expires_at` | TIMESTAMPTZ |      Yes | Expiry (1 hour after creation) |
+| `used_at`    | TIMESTAMPTZ |       No | Set when the token is redeemed |
+| `created_at` | TIMESTAMPTZ |      Yes | Creation timestamp           |
+
+## Constraints
+
+* Primary key on `id`
+* FK `user_id → users.id`
+* Unique `token_hash`
+
+## Business Rules
+
+* Tokens are generated with a cryptographic RNG (256-bit) and expire after 1 hour.
+* A token is accepted only when it exists, is unexpired, and `used_at` is NULL.
+* Redemption sets `used_at` atomically with the password change; the token can never be reused.
+* Lookup by hash never reveals whether an email exists (enumeration safety is enforced by the identical-response rule in `FR-AUTH-01`).

@@ -12,5 +12,15 @@ services:
     volumes:
       - sciencelab_postgres_data:/var/lib/postgresql/data
 
+  # Local email trap for development (FR-AUTH-01): catches outbound mail,
+  # serves it at http://localhost:8025. Never delivers real email.
+  mailpit:
+    image: axllent/mailpit
+    container_name: sciencelab-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   sciencelab_postgres_data:

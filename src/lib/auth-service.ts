@@ -1,8 +1,22 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { passwordResetTokens, users } from "@/db/schema";
 import { hashPassword, verifyPassword } from "@/lib/passwords";
+import {
+  buildResetUrl,
+  sendPasswordResetMail,
+} from "@/lib/mailer";
+import {
+  clientIp,
+  isRateLimited,
+} from "@/lib/rate-limit";
+import {
+  createResetToken,
+  hashResetToken,
+  RESET_TOKEN_EXPIRY_MINUTES,
+  resetExpiryDate,
+} from "@/lib/reset-tokens";
 import {
   createSessionToken,
   isSecureRequest,
@@ -11,7 +25,9 @@ import {
 } from "@/lib/session";
 import {
   normalizeEmail,
+  validateEmail,
   validateLogin,
+  validatePassword,
   validateRegistration,
   type UserRole,
 } from "@/lib/validation";
@@ -155,4 +171,143 @@ export async function getRequestSession(req: Request) {
     .where(eq(users.id, payload.sub))
     .limit(1);
   return rows[0] ?? null;
+}
+
+const RECOVERY_MESSAGE =
+  "If an account exists for this email, we've sent a password reset link.";
+
+/**
+ * Starts password recovery (FR-AUTH-01). The response is identical whether or
+ * not an account exists, so the endpoint never reveals account existence.
+ */
+export async function handleForgotPassword(req: Request): Promise<NextResponse> {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  const params = (body ?? {}) as Record<string, unknown>;
+  if (validateEmail(params.email)) {
+    return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+  }
+
+  if (isRateLimited(`forgot:${clientIp(req)}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
+  try {
+    const email = normalizeEmail(params.email as string);
+    const rows = await db
+      .select({ id: users.id, email: users.email })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    const row = rows[0];
+    if (row) {
+      // Retire prior unused tokens so only the newest link works.
+      await db
+        .delete(passwordResetTokens)
+        .where(
+          and(
+            eq(passwordResetTokens.userId, row.id),
+            isNull(passwordResetTokens.usedAt),
+          ),
+        );
+
+      const { token, tokenHash } = createResetToken();
+      await db.insert(passwordResetTokens).values({
+        userId: row.id,
+        tokenHash,
+        expiresAt: resetExpiryDate(),
+      });
+
+      await sendPasswordResetMail({
+        to: row.email,
+        resetUrl: buildResetUrl(req, token),
+        expiresMinutes: RESET_TOKEN_EXPIRY_MINUTES,
+      });
+    }
+
+    return NextResponse.json({ message: RECOVERY_MESSAGE }, { status: 200 });
+  } catch (error) {
+    console.error("Password recovery request failed:", error);
+    return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
+  }
+}
+
+/**
+ * Redeems a reset token and sets a new password (FR-AUTH-02). The token is
+ * marked used atomically with the password change and can never be reused.
+ */
+export async function handleResetPassword(req: Request): Promise<NextResponse> {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  const params = (body ?? {}) as Record<string, unknown>;
+  if (typeof params.token !== "string" || params.token.length === 0) {
+    return NextResponse.json(
+      { error: "This reset link is invalid or has expired." },
+      { status: 400 },
+    );
+  }
+  const passwordError = validatePassword(params.password);
+  if (passwordError) {
+    return NextResponse.json({ error: passwordError }, { status: 400 });
+  }
+
+  if (isRateLimited(`reset:${clientIp(req)}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
+  try {
+    const tokenHash = hashResetToken(params.token);
+    const rows = await db
+      .select({
+        id: passwordResetTokens.id,
+        userId: passwordResetTokens.userId,
+        expiresAt: passwordResetTokens.expiresAt,
+        usedAt: passwordResetTokens.usedAt,
+      })
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.tokenHash, tokenHash))
+      .limit(1);
+
+    const row = rows[0];
+    if (!row || row.usedAt !== null || row.expiresAt.getTime() <= Date.now()) {
+      return NextResponse.json(
+        { error: "This reset link is invalid or has expired." },
+        { status: 400 },
+      );
+    }
+
+    const passwordHash = await hashPassword(params.password as string);
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({ passwordHash, updatedAt: new Date() })
+        .where(eq(users.id, row.userId));
+      await tx
+        .update(passwordResetTokens)
+        .set({ usedAt: new Date() })
+        .where(eq(passwordResetTokens.id, row.id));
+    });
+
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (error) {
+    console.error("Password reset failed:", error);
+    return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
+  }
 }

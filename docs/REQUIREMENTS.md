@@ -79,6 +79,35 @@ A student can terminate their authenticated session.
 
 ---
 
+### FR-AUTH-01 — Password recovery request
+
+A user who forgot their password can request a password reset using their account email.
+
+Acceptance criteria:
+
+- User submits an email address.
+- The response is identical whether or not an account exists for that email (no account enumeration).
+- If an account exists, the system creates a short-lived, single-use reset token and sends a reset link through the configured mail channel.
+- Request rate is limited to prevent abuse.
+
+---
+
+### FR-AUTH-02 — Password reset
+
+A user with a valid reset token can set a new password.
+
+Acceptance criteria:
+
+- System validates the token: it exists, has not expired, and has not been used.
+- System validates the new password under the same rules as registration.
+- On success the password is replaced, the token is marked used and cannot be reused.
+- Invalid, expired, or reused tokens produce a safe error without revealing account information.
+- The user can log in with the new password.
+
+Email verification is not required for the MVP and is explicitly deferred (see `ROADMAP.md`).
+
+---
+
 # 4. Student Dashboard
 
 ### FR-STU-04 — View dashboard

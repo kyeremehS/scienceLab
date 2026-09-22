@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   normalizeEmail,
+  validateEmail,
   validateLogin,
+  validatePassword,
   validateRegistration,
 } from "./validation";
 
@@ -49,7 +51,22 @@ describe("normalizeEmail", () => {
   });
 });
 
-// FR-STU-02 / FR-TEA-02: login input validation.
+// FR-AUTH-01/02: recovery input validation.
+describe("validateEmail", () => {
+  it("accepts valid emails and rejects the rest", () => {
+    expect(validateEmail("ada@example.com")).toBeNull();
+    expect(validateEmail("bad")).not.toBeNull();
+    expect(validateEmail(undefined)).not.toBeNull();
+  });
+});
+
+describe("validatePassword", () => {
+  it("enforces the registration password rules", () => {
+    expect(validatePassword("password123")).toBeNull();
+    expect(validatePassword("short")).not.toBeNull();
+    expect(validatePassword(undefined)).not.toBeNull();
+  });
+});
 describe("validateLogin", () => {
   it("accepts valid input", () => {
     expect(validateLogin({ email: "ada@example.com", password: "anything" })).toBeNull();

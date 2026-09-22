@@ -29,6 +29,7 @@
 | 12 | AI failure fallback | AI outage returns helpful fallback; experiment navigation, progression, observations, assessment, and completion all still work; no authoritative state derived from AI | `FR-STU-17`–`FR-STU-20` |
 | 13 | Transactional state changes | Multi-record operations (e.g. submission + answers + result; completion transition) are atomic; failures leave no partial state; retried requests create no duplicates | `CR-06` |
 | 14 | Auth/session basics | Registration validation + duplicate-email refusal + secure password handling + session creation; login success/failure (safe errors); logout termination; unauthenticated denial | `FR-STU-01`–`FR-STU-03`, `FR-TEA-01`–`FR-TEA-03` |
+| 17 | Password recovery | Identical response for existing/non-existing email; token accepted once then refused; expired token refused; invalid token refused; new password works for login; rate limits hold | `FR-AUTH-01`, `FR-AUTH-02` |
 | 15 | Membership/assignment integrity | Duplicate membership refused with clear response; removal preserves history; no duplicate active assignment per experiment per class; experiment-swap refused; close/cancel preserves history and exits gating | `FR-TEA-11`–`FR-TEA-14`, `FR-TEA-17`, `FR-TEA-21`, `FR-TEA-23`, `FR-TEA-24` |
 | 16 | Persistence/resume | Refresh/leave/return resumes persisted progress; significant state persisted server-side immediately; completed records stable | `FR-STU-11`, `CR-07` |
 

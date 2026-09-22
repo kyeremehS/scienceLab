@@ -14,7 +14,11 @@ export async function middleware(req: NextRequest) {
   const session = token ? await verifySessionToken(token) : null;
 
   const isDashboard = pathname.startsWith("/dashboard");
-  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
 
   if (isDashboard) {
     if (!session) {
@@ -37,5 +41,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/forgot-password", "/reset-password"],
 };

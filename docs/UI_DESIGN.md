@@ -181,3 +181,21 @@ statement, product-loop subtext, and the same two actions (Get started / Log in)
 Below the actions sits a LearningLoopDiagram (Learn → Perform → Observe →
 Reflect → Assess with a return arc) — visually distinct from the auth circuit,
 tied to the product loop. CTA buttons use the standard `rounded-lg` geometry.
+
+## 11. Transactional Email
+
+Restrained product emails, not marketing pages. Implementation:
+`src/lib/email-templates.ts` (shared shell) + `src/lib/mailer.ts` (channel).
+
+- Shared shell: header (SCIENCELAB) → content → single CTA → footer
+  (ScienceLab / Learn science by doing.). Verification templates are omitted:
+  email verification is deferred from the MVP.
+- Always light (white/off-white body, near-black text) for client
+  compatibility; accent CTA + readable link cut. Inline styles + table layout
+  only.
+- One CTA button plus a plain-link fallback underneath ("If the button
+  doesn't work…"). Both HTML and plain-text MIME parts.
+- Security (all already enforced, restated as contract): 256-bit RNG tokens,
+  hash-only storage, 60-minute expiry, atomic single-use burn, no token
+  logging, enumeration-safe endpoint responses, production origin comes from
+  the request (HTTPS domain in prod, never hardcoded).

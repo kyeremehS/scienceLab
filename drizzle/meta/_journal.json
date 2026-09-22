@@ -8,6 +8,13 @@
       "when": 1788739969638,
       "tag": "0000_faithful_senator_kelly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790067676985,
+      "tag": "0001_add-password-reset-tokens",
+      "breakpoints": true
     }
   ]
 }

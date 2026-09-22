@@ -90,6 +90,43 @@ present, `.dark` vars in compiled CSS).
 
 ---
 
+## Phase 1c — Password recovery ✅
+
+**Scope:** `FR-AUTH-01`, `FR-AUTH-02` (enumeration-safe request, short-lived
+single-use tokens, login with new password). Email verification stays
+explicitly deferred.
+
+**Delivered:**
+
+- `password_reset_tokens` table + migration (`0001`, hash-only storage,
+  1-hour expiry, `used_at` single-use, unique hash)
+- `src/lib/reset-tokens.ts` (256-bit RNG, SHA-256, expiry), `src/lib/mailer.ts`
+  (channel abstraction; SMTP to Mailpit at `localhost:1025` by default in
+  dev, `console` fallback, real provider required before pilot),
+  `src/lib/rate-limit.ts` (in-memory sliding window, 10/hour per IP)
+- Mailpit service in `docker-compose.yml` (UI `localhost:8025`); `nodemailer`
+  dependency
+- `POST /api/auth/forgot-password` (byte-identical response either way),
+  `POST /api/auth/reset-password` (atomic redeem + password change in a
+  transaction)
+- Pages `/forgot-password`, `/reset-password?token=`, "Forgot password?"
+  link on login; recovery pages in middleware auth-redirect set
+- Branded email shell (`email-templates.ts`: light table layout, CTA button +
+  plain-link fallback, HTML + text parts); verified live in Mailpit
+- Tests: `reset-tokens.test.ts`, validation additions, DB integration
+  `password-reset.test.ts` (enumeration safety, single-use, expiry, invalid
+  token, new-password login, rate limits) — 23 tests total
+
+**Verification:** 23/23 vitest, `tsc`, eslint clean; live end-to-end
+(register → forgot → token link → reset 200 → reuse 400 → login with new
+password 200; missing-email response identical; both pages 200).
+
+**Accepted limitations:** a real delivery provider replaces Mailpit before any
+pilot (`EMAIL_PROVIDER`); pre-existing sessions are not revoked
+on reset (7-day JWT expiry bounds this).
+
+---
+
 ## Phase 2 — Classes + membership 🟡 (next)
 
 **Scope:** `FR-TEA-05`–`FR-TEA-14`, `FR-STU-32`, `CR-05` (membership uniqueness,

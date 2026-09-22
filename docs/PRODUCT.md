@@ -234,8 +234,11 @@ If these journeys work reliably, the MVP is successful.
 * teacher registration
 * login
 * logout
+* password recovery/reset (short-lived, single-use tokens; enumeration-safe)
 * secure authentication
 * role-based access
+
+Email verification is explicitly deferred from the MVP.
 
 #### Student
 

@@ -33,6 +33,25 @@ export function validateRegistration(input: Record<string, unknown>): string | n
 }
 
 /** Returns a user-safe error message, or null when valid. */
+export function validateEmail(email: unknown): string | null {
+  if (typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
+    return "Enter a valid email address.";
+  }
+  return null;
+}
+
+/** Returns a user-safe error message, or null when valid. */
+export function validatePassword(password: unknown): string | null {
+  if (typeof password !== "string" || password.length < 8) {
+    return "Password must be at least 8 characters.";
+  }
+  if (password.length > 128) {
+    return "Password must be at most 128 characters.";
+  }
+  return null;
+}
+
+/** Returns a user-safe error message, or null when valid. */
 export function validateLogin(input: { email?: unknown; password?: unknown }): string | null {
   if (typeof input.email !== "string" || !EMAIL_RE.test(input.email.trim())) {
     return "Enter a valid email address.";
