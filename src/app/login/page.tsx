@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { AuthLayout } from "../auth/AuthLayout";
 import { PasswordInput } from "../auth/PasswordInput";
 
@@ -75,10 +75,10 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="mt-4 text-sm text-ink-2">
-        <Link href="/forgot-password" className="font-medium text-accent-ink underline">Forgot password?</Link>
+        <NavLink href="/forgot-password">Forgot password?</NavLink>
       </p>
       <p className="mt-2 text-sm text-ink-2">
-        No account yet? <Link href="/register" className="font-medium text-accent-ink underline">Register</Link>
+        No account yet? <NavLink href="/register">Register</NavLink>
       </p>
     </AuthLayout>
   );

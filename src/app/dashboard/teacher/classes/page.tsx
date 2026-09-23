@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -57,12 +58,12 @@ export default async function TeacherClassesPage() {
                     <span className="text-ink-3">Code </span>
                     <span className="font-mono font-semibold">{c.code}</span>
                   </p>
-                  <Link
+                  <NavLink
                     href={`/dashboard/teacher/classes/${c.id}`}
-                    className="text-sm font-medium text-accent-ink underline"
+                    arrow="forward"
                   >
-                    View class →
-                  </Link>
+                    View class
+                  </NavLink>
                 </div>
               </li>
             ))}

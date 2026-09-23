@@ -145,7 +145,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 - Keyboard: all controls reachable in logical order (brand panel is non-interactive); visible focus on every control.
 - Labels for every input; `aria-label` on the password toggle (`Show password`/`Hide password`); `aria-describedby` for the password helper.
 - Errors announced via `role="alert"`. State never communicated by color alone (text message always present).
-- Secondary text meets contrast minimums in both themes; links are always underlined in accent-ink.
+- Secondary text meets contrast minimums in both themes; nav links follow §8.1 (never color-only: label text always present).
 
 ## 7. Typography and Spacing
 
@@ -169,9 +169,20 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 | Primary button | foreground fill | foreground fill |
 | Error text | token error | token error |
 | Accent (illustration, focus, selection) | token accent | token accent |
-| Links | token accent-ink, always underlined | token accent-ink, always underlined |
+| Links | `NavLink` (`src/app/NavLink.tsx`), never raw values | Same |
 
-## 8.1 Theme (light/dark)
+## 8.1 Nav links (`NavLink`)
+
+All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
+
+- Text `#5dcaa5`, no underline, `13px`, medium weight.
+- Hover lightens to `#9fe1cb` with a `150ms` color transition.
+- Arrow links (`←` / `→`) render the arrow as a separate `aria-hidden`
+  span with a `6px` flex gap to the label.
+- Title links (e.g. class names), buttons, and sidebar nav keep their own
+  treatments — `NavLink` is for inline navigation only.
+
+## 8.2 Theme (light/dark)
 
 - Both themes are first-class: light default, dark mirror via class-based
   `dark:` variants (`@custom-variant` in `globals.css`).
@@ -186,7 +197,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 - Purple/blue gradients, glassmorphism, floating blobs, AI sparkles, stock photos.
 - Drop shadows on cards; radii larger than `rounded-lg`.
-- Additional accent colors beyond the single accent + neutrals + error.
+- Additional accent colors beyond the single accent + `NavLink` teal (§8.1) + neutrals + error.
 - Terms/privacy links, onboarding wizards, social-login buttons, or any field beyond name/email/password(+confirm)/role.
 - Client-side enforcement of any server rule (role, gating, eligibility).
 - Statistics, charts, or progress bars without real backing data.
@@ -300,8 +311,8 @@ state). Name the delivering phase when the capability is future work.
   detail meta, workspace stats).
 - Buttons: primary foreground fill; secondary line-bordered; destructive
   actions (member removal) use two-step confirm inline.
-- Accent appearances are allow-listed: active nav pill, links (always
-  underlined), selection rings, focus rings, progress traces, diagrams.
+- Accent appearances are allow-listed: active nav pill, `NavLink` nav links
+  (§8.1), selection rings, focus rings, progress traces, diagrams.
   Body copy and metadata never use accent as plain text color.
 
 ## 16. Loading, Error, and Discovery States

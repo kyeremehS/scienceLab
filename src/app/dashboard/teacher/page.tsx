@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -80,16 +80,16 @@ export default async function TeacherDashboard() {
             <h2 id="class-overview" className="text-base font-semibold tracking-tight">
               Your classes
             </h2>
-            <Link href="/dashboard/teacher/classes" className="shrink-0 text-sm font-medium text-accent-ink underline">
+            <NavLink href="/dashboard/teacher/classes" className="shrink-0">
               Manage classes
-            </Link>
+            </NavLink>
           </div>
           {withMembers.length === 0 ? (
             <p className="mt-3 text-sm text-ink-2">
               No classes yet.{" "}
-              <Link href="/dashboard/teacher/classes" className="font-medium text-accent-ink underline">
+              <NavLink href="/dashboard/teacher/classes">
                 Create your first class
-              </Link>{" "}
+              </NavLink>{" "}
               and share its code so students can join.
             </p>
           ) : (
@@ -105,12 +105,13 @@ export default async function TeacherDashboard() {
                       {c.members.length} student{c.members.length === 1 ? "" : "s"} · {c.code}
                     </span>
                   </span>
-                  <Link
+                  <NavLink
                     href={`/dashboard/teacher/classes/${c.id}`}
-                    className="shrink-0 text-sm font-medium text-accent-ink underline"
+                    arrow="forward"
+                    className="shrink-0"
                   >
-                    Open →
-                  </Link>
+                    Open
+                  </NavLink>
                 </li>
               ))}
             </ul>

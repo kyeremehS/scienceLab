@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { CircuitIllustration } from "@/app/auth/CircuitIllustration";
 
 export interface ExperimentCardData {
@@ -27,12 +27,12 @@ export function ExperimentCard({ experiment }: { experiment: ExperimentCardData 
           {experiment.stepCount} steps · {experiment.durationMinutes} min
         </p>
         <p className="mt-2">
-          <Link
+          <NavLink
             href={`/dashboard/student/experiments/${experiment.experimentId}`}
-            className="text-sm font-medium text-accent-ink underline"
+            arrow="forward"
           >
-            View experiment →
-          </Link>
+            View experiment
+          </NavLink>
         </p>
       </div>
     </li>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -60,9 +60,9 @@ export default async function StudentClassPage({ params }: { params: Promise<{ i
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
       <PageHeader title={cls.name} subtitle={cls.description ?? undefined}>
         <p className="mt-2 text-sm">
-          <Link href="/dashboard/student/classes" className="text-accent-ink underline">
-            ← My classes
-          </Link>
+          <NavLink href="/dashboard/student/classes" arrow="back">
+            My classes
+          </NavLink>
         </p>
       </PageHeader>
 
@@ -104,12 +104,12 @@ export default async function StudentClassPage({ params }: { params: Promise<{ i
                   </p>
                 ) : null}
                 <p className="mt-2">
-                  <Link
+                  <NavLink
                     href={`/dashboard/student/experiments/${a.experimentId}`}
-                    className="text-sm font-medium text-accent-ink underline"
+                    arrow="forward"
                   >
-                    View experiment →
-                  </Link>
+                    View experiment
+                  </NavLink>
                 </p>
               </li>
             ))}

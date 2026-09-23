@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -91,9 +91,9 @@ export default async function StudentDashboard() {
             <h2 id="experiments" className="text-base font-semibold tracking-tight">
               Your experiments
             </h2>
-            <Link href="/dashboard/student/experiments" className="text-sm font-medium text-accent-ink underline">
+            <NavLink href="/dashboard/student/experiments">
               Browse all
-            </Link>
+            </NavLink>
           </div>
           {experimentsWithCounts.length === 0 ? (
             <p className="mt-3 text-sm text-ink-2">No published experiments yet.</p>
@@ -113,9 +113,9 @@ export default async function StudentDashboard() {
           ) : (
             <p className="mt-2 text-sm text-ink-2">
               You&apos;re in {joined.length} class{joined.length === 1 ? "" : "es"} —{" "}
-              <Link href="/dashboard/student/classes" className="font-medium text-accent-ink underline">
+              <NavLink href="/dashboard/student/classes">
                 view classes or join another
-              </Link>
+              </NavLink>
               .
             </p>
           )}

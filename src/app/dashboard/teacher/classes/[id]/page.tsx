@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -36,9 +36,9 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
       <PageHeader title={row.name} subtitle={row.description ?? "Class workspace"}>
         <p className="mt-2 text-sm">
-          <Link href="/dashboard/teacher/classes" className="text-accent-ink underline">
-            ← Classes
-          </Link>
+          <NavLink href="/dashboard/teacher/classes" arrow="back">
+            Classes
+          </NavLink>
         </p>
       </PageHeader>
 

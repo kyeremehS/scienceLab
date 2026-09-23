@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { AuthLayout } from "../auth/AuthLayout";
 
 export default function ForgotPasswordPage() {
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
         </button>
       </form>
       <p className="mt-4 text-sm text-ink-2">
-        Remembered it? <Link href="/login" className="font-medium text-accent-ink underline">Log in</Link>
+        Remembered it? <NavLink href="/login">Log in</NavLink>
       </p>
     </AuthLayout>
   );

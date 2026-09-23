@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
 import { AuthLayout } from "../auth/AuthLayout";
 import { PasswordInput } from "../auth/PasswordInput";
 
@@ -92,7 +92,7 @@ export default function ResetPasswordPage() {
         <ResetFormWithToken />
       </Suspense>
       <p className="mt-4 text-sm text-ink-2">
-        <Link href="/login" className="font-medium text-accent-ink underline">Back to log in</Link>
+        <NavLink href="/login" arrow="back">Back to log in</NavLink>
       </p>
     </AuthLayout>
   );
