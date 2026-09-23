@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { classes, classMemberships, users } from "@/db/schema";
 import { getRequestSession } from "@/lib/auth-service";
 import { generateClassCode } from "@/lib/class-codes";
+import { getRequestId, logError } from "@/lib/logger";
 
 type SessionUser = { id: string; name: string; email: string; role: string };
 
@@ -61,7 +62,7 @@ export async function handleCreateClass(req: Request): Promise<NextResponse> {
       return NextResponse.json({ class: created }, { status: 201 });
     } catch (error) {
       if (!isUniqueViolation(error)) {
-        console.error("Class creation failed:", error);
+        logError(getRequestId(req), "Class creation failed", error);
         return NextResponse.json({ error: "Could not create the class." }, { status: 500 });
       }
     }
@@ -185,7 +186,7 @@ export async function handleJoinClass(req: Request): Promise<NextResponse> {
         { status: 409 },
       );
     }
-    console.error("Class join failed:", error);
+    logError(getRequestId(req), "Class join failed", error);
     return NextResponse.json({ error: "Could not join the class." }, { status: 500 });
   }
 }

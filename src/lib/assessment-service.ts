@@ -14,6 +14,7 @@ import {
 } from "@/db/schema";
 import { buildAttemptState } from "@/lib/attempts-service";
 import { getRequestSession } from "@/lib/auth-service";
+import { getRequestId, logError } from "@/lib/logger";
 
 type AttemptRow = typeof experimentAttempts.$inferSelect;
 
@@ -241,7 +242,7 @@ export async function handleSubmitAssessment(req: Request, attemptId: string): P
       .where(eq(assessmentSubmissions.attemptId, attempt.id))
       .limit(1);
     if (raced[0]) return submissionJson(raced[0].id, true);
-    console.error("Assessment submission failed:", error);
+    logError(getRequestId(req), "Assessment submission failed", error);
     return NextResponse.json({ error: "Could not submit the assessment." }, { status: 500 });
   }
 }
@@ -349,7 +350,7 @@ export async function handleCompleteAttempt(req: Request, attemptId: string): Pr
         ),
       );
   } catch (error) {
-    console.error("Attempt completion failed:", error);
+    logError(getRequestId(req), "Attempt completion failed", error);
     return NextResponse.json({ error: "Could not complete the experiment." }, { status: 500 });
   }
 

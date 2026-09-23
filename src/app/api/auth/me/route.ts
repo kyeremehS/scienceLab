@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRequestSession } from "@/lib/auth-service";
+import { getRequestId, logError } from "@/lib/logger";
 
 export async function GET(req: Request) {
   try {
@@ -9,7 +10,7 @@ export async function GET(req: Request) {
     }
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    console.error("Session lookup failed:", error);
+    logError(getRequestId(req), "Session lookup failed", error);
     return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
   }
 }

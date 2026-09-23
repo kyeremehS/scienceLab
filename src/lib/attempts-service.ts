@@ -12,6 +12,7 @@ import {
   stepProgress,
 } from "@/db/schema";
 import { getRequestSession } from "@/lib/auth-service";
+import { getRequestId, logError } from "@/lib/logger";
 
 type SessionUser = { id: string; name: string; email: string; role: string };
 
@@ -343,7 +344,7 @@ export async function handleStartExperiment(req: Request, experimentId: string):
         .limit(1);
       if (raced[0]) return resume(raced[0]);
     }
-    console.error("Experiment start failed:", error);
+    logError(getRequestId(req), "Experiment start failed", error);
     return NextResponse.json({ error: "Could not start the experiment." }, { status: 500 });
   }
 }
@@ -433,7 +434,7 @@ export async function handleCompleteStep(
       }
     });
   } catch (error) {
-    console.error("Step completion failed:", error);
+    logError(getRequestId(req), "Step completion failed", error);
     return NextResponse.json({ error: "Could not complete the step." }, { status: 500 });
   }
 
@@ -512,7 +513,7 @@ export async function handleRecordObservation(req: Request, attemptId: string): 
         { status: 409 },
       );
     }
-    console.error("Observation recording failed:", error);
+    logError(getRequestId(req), "Observation recording failed", error);
     return NextResponse.json({ error: "Could not record the observation." }, { status: 500 });
   }
 }

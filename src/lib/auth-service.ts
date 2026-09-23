@@ -11,6 +11,7 @@ import {
   clientIp,
   isRateLimited,
 } from "@/lib/rate-limit";
+import { getRequestId, logError } from "@/lib/logger";
 import {
   createResetToken,
   hashResetToken,
@@ -82,6 +83,13 @@ export async function handleRegister(role: UserRole, req: Request): Promise<Next
   const email = normalizeEmail(params.email as string);
   const passwordHash = await hashPassword(params.password as string);
 
+  if (isRateLimited(`register:${clientIp(req)}`, 20, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   try {
     const [created] = await db
       .insert(users)
@@ -107,7 +115,7 @@ export async function handleRegister(role: UserRole, req: Request): Promise<Next
         { status: 409 },
       );
     }
-    console.error("Registration failed:", error);
+    logError(getRequestId(req), "Registration failed", error);
     return NextResponse.json({ error: "Registration failed. Please try again." }, { status: 500 });
   }
 }
@@ -128,6 +136,13 @@ export async function handleLogin(req: Request): Promise<NextResponse> {
 
   const email = normalizeEmail(params.email as string);
   const password = params.password as string;
+
+  if (isRateLimited(`login:${clientIp(req)}`, 30, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
 
   try {
     const rows = await db
@@ -154,7 +169,7 @@ export async function handleLogin(req: Request): Promise<NextResponse> {
     res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(req));
     return res;
   } catch (error) {
-    console.error("Login failed:", error);
+    logError(getRequestId(req), "Login failed", error);
     return NextResponse.json({ error: "Login failed. Please try again." }, { status: 500 });
   }
 }
@@ -211,20 +226,21 @@ export async function handleForgotPassword(req: Request): Promise<NextResponse> 
     const row = rows[0];
     if (row) {
       // Retire prior unused tokens so only the newest link works.
-      await db
-        .delete(passwordResetTokens)
-        .where(
-          and(
-            eq(passwordResetTokens.userId, row.id),
-            isNull(passwordResetTokens.usedAt),
-          ),
-        );
-
       const { token, tokenHash } = createResetToken();
-      await db.insert(passwordResetTokens).values({
-        userId: row.id,
-        tokenHash,
-        expiresAt: resetExpiryDate(),
+      await db.transaction(async (tx) => {
+        await tx
+          .delete(passwordResetTokens)
+          .where(
+            and(
+              eq(passwordResetTokens.userId, row.id),
+              isNull(passwordResetTokens.usedAt),
+            ),
+          );
+        await tx.insert(passwordResetTokens).values({
+          userId: row.id,
+          tokenHash,
+          expiresAt: resetExpiryDate(),
+        });
       });
 
       await sendPasswordResetMail({
@@ -236,7 +252,7 @@ export async function handleForgotPassword(req: Request): Promise<NextResponse> 
 
     return NextResponse.json({ message: RECOVERY_MESSAGE }, { status: 200 });
   } catch (error) {
-    console.error("Password recovery request failed:", error);
+    logError(getRequestId(req), "Password recovery request failed", error);
     return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
   }
 }
@@ -307,7 +323,7 @@ export async function handleResetPassword(req: Request): Promise<NextResponse> {
 
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (error) {
-    console.error("Password reset failed:", error);
+    logError(getRequestId(req), "Password reset failed", error);
     return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
   }
 }
@@ -359,7 +375,7 @@ export async function handleChangePassword(req: Request): Promise<NextResponse> 
       .where(eq(users.id, user.id));
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (error) {
-    console.error("Password change failed:", error);
+    logError(getRequestId(req), "Password change failed", error);
     return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
   }
 }

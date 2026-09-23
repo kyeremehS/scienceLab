@@ -5,14 +5,12 @@ import { renderPasswordResetEmail } from "./email-templates";
  * Mail channel abstraction (FR-AUTH-01).
  *
  * Providers:
- * - `smtp` (default in development): delivers to the configured SMTP host —
- *   Mailpit at localhost:1025 via docker compose. Trapped locally, never
- *   delivered. This is the dev default so the recovery flow is testable
- *   end-to-end like a real user.
+ * - `smtp` (default): delivers through the configured SMTP host.
+ *   Development default is Mailpit at localhost:1025 via docker compose
+ *   (trapped locally, never delivered). Production uses a real relay
+ *   such as Brevo (`smtp-relay.brevo.com:587`) via SMTP_HOST, SMTP_PORT,
+ *   SMTP_USER, SMTP_PASSWORD, and EMAIL_FROM — see README deployment.
  * - `console`: logs the reset link server-side (no SMTP available).
- *
- * A real delivery provider is plugged in here before any pilot; the
- * forgot/reset flow itself does not change.
  */
 export interface ResetMail {
   to: string;
@@ -30,9 +28,14 @@ export async function sendPasswordResetMail(mail: ResetMail): Promise<void> {
     return;
   }
   if (provider === "smtp") {
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASSWORD;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST ?? "localhost",
       port: Number(process.env.SMTP_PORT ?? 1025),
+      // Brevo and similar relays require STARTTLS + login; local Mailpit
+      // needs neither, so auth/TLS apply only when credentials are set.
+      ...(user && pass ? { auth: { user, pass }, requireTLS: true } : {}),
     });
     await transporter.sendMail({
       from: process.env.EMAIL_FROM ?? "ScienceLab <no-reply@sciencelab.local>",

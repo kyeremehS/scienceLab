@@ -7,6 +7,7 @@ import {
   experimentVersions,
 } from "@/db/schema";
 import { getRequestSession } from "@/lib/auth-service";
+import { getRequestId, logError } from "@/lib/logger";
 
 type SessionUser = { id: string; name: string; email: string; role: string };
 
@@ -152,7 +153,7 @@ export async function handleCreateAssignment(req: Request, classId: string): Pro
         { status: 409 },
       );
     }
-    console.error("Assignment creation failed:", error);
+    logError(getRequestId(req), "Assignment creation failed", error);
     return NextResponse.json({ error: "Could not create the assignment." }, { status: 500 });
   }
 }

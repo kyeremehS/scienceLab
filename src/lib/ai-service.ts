@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { getRequestSession } from "@/lib/auth-service";
 import { isRateLimited } from "@/lib/rate-limit";
+import { getRequestId, logError } from "@/lib/logger";
 
 const OPENROUTER_URL =
   process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1/chat/completions";
@@ -111,7 +112,7 @@ export async function handleAiAssist(req: Request, attemptId: string): Promise<N
     .limit(1);
   const version = versions[0];
   if (!version) {
-    console.error("AI assist: experiment version missing for attempt.");
+    logError(getRequestId(req), "AI assist: experiment version missing for attempt");
     return NextResponse.json({ error: "Could not load the experiment." }, { status: 500 });
   }
   const defs = await db
@@ -169,17 +170,17 @@ export async function handleAiAssist(req: Request, attemptId: string): Promise<N
       signal: AbortSignal.timeout(20000),
     });
     if (!res.ok) {
-      console.error(`AI assist: OpenRouter ${res.status}.`);
+      logError(getRequestId(req), `AI assist: OpenRouter ${res.status}`);
     } else {
       const data = (await res.json()) as {
         choices?: { message?: { content?: string } }[];
       };
       const content = data.choices?.[0]?.message?.content?.trim();
       if (content) reply = content;
-      else console.error("AI assist: empty completion.");
+      else logError(getRequestId(req), "AI assist: empty completion");
     }
   } catch (error) {
-    console.error("AI assist: request failed:", error instanceof Error ? error.message : error);
+    logError(getRequestId(req), "AI assist: request failed", error);
   }
 
   if (!reply) {
@@ -196,7 +197,7 @@ export async function handleAiAssist(req: Request, attemptId: string): Promise<N
       responseText: reply,
     });
   } catch (error) {
-    console.error("AI assist: logging failed:", error);
+    logError(getRequestId(req), "AI assist: logging failed", error);
   }
   return NextResponse.json({ response: reply, fallback: false }, { status: 200 });
 }

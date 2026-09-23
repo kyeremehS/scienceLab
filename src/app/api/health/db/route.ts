@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { sql } from "drizzle-orm";
+import { getRequestId, logError } from "@/lib/logger";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const result = await db.execute(sql`SELECT 1`);
 
@@ -11,7 +12,7 @@ export async function GET() {
       result: result[0],
     });
   } catch (error) {
-    console.error("Database health check failed:", error);
+    logError(getRequestId(req), "Database health check failed", error);
 
     return Response.json(
       {

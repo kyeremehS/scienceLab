@@ -352,19 +352,40 @@ live data cleaned up).
 
 ---
 
-## Phase 8 — Hardening + deploy ⬜
+## Phase 8 — Hardening + deploy ✅
 
 **Scope:** `CR-06`–`CR-12` (transactions audit, logging hygiene, ~100-user
 performance, accessibility pass, production config/migrations/secrets).
 
-**To deliver:**
+**Delivered:**
 
-- Transaction/idempotency audit across multi-record writes
-- Sensitive-logging audit, request/correlation IDs
-- Accessibility pass per `CR-11` + `UI_DESIGN.md`
-- Production deployment (migrations, secrets, AI config)
+- Structured logging (`logger.ts`: request ids, name/code-only error
+  detail, no secrets/PII) replacing 25 `console` calls; middleware stamps
+  `x-request-id` plus `nosniff`/`same-origin`/`DENY`/minimal-permissions
+  headers; sensitive-logging unit test
+- Rate limits on register (20/h), login (30/h), recovery/reset/change,
+  AI assist; test-setup isolation so limits never bleed across files
+- Transaction/idempotency audit: start, step completion, submission,
+  reset redeem, experiment creation transactional; single-write paths
+  guarded by unique constraints with resume-or-refuse races;
+  forgot-password retire+issue wrapped in a transaction (fixed); complete
+  uses a status-guarded conditional update
+- Brevo-ready SMTP (`SMTP_USER`/`SMTP_PASSWORD` with TLS auth only when
+  set; Mailpit default unchanged) + `.env.example` + README deploy guide
+  (Vercel + hosted Postgres: env table, migrate-before-deploy)
+- Accessibility pass: skip-to-content link, `aria-live` copy feedback;
+  labels, alerts, non-color-only states, focus rings, reduced-motion
+  verified across the workspace
+- `docs/MANUAL_E2E.md`: human QA scripts (accounts, classes, assignments,
+  full student run, gating, monitoring, creation, recovery) with pass
+  sheets for pilot/release sign-off
 
-**Verification:** _pending_
+**Verification:** 71/71 vitest, `tsc`, eslint clean; Playwright journeys
+remain green (no behavior touched — rerun `pnpm test:e2e` before release).
+
+**Accepted limitations (unchanged):** sessions not revoked on password
+change/reset (7-day JWT bound); in-memory rate limits (single instance);
+AI fallback without a key; seed updates apply to fresh installs only.
 
 ---
 

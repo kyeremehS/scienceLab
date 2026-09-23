@@ -9,6 +9,7 @@ import {
   observationDefinitions,
 } from "@/db/schema";
 import { getRequestSession } from "@/lib/auth-service";
+import { getRequestId, logError } from "@/lib/logger";
 
 const MAX_STEPS = 20;
 const MAX_OBSERVATIONS_PER_STEP = 10;
@@ -215,7 +216,7 @@ export async function handleCreateExperiment(req: Request): Promise<NextResponse
     });
     return NextResponse.json({ experiment: created }, { status: 201 });
   } catch (error) {
-    console.error("Experiment creation failed:", error);
+    logError(getRequestId(req), "Experiment creation failed", error);
     return NextResponse.json({ error: "Could not create the experiment." }, { status: 500 });
   }
 }

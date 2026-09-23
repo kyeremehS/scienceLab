@@ -132,6 +132,12 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
 
   return (
     <div className="flex min-h-full flex-1">
+      <a
+        href="#dashboard-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background"
+      >
+        Skip to content
+      </a>
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-surface px-4 py-6 md:flex">
         <p className="whitespace-nowrap px-3 text-sm font-semibold tracking-[0.18em]">SCIENCELAB</p>
@@ -267,7 +273,7 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
             </div>
           </nav>
         ) : null}
-        <div className="flex flex-1 flex-col">{children}</div>
+        <div className="flex flex-1 flex-col" id="dashboard-content">{children}</div>
       </div>
     </div>
   );
