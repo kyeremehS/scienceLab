@@ -157,7 +157,9 @@ export async function handleAiAssist(req: Request, attemptId: string): Promise<N
       },
       body: JSON.stringify({
         model: AI_MODEL,
-        max_tokens: 500,
+        // Headroom for the model's own reasoning tokens: with a small cap
+        // the reasoning can exhaust the budget and leave content empty.
+        max_tokens: 2000,
         temperature: 0.7,
         messages: [
           { role: "system", content: system },
