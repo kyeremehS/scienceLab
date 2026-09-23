@@ -5,6 +5,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   text,
@@ -39,6 +40,10 @@ export const assignmentStatusEnum = pgEnum("assignment_status", [
 export const attemptStatusEnum = pgEnum("attempt_status", [
   "IN_PROGRESS",
   "COMPLETED",
+]);
+
+export const submissionStatusEnum = pgEnum("submission_status", [
+  "SUBMITTED",
 ]);
 
 export const stepProgressStatusEnum = pgEnum("step_progress_status", [
@@ -354,6 +359,51 @@ export const observations = pgTable(
   },
   (t) => [
     uniqueIndex("observations_attempt_definition_unique").on(t.attemptId, t.observationDefinitionId),
+  ],
+);
+
+/**
+ * Single assessment submission + evaluation per attempt (DATABASE_SCHEMA.md §18).
+ * Submission identity/timing and evaluation output share one row; the
+ * Submission ≠ Result distinction still governs behavior (submit once,
+ * grade per content rules, never replace).
+ */
+export const assessmentSubmissions = pgTable(
+  "assessment_submissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    attemptId: uuid("attempt_id")
+      .notNull()
+      .references(() => experimentAttempts.id)
+      .unique(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }).defaultNow().notNull(),
+    score: numeric("score").notNull(),
+    feedback: text("feedback"),
+    status: submissionStatusEnum("status").notNull().default("SUBMITTED"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+);
+
+/**
+ * One answer per submission/question pair (DATABASE_SCHEMA.md §19).
+ */
+export const assessmentAnswers = pgTable(
+  "assessment_answers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    submissionId: uuid("submission_id")
+      .notNull()
+      .references(() => assessmentSubmissions.id),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => assessmentQuestions.id),
+    answerText: text("answer_text").notNull(),
+    isCorrect: boolean("is_correct"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("assessment_answers_submission_question_unique").on(t.submissionId, t.questionId),
   ],
 );
 

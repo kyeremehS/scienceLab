@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 
-export type ClassTab = "overview" | "students" | "assignments";
+export type ClassTab = "overview" | "students" | "assignments" | "progress";
 
 const TABS: { id: ClassTab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "students", label: "Students" },
   { id: "assignments", label: "Assignments" },
+  { id: "progress", label: "Progress" },
 ];
 
 export function ClassTabs({
@@ -15,14 +16,16 @@ export function ClassTabs({
   overview,
   students,
   assignments,
+  progress,
 }: {
   counts: Record<ClassTab, number | null>;
   overview: React.ReactNode;
   students: React.ReactNode;
   assignments: React.ReactNode;
+  progress: React.ReactNode;
 }) {
   const [tab, setTab] = useState<ClassTab>("overview");
-  const panels: Record<ClassTab, React.ReactNode> = { overview, students, assignments };
+  const panels: Record<ClassTab, React.ReactNode> = { overview, students, assignments, progress };
 
   return (
     <div>

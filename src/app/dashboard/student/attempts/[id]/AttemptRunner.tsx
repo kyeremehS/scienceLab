@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { buildAttemptState } from "@/lib/attempts-service";
 import { AIPanel } from "./AIPanel";
+import { AssessmentSection } from "./AssessmentSection";
 
 type AttemptState = Awaited<ReturnType<typeof buildAttemptState>>;
 type StepState = AttemptState["steps"][number];
@@ -276,10 +277,9 @@ export function AttemptRunner({ initial }: { initial: AttemptState }) {
         </div>
 
         {finished && (
-          <p className="mt-6 text-sm text-ink-2">
-            All steps are complete. Assessment and results arrive with Phase 6 — your step
-            progress and observations above are saved.
-          </p>
+          <div className="border-t border-line pt-6">
+            <AssessmentSection attemptId={state.attempt.id} onCompleted={setState} />
+          </div>
         )}
       </section>
 

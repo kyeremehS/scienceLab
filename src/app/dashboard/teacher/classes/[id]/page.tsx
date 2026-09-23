@@ -9,6 +9,7 @@ import { EmptyState } from "../../../EmptyState";
 import { CopyCodeButton } from "./CopyCodeButton";
 import { RemoveMemberButton } from "./RemoveMemberButton";
 import { ClassTabs } from "./ClassTabs";
+import { ClassProgress } from "./ClassProgress";
 
 export default async function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getPageUser();
@@ -57,7 +58,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
       </div>
 
       <ClassTabs
-        counts={{ overview: null, students: members.length, assignments: 0 }}
+        counts={{ overview: null, students: members.length, assignments: 0, progress: null }}
         overview={
           <div className="flex flex-col gap-6">
             <section aria-labelledby="class-code">
@@ -97,7 +98,12 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
                         Joined {new Date(m.joinedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <RemoveMemberButton classId={id} studentId={m.studentId} studentName={m.studentName} />
+                    <div className="flex shrink-0 items-center gap-3">
+                      <NavLink href={`/dashboard/teacher/classes/${id}/students/${m.studentId}`}>
+                        Progress
+                      </NavLink>
+                      <RemoveMemberButton classId={id} studentId={m.studentId} studentName={m.studentName} />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -113,6 +119,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
             </p>
           </div>
         }
+        progress={<ClassProgress classId={id} />}
       />
     </main>
   );

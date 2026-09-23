@@ -260,22 +260,39 @@ demo that needs live answers.
 
 ---
 
-## Phase 6 — Assessment + completion + results ⬜
+## Phase 6 — Assessment + completion + results ✅
 
 **Scope:** `FR-STU-21`–`FR-STU-30` (submit-once, grading rules, completion
 conditions, immutability, results, progress).
 
-**To deliver:**
+**Delivered:**
 
-- `assessment_submissions` (single `SUBMITTED` row with score/feedback),
-  `assessment_answers` tables + migration + triggers
-- Submit-once with idempotent retry, MCQ auto-grade, short-answer content
-  rules (AI never grader), completion transition, result/review views,
-  student progress
-- Teacher class/student progress views (`FR-TEA-25`–`FR-TEA-30`, read-only,
-  class-isolated)
+- `assessment_submissions` (single `SUBMITTED` row with score/feedback,
+  one per attempt), `assessment_answers` tables + migration (`0007`) +
+  triggers
+- `assessment-service.ts` — question view without expected answers,
+  completeness validation, MCQ/short-answer grading by normalized
+  content comparison (AI never grader), atomic submit, idempotent
+  resubmit returning the stored result, explicit complete with
+  what-remains 422, read-only result view
+- `progress-service.ts` — class counts (`Total / Not Started /
+  In Progress / Completed` per active assignment) and per-student
+  detail (assigned + independent, steps, observations, score,
+  completion date), teacher-only, class-isolated, read-only
+- Routes: assessment GET/POST, complete POST, result GET, class
+  progress GET, student progress GET
+- UI: runner `AssessmentSection` (form → score → complete → result),
+  teacher class Progress tab, student progress page linked from
+  member rows
+- Tests: `assessment.test.ts` (no-leak view, completeness, grading,
+  wrong-answer score, submit-once incl. concurrent race, blocked
+  completion with remaining counts, full journey, post-completion
+  immutability, trigger backstop, teacher counts/isolation) — 8 tests
 
-**Verification:** _pending_
+**Verification:** 58/58 vitest, `tsc`, eslint clean; live full journey
+on the seeded experiment (5 steps → 3 required observations → submit
+0.6667 → resubmit idempotent → COMPLETED → result; live data cleaned
+up).
 
 ---
 
