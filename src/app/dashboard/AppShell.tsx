@@ -118,14 +118,14 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Desktop profile block */}
         <div className="hidden border-b border-line bg-canvas px-6 py-6 md:block">
-          <p className="flex min-w-0 items-center gap-4">
+          <p className="flex min-w-0 items-center justify-end gap-4">
             <span
               aria-hidden="true"
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
             >
               {initials(name)}
             </span>
-            <span className="min-w-0 text-left">
+            <span className="min-w-0 text-right">
               <span className="block max-w-60 truncate text-base font-semibold leading-snug">{name}</span>
               <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
             </span>
@@ -160,14 +160,14 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
         </header>
         {/* Mobile profile block */}
         <div className="border-b border-line bg-canvas px-4 py-6 md:hidden">
-          <p className="flex min-w-0 items-center gap-4">
+          <p className="flex min-w-0 items-center justify-end gap-4">
             <span
               aria-hidden="true"
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
             >
               {initials(name)}
             </span>
-            <span className="min-w-0 text-left">
+            <span className="min-w-0 text-right">
               <span className="block truncate text-base font-semibold leading-snug">{name}</span>
               <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
             </span>

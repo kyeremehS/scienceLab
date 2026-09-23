@@ -264,10 +264,10 @@ handles actions — never duplicated. Per-page floating controls are forbidden.
   dead entries); bottom action block (Theme row + ghost Log out in one
   bordered container). Active route: subtle accent-tinted surface + ink
   text (`aria-current="page"`).
-- Profile block (both viewports): left-aligned unit — avatar circle,
+- Profile block (both viewports): right-aligned unit — avatar circle,
   then a text column with the name on its own line and the role
-  (`Student`/`Teacher`) on the next line starting at the same left edge
-  as the name. Generous vertical padding (`py-6`), relaxed avatar-to-text
+  (`Student`/`Teacher`) on the next line, both right-aligned.
+  Generous vertical padding (`py-6`), relaxed avatar-to-text
   gap. Desktop renders it as a full-width strip under the sidebar row;
   mobile renders the same block under the top bar. The top bar itself
   carries no avatar; the drawer reveals the same links.
