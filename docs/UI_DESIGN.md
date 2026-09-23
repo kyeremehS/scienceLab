@@ -286,16 +286,16 @@ handles actions — never duplicated. Per-page floating controls are forbidden.
 - Profile block (both viewports): unit pinned to the right — avatar
   circle, then a left-aligned text column with the name on its own line
   and the role (`Student`/`Teacher`) on the next line starting at the
-  same left edge as the name, plus a chevron. The whole block is a menu
+  same left edge as the name, plus a chevron. A theme icon sits beside
+  the trigger, next to the name. The whole block is a menu
   trigger (`aria-haspopup="menu"`, `aria-expanded`, hover highlight):
   clicking opens the account dropdown: `224px` wide, `bg-raised` (one
   shade above card surfaces), `12px` radius, soft elevation shadow
   (`0 8px 24px rgba(0,0,0,0.4)` — the one place shadows are allowed),
   `150ms` fade-and-rise entrance (disabled under
   `prefers-reduced-motion`). Right edge pinned to the trigger (`right-0`,
-  `8px` gap). Rows are `40px` with `12px` horizontal padding: Theme row
-  with subtle hover, hairline divider, ghost Log out (muted rest,
-  red hover). The menu closes
+  `8px` gap). The menu holds the ghost Log out row (`40px`, `12px`
+  horizontal padding, muted rest, red hover). The menu closes
   on outside click, Escape, navigation, or logout. Generous vertical
   padding (`py-6`), relaxed avatar-to-text gap. Desktop renders it as a
   full-width strip under the sidebar row; mobile renders the same block

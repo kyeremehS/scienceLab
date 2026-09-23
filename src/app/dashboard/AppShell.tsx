@@ -25,7 +25,7 @@ function ChevronDown() {
   );
 }
 
-/** Account dropdown: theme toggle, divider, log out. Closes on outside click, Escape, or logout. */
+/** Account dropdown: log out. Closes on outside click, Escape, or logout. */
 function AccountMenu({ onClose }: { onClose: () => void }) {
   return (
     <div
@@ -33,14 +33,6 @@ function AccountMenu({ onClose }: { onClose: () => void }) {
       aria-label="Account"
       className="menu-pop absolute right-0 top-full z-20 mt-2 w-56 rounded-xl border border-line bg-raised p-2 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
     >
-      <div
-        className="flex h-10 items-center justify-between rounded-lg px-3 transition-colors hover:bg-ink/[0.04]"
-        role="none"
-      >
-        <span className="text-sm text-ink-2">Theme</span>
-        <ThemeToggle />
-      </div>
-      <div className="my-0.5 border-t border-line/60" role="separator" />
       <div onClick={onClose} role="none">
         <LogoutButton ghost />
       </div>
@@ -162,25 +154,28 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
         {/* Desktop profile block + account menu */}
         <div className="hidden border-b border-line bg-canvas px-6 py-6 md:block">
           <div className="relative ml-auto w-fit" data-account-menu>
-            <button
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              className="flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-expanded={menuOpen}
+                aria-haspopup="menu"
+                className="flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
               >
-                {initials(name)}
-              </span>
-              <span className="min-w-0 text-left">
-                <span className="block max-w-60 truncate text-base font-semibold leading-snug">{name}</span>
-                <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
-              </span>
-              <ChevronDown />
-            </button>
+                <span
+                  aria-hidden="true"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+                >
+                  {initials(name)}
+                </span>
+                <span className="min-w-0 text-left">
+                  <span className="block max-w-60 truncate text-base font-semibold leading-snug">{name}</span>
+                  <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
+                </span>
+                <ChevronDown />
+              </button>
+              <ThemeToggle />
+            </div>
             {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
           </div>
         </div>
@@ -213,25 +208,28 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
         {/* Mobile profile block + account menu */}
         <div className="border-b border-line bg-canvas px-4 py-6 md:hidden">
           <div className="relative ml-auto w-fit" data-account-menu>
-            <button
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              className="flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-expanded={menuOpen}
+                aria-haspopup="menu"
+                className="flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
               >
-                {initials(name)}
-              </span>
-              <span className="min-w-0 text-left">
-                <span className="block truncate text-base font-semibold leading-snug">{name}</span>
-                <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
-              </span>
-              <ChevronDown />
-            </button>
+                <span
+                  aria-hidden="true"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+                >
+                  {initials(name)}
+                </span>
+                <span className="min-w-0 text-left">
+                  <span className="block truncate text-base font-semibold leading-snug">{name}</span>
+                  <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
+                </span>
+                <ChevronDown />
+              </button>
+              <ThemeToggle />
+            </div>
             {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
           </div>
         </div>
