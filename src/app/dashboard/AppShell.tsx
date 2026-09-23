@@ -125,7 +125,7 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
             >
               {initials(name)}
             </span>
-            <span className="min-w-0 text-right">
+            <span className="min-w-0 text-left">
               <span className="block max-w-60 truncate text-base font-semibold leading-snug">{name}</span>
               <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
             </span>
@@ -167,7 +167,7 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
             >
               {initials(name)}
             </span>
-            <span className="min-w-0 text-right">
+            <span className="min-w-0 text-left">
               <span className="block truncate text-base font-semibold leading-snug">{name}</span>
               <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
             </span>
