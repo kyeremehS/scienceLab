@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { buildAttemptState } from "@/lib/attempts-service";
+import { AIPanel } from "./AIPanel";
 
 type AttemptState = Awaited<ReturnType<typeof buildAttemptState>>;
 type StepState = AttemptState["steps"][number];
@@ -301,9 +302,15 @@ export function AttemptRunner({
             className="rounded-xl border border-line bg-surface px-5 py-4"
           >
             <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">AI HELP</p>
-            <p className="mt-2 text-sm text-ink-2">
-              Contextual AI assistance arrives with Phase 5.
-            </p>
+            <div className="mt-2">
+              {readOnly ? (
+                <p className="text-sm text-ink-2">
+                  This experiment is completed — assistance is available while work is in progress.
+                </p>
+              ) : (
+                <AIPanel attemptId={state.attempt.id} stepId={selected.id} />
+              )}
+            </div>
           </aside>
         </div>
       </div>

@@ -227,19 +227,36 @@ skipped deletes — now `TG_OP`-branched; file fix mirrored into dev DB via
 
 ---
 
-## Phase 5 — AI assistance ⬜
+## Phase 5 — AI assistance ✅
 
 **Scope:** `FR-STU-17`–`FR-STU-20` (contextual help, authoritative content,
 failure fallback, assessment boundaries).
 
-**To deliver:**
+**Delivered:**
 
-- `ai_interactions` table + migration (best-effort logging)
-- Contextual assistance endpoint (experiment + step + materials + question),
-  fallback response, non-blocking UI panel
-- Assessment-time restrictions (clarify only; no answers/scores)
+- `ai_interactions` table + migration (`0006`, student/created index,
+  best-effort logging, no trigger backstop per schema §24)
+- `src/lib/ai-service.ts` — OpenRouter Chat Completions
+  (`AI_MODEL`, default `thinkingmachines/inkling-small`; `OPENROUTER_API_KEY`;
+  20s timeout; 500-token cap) with context built from the attempt's version
+  (objectives, materials, safety, steps, current step, observation
+  requirements); no personal data leaves the server; 30/hour per-student
+  limit; any failure or missing key → fallback response, workflow continues
+- Assessment-time guard (`assessmentContext` flag): clarification only, no
+  direct answers/responses/scores — full grading stays Phase 6
+- Route `POST /api/attempts/[id]/assist` (owner-only, `IN_PROGRESS`-only)
+- Runner AI panel wired (`AIPanel`: ask, response, offline badge,
+  non-blocking; read-only notice on completed attempts)
+- Tests: `ai-assist.test.ts` (contextual success + row logging + request
+  shape, outage/500/no-key fallback, assessment prompt guard, owner-only,
+  completed-refusal, rate limit) — 7 tests
 
-**Verification:** _pending_
+**Verification:** 50/50 vitest, `tsc`, eslint clean; live end-to-end
+(register → start → assist fallback → step still completes → runner 200
+with ask panel; live data cleaned up). AI success path covered by tests
+with stubbed HTTP; no `OPENROUTER_API_KEY` is configured on any
+environment yet — set it (plus optional `AI_MODEL` override) before any
+demo that needs live answers.
 
 ---
 

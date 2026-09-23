@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   foreignKey,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -353,5 +354,29 @@ export const observations = pgTable(
   },
   (t) => [
     uniqueIndex("observations_attempt_definition_unique").on(t.attemptId, t.observationDefinitionId),
+  ],
+);
+
+/**
+ * Lightweight immutable log of student AI interactions (DATABASE_SCHEMA.md §20).
+ * Private student data; best-effort logging — no row required on AI failure.
+ */
+export const aiInteractions = pgTable(
+  "ai_interactions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    attemptId: uuid("attempt_id")
+      .notNull()
+      .references(() => experimentAttempts.id),
+    experimentStepId: uuid("experiment_step_id").references(() => experimentSteps.id),
+    studentId: uuid("student_id")
+      .notNull()
+      .references(() => users.id),
+    questionText: text("question_text").notNull(),
+    responseText: text("response_text").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("ai_interactions_student_created_idx").on(t.studentId, t.createdAt),
   ],
 );
