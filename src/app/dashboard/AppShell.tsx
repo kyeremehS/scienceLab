@@ -51,6 +51,7 @@ const NAV: Record<ShellRole, { href: string; label: string; icon: () => React.Re
   STUDENT: [
     { href: "/dashboard/student", label: "Dashboard", icon: DashboardIcon },
     { href: "/dashboard/student/experiments", label: "Experiments", icon: FlaskIcon },
+    { href: "/dashboard/student/classes", label: "My Classes", icon: ClassesIcon },
   ],
   TEACHER: [
     { href: "/dashboard/teacher", label: "Dashboard", icon: DashboardIcon },

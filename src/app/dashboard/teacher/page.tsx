@@ -76,9 +76,14 @@ export default async function TeacherDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section aria-labelledby="class-overview" className="lg:col-span-2">
-          <h2 id="class-overview" className="text-base font-semibold tracking-tight">
-            Class overview
-          </h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 id="class-overview" className="text-base font-semibold tracking-tight">
+              Your classes
+            </h2>
+            <Link href="/dashboard/teacher/classes" className="shrink-0 text-sm font-medium text-accent-ink underline">
+              Manage classes
+            </Link>
+          </div>
           {withMembers.length === 0 ? (
             <p className="mt-3 text-sm text-ink-2">
               No classes yet.{" "}
@@ -88,62 +93,27 @@ export default async function TeacherDashboard() {
               and share its code so students can join.
             </p>
           ) : (
-            <div className="mt-4 flex flex-col gap-4">
-              {withMembers.map((c, index) => (
-                <details
+            <ul className="mt-3 flex flex-col gap-2">
+              {withMembers.map((c) => (
+                <li
                   key={c.id}
-                  open={index === 0}
-                  className="rounded-xl border border-line bg-surface"
+                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
                 >
-                  <summary className="cursor-pointer list-none px-5 py-4 [&::-webkit-details-marker]:hidden">
-                    <span className="flex items-baseline justify-between gap-4">
-                      <span className="text-base font-semibold">{c.name}</span>
-                      <span className="shrink-0 font-mono text-xs text-ink-3">
-                        {c.members.length} student{c.members.length === 1 ? "" : "s"} · {c.code}
-                      </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{c.name}</span>
+                    <span className="block font-mono text-xs text-ink-3">
+                      {c.members.length} student{c.members.length === 1 ? "" : "s"} · {c.code}
                     </span>
-                  </summary>
-                  <div className="border-t border-line px-5 py-4">
-                    {c.members.length === 0 ? (
-                      <p className="text-sm text-ink-2">
-                        No students yet — share code{" "}
-                        <span className="font-mono font-semibold text-ink">{c.code}</span>.
-                      </p>
-                    ) : (
-                      <ul className="grid gap-3 sm:grid-cols-2">
-                        {c.members.map((m) => (
-                          <li
-                            key={m.studentName}
-                            className="flex items-center gap-3 rounded-lg border border-line bg-canvas px-4 py-3"
-                          >
-                            <span
-                              aria-hidden="true"
-                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
-                            >
-                              {initials(m.studentName)}
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block truncate text-sm font-medium">{m.studentName}</span>
-                              <span className="block text-xs text-ink-3">
-                                Joined {new Date(m.joinedAt).toLocaleDateString()}
-                              </span>
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <p className="mt-3 text-sm">
-                      <Link
-                        href={`/dashboard/teacher/classes/${c.id}`}
-                        className="font-medium text-accent-ink underline"
-                      >
-                        Open class →
-                      </Link>
-                    </p>
-                  </div>
-                </details>
+                  </span>
+                  <Link
+                    href={`/dashboard/teacher/classes/${c.id}`}
+                    className="shrink-0 text-sm font-medium text-accent-ink underline"
+                  >
+                    Open →
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
 

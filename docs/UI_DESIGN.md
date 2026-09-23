@@ -260,10 +260,13 @@ Authenticated pages render inside a persistent sidebar shell
 handles actions — never duplicated. Per-page floating controls are forbidden.
 
 - Sidebar (desktop, `w-60`, surface): single-line wordmark; icon + label
-  nav (Student: Dashboard, Experiments; Teacher: Dashboard, Classes — no
-  dead entries); bottom action block (Theme row + ghost Log out in one
-  bordered container). Active route: subtle accent-tinted surface + ink
-  text (`aria-current="page"`).
+  nav (Student: Dashboard, Experiments, My Classes; Teacher: Dashboard,
+  Classes — no dead entries); bottom action block (Theme row + ghost Log
+  out in one bordered container). Active route: subtle accent-tinted
+  surface + ink text (`aria-current="page"`). The sidebar is complete
+  navigation: every primary destination is reachable from it, so
+  dashboards stay quick-access summaries (hero next-action, real-number
+  stats, entry-point lists) and never the only path to a capability.
 - Profile block (both viewports): unit pinned to the right — avatar
   circle, then a left-aligned text column with the name on its own line
   and the role (`Student`/`Teacher`) on the next line starting at the

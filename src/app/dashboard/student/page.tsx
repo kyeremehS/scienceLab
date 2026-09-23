@@ -7,7 +7,6 @@ import { experimentSteps, experimentVersions } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
 import { Hero, StatCards } from "../Hero";
 import { FirstStepsChecklist } from "./FirstStepsChecklist";
-import { JoinClassForm } from "./JoinClassForm";
 import { ExperimentCard } from "./experiments/ExperimentCard";
 
 export default async function StudentDashboard() {
@@ -112,26 +111,14 @@ export default async function StudentDashboard() {
               You haven&apos;t joined a class yet — expand the first step on the right.
             </p>
           ) : (
-            <ul className="mt-3 flex flex-col gap-2">
-              {joined.map((c) => (
-                <li key={c.id} className="text-sm">
-                  <span className="font-medium">{c.name}</span>
-                  <span className="text-ink-3"> · {c.teacherName}</span>
-                </li>
-              ))}
-            </ul>
+            <p className="mt-2 text-sm text-ink-2">
+              You&apos;re in {joined.length} class{joined.length === 1 ? "" : "es"} —{" "}
+              <Link href="/dashboard/student/classes" className="font-medium text-accent-ink underline">
+                view classes or join another
+              </Link>
+              .
+            </p>
           )}
-          {joined.length > 0 ? (
-            <div className="mt-4 rounded-lg border border-line bg-surface px-4 py-3">
-              <p className="text-sm font-medium">Join another class</p>
-              <p className="mt-0.5 text-xs text-ink-2">
-                Taking another subject? Paste the class code from your teacher.
-              </p>
-              <div className="mt-3">
-                <JoinClassForm compact />
-              </div>
-            </div>
-          ) : null}
         </section>
 
         <aside aria-label="Progress panel" className="h-fit rounded-xl border border-line bg-surface p-5">
