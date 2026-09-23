@@ -317,8 +317,13 @@ state). Name the delivering phase when the capability is future work.
 
 ## 17. Experiment Workspace + Assessment Targets (Phases 4–6, not built)
 
-- Workspace: lab-notebook two-pane (step navigator: done/current/todo;
-  content: step instructions, diagram panel, observation input, AI panel,
-  Previous/Continue). Diagram is functional context, not decoration.
+- Workspace, focus mode: one step at a time. Slim progress header
+  (`STEP x OF y` + thin accent trace + required-observation count, with
+  `role="progressbar"`); step dots for jumping (labeled, `aria-current`,
+  never color-only — backward review preserved); single focus column
+  (eyebrow, title, instructions, in-flow observations without heavy
+  containers); one action row (primary "Mark step complete & continue",
+  quiet "Back"); AI help collapsed behind a disclosure, appearing only
+  when asked. Diagram is functional context, not decoration.
 - Assessment: quiet single-column form; conceptual-clarity AI only;
   submit-once with safe retry. No part built before its backend phase.

@@ -71,10 +71,10 @@ function ObservationBox({
   }
 
   return (
-    <div className="rounded-lg border border-line bg-canvas px-4 py-3">
-      <p className="text-sm font-medium">
-        {observation.prompt}{" "}
-        <span className="ml-1 font-mono text-xs text-ink-3">
+    <div>
+      <p className="text-sm">
+        <span className="font-medium">{observation.prompt}</span>{" "}
+        <span className="font-mono text-xs text-ink-3">
           {observation.required ? "REQUIRED" : "OPTIONAL"}
         </span>
       </p>
@@ -124,17 +124,12 @@ function ObservationBox({
   );
 }
 
-/** Experiment workspace: step navigator + content pane (FR-STU-10–FR-STU-16). */
-export function AttemptRunner({
-  initial,
-  title,
-}: {
-  initial: AttemptState;
-  title: string;
-}) {
+/** Experiment workspace, focus mode: one step, one action, quiet chrome (FR-STU-10–FR-STU-16). */
+export function AttemptRunner({ initial }: { initial: AttemptState }) {
   const [state, setState] = useState<AttemptState>(initial);
   const [error, setError] = useState<string | null>(null);
   const [stepPending, setStepPending] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const currentId = state.progress.currentStepId;
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -173,26 +168,59 @@ export function AttemptRunner({
     return <p className="text-sm text-ink-2">This experiment has no steps yet.</p>;
   }
 
+  const doneCount = state.progress.completedSteps;
+  const totalCount = state.progress.totalSteps;
+  const progressPct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+  const currentPosition = selectedIndex >= 0 ? selectedIndex + 1 : doneCount;
+
   return (
-    <div className="flex flex-col gap-6">
-      <dl
-        aria-label="Attempt progress"
-        className="grid grid-cols-3 gap-3 rounded-xl border border-line bg-surface px-5 py-4"
-      >
-        {[
-          ["STEP", `${state.progress.completedSteps} / ${state.progress.totalSteps}`],
-          [
-            "OBSERVATIONS",
-            `${state.progress.requiredObservationsRecorded} / ${state.progress.requiredObservationsTotal}`,
-          ],
-          ["STATUS", state.attempt.status === "IN_PROGRESS" ? "In progress" : "Completed"],
-        ].map(([label, value]) => (
-          <div key={label}>
-            <dt className="font-mono text-xs text-ink-3">{label}</dt>
-            <dd className="mt-0.5 text-sm font-semibold">{value}</dd>
-          </div>
-        ))}
-      </dl>
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
+      {/* Slim progress header */}
+      <div>
+        <div className="flex items-baseline justify-between gap-4">
+          <p className="font-mono text-xs text-ink-3">
+            STEP {currentPosition} OF {totalCount}
+          </p>
+          <p className="font-mono text-xs text-ink-3">
+            {state.progress.requiredObservationsRecorded}/{state.progress.requiredObservationsTotal} OBSERVATIONS
+          </p>
+        </div>
+        <div
+          className="mt-2 h-1 overflow-hidden rounded-full bg-raised"
+          role="progressbar"
+          aria-valuenow={doneCount}
+          aria-valuemin={0}
+          aria-valuemax={totalCount}
+          aria-label="Experiment progress"
+        >
+          <div className="h-full rounded-full bg-accent" style={{ width: `${progressPct}%` }} />
+        </div>
+        {/* Step dots: jump anywhere; completed steps stay completed */}
+        <div className="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Steps">
+          {state.steps.map((s) => {
+            const active = s.id === selected.id;
+            const done = s.status === "COMPLETED";
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setSelectedId(s.id)}
+                aria-label={`Step ${s.order}: ${s.title}, ${done ? "completed" : s.status === "CURRENT" ? "current" : "not started"}`}
+                aria-current={active ? "step" : undefined}
+                className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs transition-colors ${
+                  active
+                    ? "border-accent font-semibold text-accent-ink"
+                    : done
+                      ? "border-line bg-raised text-ink-2"
+                      : "border-line text-ink-3 hover:text-ink-2"
+                }`}
+              >
+                <span aria-hidden="true">{done ? "✓" : s.order}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {error && (
         <p role="alert" className="text-sm text-error">
@@ -200,119 +228,85 @@ export function AttemptRunner({
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <nav aria-label="Experiment steps" className="lg:col-span-1">
-          <ol className="flex flex-col gap-2">
-            {state.steps.map((s) => {
-              const active = s.id === selected.id;
-              const marker = s.status === "COMPLETED" ? "✓" : s.status === "CURRENT" ? "→" : "·";
-              return (
-                <li key={s.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(s.id)}
-                    aria-current={active ? "step" : undefined}
-                    className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left ${
-                      active ? "border-line bg-raised" : "border-line bg-surface"
-                    }`}
-                  >
-                    <span aria-hidden="true" className="font-mono text-sm text-ink-3">
-                      {marker}
-                    </span>
-                    <span>
-                      <span className="block font-mono text-xs text-ink-3">STEP {s.order}</span>
-                      <span className="block text-sm font-medium">{s.title}</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+      {/* Current step focus */}
+      <section aria-labelledby="step-title">
+        <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">
+          STEP {selected.order} · {selected.status.replace("_", " ")}
+        </p>
+        <h2 id="step-title" className="mt-2 text-2xl font-semibold tracking-tight">
+          {selected.title}
+        </h2>
+        <p className="mt-3 text-base leading-relaxed text-ink-2">{selected.instructions}</p>
 
-        <div className="flex flex-col gap-4 lg:col-span-2">
-          <section
-            aria-labelledby="step-title"
-            className="rounded-xl border border-line bg-surface px-5 py-4"
-          >
-            <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">
-              STEP {selected.order} · {selected.status.replace("_", " ")}
-            </p>
-            <h2 id="step-title" className="mt-1 text-xl font-semibold tracking-tight">
-              {selected.title}
-            </h2>
-            <p className="mt-2 text-sm text-ink-2">{selected.instructions}</p>
-            <p className="mt-3 text-xs text-ink-3">{title} — perform this step with your physical materials.</p>
-          </section>
+        {selected.observations.length > 0 && (
+          <div aria-label="Observations" className="mt-6 flex flex-col gap-5">
+            {selected.observations.map((o) => (
+              <ObservationBox
+                key={o.definitionId}
+                attemptId={state.attempt.id}
+                observation={o}
+                disabled={readOnly}
+                onChanged={setState}
+                onError={setError}
+              />
+            ))}
+          </div>
+        )}
 
-          {selected.observations.length > 0 && (
-            <section aria-label="Observations" className="flex flex-col gap-3">
-              {selected.observations.map((o) => (
-                <ObservationBox
-                  key={o.definitionId}
-                  attemptId={state.attempt.id}
-                  observation={o}
-                  disabled={readOnly}
-                  onChanged={setState}
-                  onError={setError}
-                />
-              ))}
-            </section>
-          )}
-
-          <div className="flex items-center gap-3">
+        <div className="mt-8 flex items-center gap-4">
+          {!readOnly && !finished && selected.status !== "COMPLETED" && (
             <button
               type="button"
-              disabled={selectedIndex <= 0}
-              onClick={() => setSelectedId(state.steps[selectedIndex - 1].id)}
-              className="rounded-lg border border-line px-4 py-2 text-sm font-medium disabled:opacity-50"
+              disabled={stepPending}
+              onClick={() => completeStep(selected.id)}
+              className="rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
             >
-              ← Previous
+              {stepPending ? "Saving…" : "Mark step complete & continue →"}
             </button>
-            {!readOnly && !finished && selected.status !== "COMPLETED" && (
-              <button
-                type="button"
-                disabled={stepPending}
-                onClick={() => completeStep(selected.id)}
-                className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity disabled:opacity-50"
-              >
-                {stepPending ? "Saving…" : "Mark step complete →"}
-              </button>
-            )}
-            {selectedIndex < state.steps.length - 1 && (
-              <button
-                type="button"
-                onClick={() => setSelectedId(state.steps[selectedIndex + 1].id)}
-                className="text-sm font-medium text-accent-ink underline"
-              >
-                Review next step →
-              </button>
+          )}
+          {selectedIndex > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedId(state.steps[selectedIndex - 1].id)}
+              className="text-sm font-medium text-ink-3 underline underline-offset-4 hover:text-ink-2"
+            >
+              ← Back
+            </button>
+          )}
+        </div>
+
+        {finished && (
+          <p className="mt-6 text-sm text-ink-2">
+            All steps are complete. Assessment and results arrive with Phase 6 — your step
+            progress and observations above are saved.
+          </p>
+        )}
+      </section>
+
+      {/* Collapsible AI help */}
+      <div className="border-t border-line pt-6">
+        <button
+          type="button"
+          onClick={() => setAiOpen((v) => !v)}
+          aria-expanded={aiOpen}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span className="text-xs font-semibold tracking-[0.15em] text-ink-3">NEED HELP WITH THIS STEP?</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-ink-3">
+            <path d={aiOpen ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"} />
+          </svg>
+        </button>
+        {aiOpen ? (
+          <div className="pt-3">
+            {readOnly ? (
+              <p className="text-sm text-ink-2">
+                This experiment is completed — assistance is available while work is in progress.
+              </p>
+            ) : (
+              <AIPanel attemptId={state.attempt.id} stepId={selected.id} />
             )}
           </div>
-
-          {finished && (
-            <p className="rounded-lg border border-line bg-surface px-4 py-3 text-sm text-ink-2">
-              All steps are complete. Assessment and results arrive with Phase 6 — your step
-              progress and observations above are saved.
-            </p>
-          )}
-
-          <aside
-            aria-label="AI assistance"
-            className="rounded-xl border border-line bg-surface px-5 py-4"
-          >
-            <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">AI HELP</p>
-            <div className="mt-2">
-              {readOnly ? (
-                <p className="text-sm text-ink-2">
-                  This experiment is completed — assistance is available while work is in progress.
-                </p>
-              ) : (
-                <AIPanel attemptId={state.attempt.id} stepId={selected.id} />
-              )}
-            </div>
-          </aside>
-        </div>
+        ) : null}
       </div>
     </div>
   );

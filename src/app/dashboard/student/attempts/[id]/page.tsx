@@ -35,7 +35,7 @@ export default async function AttemptPage({ params }: { params: Promise<{ id: st
         title={versions[0]?.title ?? "Experiment"}
         subtitle="Follow each step, record what you observe, and mark steps complete as you go."
       />
-      <AttemptRunner initial={state} title={versions[0]?.title ?? "Experiment"} />
+      <AttemptRunner initial={state} />
     </main>
   );
 }
