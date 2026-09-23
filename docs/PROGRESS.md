@@ -296,19 +296,29 @@ up).
 
 ---
 
-## Phase 7 — Assignments (teacher workflow) ⬜
+## Phase 7 — Assignments (teacher workflow) ✅
 
 **Scope:** `FR-TEA-15`–`FR-TEA-24` (version locking, no duplicate active,
 date updates, close/cancel with history).
 
-**To deliver:**
+**Delivered:**
 
-- `assignments` table + migration (composite FK, partial unique,
-  `CLOSED`/`CANCELLED` terminal)
-- Assign published version to owned class, view/update dates, derived
-  statuses, close/cancel preserving history
+- `assignments-service.ts` — create (published-only, version locked,
+  no duplicate active, creates no attempts), list/view, date-only
+  updates with experiment-swap refusal and range validation,
+  close/cancel to terminal states preserving history
+- Routes: assignments GET/POST, detail GET/PATCH, close POST
+- UI: Assignments tab manager (assign with optional dates, edit dates,
+  two-step close/cancel), real assignment counts on class detail and
+  teacher dashboard (replacing hardcoded zeroes)
+- Tests: `assignments.test.ts` (locking, no-attempt creation,
+  duplicate/draft/role rules, dates + swap refusal, close history +
+  gate exit + terminal transitions, version staleness) — 5 tests
 
-**Verification:** _pending_
+**Verification:** 63/63 vitest, `tsc`, eslint clean; live teacher loop
+(create class → join → assign ACTIVE → duplicate 409 → student gated
+403 → assignment start inherits locked version → class + dashboard
+pages 200; live data cleaned up).
 
 ---
 

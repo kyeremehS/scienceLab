@@ -1,8 +1,8 @@
 import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { classes, classMemberships, users } from "@/db/schema";
+import { assignments, classes, classMemberships, users } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
 import { PageHeader } from "../../../PageHeader";
 import { EmptyState } from "../../../EmptyState";
@@ -10,6 +10,7 @@ import { CopyCodeButton } from "./CopyCodeButton";
 import { RemoveMemberButton } from "./RemoveMemberButton";
 import { ClassTabs } from "./ClassTabs";
 import { ClassProgress } from "./ClassProgress";
+import { AssignmentsManager } from "./AssignmentsManager";
 
 export default async function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getPageUser();
@@ -33,6 +34,15 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     .innerJoin(users, eq(users.id, classMemberships.studentId))
     .where(and(eq(classMemberships.classId, id), eq(classMemberships.active, true)));
 
+  const [{ value: assignmentCount }] = await db
+    .select({ value: count() })
+    .from(assignments)
+    .where(eq(assignments.classId, id));
+  const [{ value: activeAssignmentCount }] = await db
+    .select({ value: count() })
+    .from(assignments)
+    .where(and(eq(assignments.classId, id), eq(assignments.status, "ACTIVE")));
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-12 sm:px-6">
       <PageHeader title={row.name} subtitle={row.description ?? "Class workspace"}>
@@ -49,8 +59,8 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
           <span className="text-ink-2">student{members.length === 1 ? "" : "s"}</span>
         </p>
         <p className="text-sm">
-          <span className="font-semibold">0</span>{" "}
-          <span className="text-ink-2">active assignments</span>
+          <span className="font-semibold">{activeAssignmentCount}</span>{" "}
+          <span className="text-ink-2">active assignment{activeAssignmentCount === 1 ? "" : "s"}</span>
         </p>
         <span className="ml-auto">
           <CopyCodeButton code={row.code} />
@@ -58,7 +68,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
       </div>
 
       <ClassTabs
-        counts={{ overview: null, students: members.length, assignments: 0, progress: null }}
+        counts={{ overview: null, students: members.length, assignments: assignmentCount, progress: null }}
         overview={
           <div className="flex flex-col gap-6">
             <section aria-labelledby="class-code">
@@ -110,15 +120,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
             )}
           </div>
         }
-        assignments={
-          <div className="rounded-lg border border-line bg-surface px-4 py-6 text-center">
-            <p className="font-medium">No assignments yet</p>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-ink-2">
-              Assign a published experiment to give this class work. Assignment
-              management arrives with Phase 7.
-            </p>
-          </div>
-        }
+        assignments={<AssignmentsManager classId={id} />}
         progress={<ClassProgress classId={id} />}
       />
     </main>

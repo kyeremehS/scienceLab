@@ -1,8 +1,8 @@
 import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { classes, classMemberships, users } from "@/db/schema";
+import { assignments, classes, classMemberships, users } from "@/db/schema";
 import { experimentVersions } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
 import { Hero, StatCards } from "../Hero";
@@ -42,6 +42,14 @@ export default async function TeacherDashboard() {
     .select({ value: count() })
     .from(experimentVersions)
     .where(eq(experimentVersions.status, "PUBLISHED"));
+  const ownedIds = owned.map((c) => c.id);
+  const [{ value: activeAssignmentCount }] =
+    ownedIds.length === 0
+      ? [{ value: 0 }]
+      : await db
+          .select({ value: count() })
+          .from(assignments)
+          .where(and(inArray(assignments.classId, ownedIds), eq(assignments.status, "ACTIVE")));
 
   const firstName = user.name.split(" ")[0];
   const today = new Date().toLocaleDateString("en-US", {
@@ -69,7 +77,7 @@ export default async function TeacherDashboard() {
         stats={[
           { value: String(owned.length), label: owned.length === 1 ? "Class" : "Classes" },
           { value: String(totalStudents), label: totalStudents === 1 ? "Student" : "Students" },
-          { value: "0", label: "Active assignments" },
+          { value: String(activeAssignmentCount), label: activeAssignmentCount === 1 ? "Active assignment" : "Active assignments" },
           { value: String(publishedCount), label: "Published experiments" },
         ]}
       />
