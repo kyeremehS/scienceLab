@@ -7,6 +7,7 @@ import { experimentSteps, experimentVersions } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
 import { Hero, StatCards } from "../Hero";
 import { FirstStepsChecklist } from "./FirstStepsChecklist";
+import { JoinClassForm } from "./JoinClassForm";
 import { ExperimentCard } from "./experiments/ExperimentCard";
 
 export default async function StudentDashboard() {
@@ -120,6 +121,17 @@ export default async function StudentDashboard() {
               ))}
             </ul>
           )}
+          {joined.length > 0 ? (
+            <div className="mt-4 rounded-lg border border-line bg-surface px-4 py-3">
+              <p className="text-sm font-medium">Join another class</p>
+              <p className="mt-0.5 text-xs text-ink-2">
+                Taking another subject? Paste the class code from your teacher.
+              </p>
+              <div className="mt-3">
+                <JoinClassForm compact />
+              </div>
+            </div>
+          ) : null}
         </section>
 
         <aside aria-label="Progress panel" className="h-fit rounded-xl border border-line bg-surface p-5">
