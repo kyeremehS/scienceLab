@@ -250,30 +250,54 @@ export async function handleStartExperiment(req: Request, experimentId: string):
     }
     versionId = a.experimentVersionId;
   } else {
-    // Independent start: current published version + assignment gate.
-    const blocking = await blockingAssignments(student.id);
-    if (blocking.length > 0) {
-      return NextResponse.json(
-        {
-          error:
-            "Complete your assigned experiments before starting a new one. Your teacher's assignments are your required work.",
-          blockedBy: blocking.map((b) => b.experimentId),
-        },
-        { status: 403 },
-      );
-    }
-    const vRows = await db
-      .select({ id: experimentVersions.id })
-      .from(experimentVersions)
+    // Assigned experiments are always startable (USER_FLOWS.md §1.4–§1.5):
+    // an ACTIVE assignment for this experiment makes the start
+    // assignment-based, inheriting the locked version with no gate.
+    const ownAssignment = await db
+      .select({
+        id: assignments.id,
+        versionId: assignments.experimentVersionId,
+      })
+      .from(assignments)
+      .innerJoin(classMemberships, eq(classMemberships.classId, assignments.classId))
       .where(
         and(
-          eq(experimentVersions.experimentId, experimentId),
-          eq(experimentVersions.status, "PUBLISHED"),
+          eq(classMemberships.studentId, student.id),
+          eq(classMemberships.active, true),
+          eq(assignments.experimentId, experimentId),
+          eq(assignments.status, "ACTIVE"),
         ),
       )
       .limit(1);
-    if (!vRows[0]) return NextResponse.json({ error: "Experiment not found." }, { status: 404 });
-    versionId = vRows[0].id;
+    if (ownAssignment[0]) {
+      assignmentId = ownAssignment[0].id;
+      versionId = ownAssignment[0].versionId;
+    } else {
+      // Independent start: current published version + assignment gate.
+      const blocking = await blockingAssignments(student.id);
+      if (blocking.length > 0) {
+        return NextResponse.json(
+          {
+            error:
+              "Complete your assigned experiments before starting a new one. Your teacher's assignments are your required work.",
+            blockedBy: blocking.map((b) => b.experimentId),
+          },
+          { status: 403 },
+        );
+      }
+      const vRows = await db
+        .select({ id: experimentVersions.id })
+        .from(experimentVersions)
+        .where(
+          and(
+            eq(experimentVersions.experimentId, experimentId),
+            eq(experimentVersions.status, "PUBLISHED"),
+          ),
+        )
+        .limit(1);
+      if (!vRows[0]) return NextResponse.json({ error: "Experiment not found." }, { status: 404 });
+      versionId = vRows[0].id;
+    }
   }
 
   try {

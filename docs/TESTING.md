@@ -45,6 +45,13 @@
 - Seed data includes the first experiment (Simple Electrical Circuit) plus representative users, classes, memberships, assignments, and attempts so journeys run without hand-construction.
 - Tests use isolated state (transaction rollback or dedicated test database); parallel-safe; no dependence on execution order.
 
+## 6. End-to-end (Playwright)
+
+- `e2e/student-journey.spec.ts`: register → discover → start → five steps with observations → AI fallback → assessment → complete → result → dashboard progress.
+- `e2e/teacher-journey.spec.ts`: register → create class → student joins via code → assign → gated start → class/individual progress → close with history.
+- Runs against an isolated `sciencelab_e2e` database (never dev data); the AI helper runs keyless so the offline fallback is exercised deterministically. Prepare once per machine: create the database, `drizzle-kit migrate`, `db:seed` with `DATABASE_URL` pointed at it (see `playwright.config.ts`).
+- Run: `pnpm test:e2e`. Chromium only, serial workers. To reset accumulated run data, drop and recreate `sciencelab_e2e`, then migrate + seed again.
+
 ## 5. What is explicitly not required
 
 - No arbitrary coverage percentage (`CR-09`).

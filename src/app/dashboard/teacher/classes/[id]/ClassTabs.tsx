@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export type ClassTab = "overview" | "students" | "assignments" | "progress";
 
@@ -25,7 +26,15 @@ export function ClassTabs({
   progress: React.ReactNode;
 }) {
   const [tab, setTab] = useState<ClassTab>("overview");
+  const router = useRouter();
   const panels: Record<ClassTab, React.ReactNode> = { overview, students, assignments, progress };
+
+  function select(next: ClassTab) {
+    setTab(next);
+    // Membership and assignment data change from other sessions (students
+    // joining, other tabs); revalidate so the panel never shows stale rows.
+    router.refresh();
+  }
 
   return (
     <div>
@@ -36,7 +45,7 @@ export function ClassTabs({
             type="button"
             role="tab"
             aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
+            onClick={() => select(t.id)}
             className={`rounded-t-lg px-4 py-2 text-sm font-medium transition-colors hover:text-ink ${
               tab === t.id
                 ? "border-b-2 border-accent text-ink"

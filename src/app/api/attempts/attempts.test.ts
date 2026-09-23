@@ -262,11 +262,63 @@ describe.skipIf(!hasDb)("attempts, steps, and observations", () => {
     expect(freed.status).toBe(201);
   });
 
+  it("USER_FLOWS §1.4: assigned experiments start without an assignment id", async () => {
+    const teacher = await registerAs("TEACHER", "impl-t");
+    const student = await registerAs("STUDENT", "impl-s");
+    const assigned = await makeExperiment("impl-a");
+    const free = await makeExperiment("impl-b");
+
+    const created = await handleCreateClass(
+      teacher.authed("/api/classes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "Implicit Class" }),
+      }),
+    );
+    const { class: cls } = (await created.json()) as { class: { id: string; code: string } };
+    await handleJoinClass(
+      student.authed("/api/classes/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: cls.code }),
+      }),
+    );
+    const [assignment] = await db
+      .insert(assignments)
+      .values({
+        classId: cls.id,
+        teacherId: teacher.id,
+        experimentId: assigned.experimentId,
+        experimentVersionId: assigned.versionId,
+      })
+      .returning();
+
+    // No assignmentId sent (e.g. Start button on the experiment detail page):
+    // the assigned experiment still starts, inheriting the locked version.
+    const started = await handleStartExperiment(
+      student.authed(`/api/experiments/${assigned.experimentId}/start`, startBody()),
+      assigned.experimentId,
+    );
+    expect(started.status).toBe(201);
+    const json = (await started.json()) as {
+      attempt: { attempt: { experimentVersionId: string; assignmentId: string | null } };
+    };
+    expect(json.attempt.attempt.experimentVersionId).toBe(assigned.versionId);
+    expect(json.attempt.attempt.assignmentId).toBe(assignment.id);
+
+    // Unassigned experiments remain gated.
+    const blocked = await handleStartExperiment(
+      student.authed(`/api/experiments/${free.experimentId}/start`, startBody()),
+      free.experimentId,
+    );
+    expect(blocked.status).toBe(403);
+  });
   it("FR-STU-07: gate applies across multiple classes", async () => {
     const teacher = await registerAs("TEACHER", "multi-t");
     const student = await registerAs("STUDENT", "multi-s");
     const expA = await makeExperiment("multi-a");
     const expB = await makeExperiment("multi-b");
+    const expFree = await makeExperiment("multi-c");
 
     for (const name of ["Multi A", "Multi B"]) {
       const created = await handleCreateClass(
@@ -293,11 +345,18 @@ describe.skipIf(!hasDb)("attempts, steps, and observations", () => {
       });
     }
 
-    const blocked = await handleStartExperiment(
+    // expA is assigned work: it starts despite the expB assignment.
+    const assignedStart = await handleStartExperiment(
       student.authed(`/api/experiments/${expA.experimentId}/start`, startBody()),
       expA.experimentId,
     );
-    // Independent start of expA is blocked by the expB assignment (and vice versa).
+    expect(assignedStart.status).toBe(201);
+
+    // An unassigned experiment stays gated by work from both classes.
+    const blocked = await handleStartExperiment(
+      student.authed(`/api/experiments/${expFree.experimentId}/start`, startBody()),
+      expFree.experimentId,
+    );
     expect(blocked.status).toBe(403);
   });
 
