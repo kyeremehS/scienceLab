@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -44,7 +45,14 @@ export default async function StudentClassesPage() {
           <ul className="mt-3 flex flex-col gap-3">
             {joined.map((c) => (
               <li key={c.id} className="rounded-lg border border-line bg-surface px-4 py-3">
-                <p className="text-base font-semibold">{c.name}</p>
+                <p className="text-base font-semibold">
+                  <Link
+                    href={`/dashboard/student/classes/${c.id}`}
+                    className="underline decoration-line underline-offset-4 hover:text-accent-ink"
+                  >
+                    {c.name}
+                  </Link>
+                </p>
                 {c.description ? (
                   <p className="mt-0.5 text-sm text-ink-2">{c.description}</p>
                 ) : null}
