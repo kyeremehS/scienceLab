@@ -20,8 +20,10 @@ textures, spacing, and interaction states — not decoration.
 
 ### Layout philosophy
 
-Sidebar + hero-as-current-state + summary cards + content cards + contextual
-side rail. The dashboard answers "what should I do next?", not "what records
+Sidebar + hero-as-current-state + summary cards + content cards, with
+context sections (teachers, activity, first steps) in a quiet full-width
+row below the main content — never a side rail competing with it. The
+dashboard answers "what should I do next?", not "what records
 exist?". The hero shows the student's live learning state (continue panel
 when an attempt exists, orientation otherwise); the teacher hero shows
 operational state. Every block is backed by live queries; upcoming slots are
@@ -290,8 +292,9 @@ handles actions — never duplicated. Per-page floating controls are forbidden.
   primary CTA), not decoration. Student: continue-experiment panel when an
   in-progress attempt exists, otherwise orientation (join/browse).
   Teacher: operational summary + manage-classes CTA.
-- Summary cards: 3–4 real numbers only. Side rail: teachers / upcoming /
-  activity from live queries; honest empties otherwise.
+- Summary cards: 3–4 real numbers only. Context sections (teachers /
+  upcoming / activity from live queries; honest empties otherwise) sit
+  below the main content in one quiet row, not beside it.
 
 ## 14. Empty States (designed, not blank)
 

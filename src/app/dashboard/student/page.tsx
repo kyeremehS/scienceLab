@@ -85,104 +85,97 @@ export default async function StudentDashboard() {
         ]}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <section aria-labelledby="experiments" className="lg:col-span-2">
-          <div className="flex items-baseline justify-between">
-            <h2 id="experiments" className="text-base font-semibold tracking-tight">
-              Your experiments
-            </h2>
-            <NavLink href="/dashboard/student/experiments">
-              Browse all
+      <section aria-labelledby="experiments">
+        <div className="flex items-baseline justify-between">
+          <h2 id="experiments" className="text-base font-semibold tracking-tight">
+            Your experiments
+          </h2>
+          <NavLink href="/dashboard/student/experiments">
+            Browse all
+          </NavLink>
+        </div>
+        {experimentsWithCounts.length === 0 ? (
+          <p className="mt-3 text-sm text-ink-2">No published experiments yet.</p>
+        ) : (
+          <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {experimentsWithCounts.map((e) => (
+              <ExperimentCard key={e.experimentId} experiment={e} />
+            ))}
+          </ul>
+        )}
+
+        <h2 className="mt-8 text-base font-semibold tracking-tight">My classes</h2>
+        {joined.length === 0 ? (
+          <p className="mt-2 text-sm text-ink-2">
+            You haven&apos;t joined a class yet — see the first steps below.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-ink-2">
+            You&apos;re in {joined.length} class{joined.length === 1 ? "" : "es"} —{" "}
+            <NavLink href="/dashboard/student/classes">
+              view classes or join another
             </NavLink>
-          </div>
-          {experimentsWithCounts.length === 0 ? (
-            <p className="mt-3 text-sm text-ink-2">No published experiments yet.</p>
+            .
+          </p>
+        )}
+      </section>
+
+      <div aria-label="Progress panel" className="grid gap-8 border-t border-line pt-8 sm:grid-cols-3">
+        <section aria-labelledby="teachers">
+          <h2 id="teachers" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
+            YOUR TEACHERS
+          </h2>
+          {teachers.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-2">
+              No teachers yet — join a class with a code from your teacher.
+            </p>
           ) : (
-            <ul className="mt-3 grid gap-4 sm:grid-cols-2">
-              {experimentsWithCounts.map((e) => (
-                <ExperimentCard key={e.experimentId} experiment={e} />
+            <ul className="mt-3 flex flex-col gap-3">
+              {teachers.map((t) => (
+                <li key={t} className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+                  >
+                    {t.split(" ").map((p) => p[0] ?? "").join("").slice(0, 2).toUpperCase()}
+                  </span>
+                  <span className="text-sm font-medium">{t}</span>
+                </li>
               ))}
             </ul>
           )}
+        </section>
 
-          <h2 className="mt-8 text-base font-semibold tracking-tight">My classes</h2>
-          {joined.length === 0 ? (
+        <section aria-labelledby="activity">
+          <h2 id="activity" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
+            RECENT ACTIVITY
+          </h2>
+          {activity.length === 0 ? (
             <p className="mt-2 text-sm text-ink-2">
-              You haven&apos;t joined a class yet — expand the first step on the right.
+              Your learning activity appears here as you start experimenting.
             </p>
           ) : (
-            <p className="mt-2 text-sm text-ink-2">
-              You&apos;re in {joined.length} class{joined.length === 1 ? "" : "es"} —{" "}
-              <NavLink href="/dashboard/student/classes">
-                view classes or join another
-              </NavLink>
-              .
-            </p>
+            <ul className="mt-3 flex flex-col gap-3 text-sm">
+              {activity.map((a) => (
+                <li key={a.id}>
+                  <p className="font-medium">Joined {a.name}</p>
+                  <p className="text-xs text-ink-3">
+                    {new Date(a.joinedAt).toLocaleDateString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
           )}
         </section>
 
-        <aside aria-label="Progress panel" className="h-fit rounded-xl border border-line bg-surface p-5">
-          <section aria-labelledby="teachers">
-            <h2 id="teachers" className="text-base font-semibold tracking-tight">
-              Your teachers
-            </h2>
-            {teachers.length === 0 ? (
-              <p className="mt-2 text-sm">
-                <span className="text-ink-2">No teachers yet — </span>
-                <span className="font-medium text-accent-ink">join a class with a code from your teacher.</span>
-              </p>
-            ) : (
-              <ul className="mt-3 flex flex-col gap-3">
-                {teachers.map((t) => (
-                  <li key={t} className="flex items-center gap-3">
-                    <span
-                      aria-hidden="true"
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
-                    >
-                      {t.split(" ").map((p) => p[0] ?? "").join("").slice(0, 2).toUpperCase()}
-                    </span>
-                    <span className="text-sm font-medium">{t}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <hr className="my-5 border-line" />
-
-          <section aria-labelledby="activity">
-            <h2 id="activity" className="text-base font-semibold tracking-tight">
-              Recent activity
-            </h2>
-            {activity.length === 0 ? (
-              <p className="mt-2 text-sm text-ink-2">
-                Your learning activity appears here as you start experimenting.
-              </p>
-            ) : (
-              <ul className="mt-3 flex flex-col gap-3 text-sm">
-                {activity.map((a) => (
-                  <li key={a.id}>
-                    <p className="font-medium">Joined {a.name}</p>
-                    <p className="text-xs text-ink-3">
-                      {new Date(a.joinedAt).toLocaleDateString()}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <hr className="my-5 border-line" />
-
-          <section aria-labelledby="first-steps">
-            <h2 id="first-steps" className="text-base font-semibold tracking-tight">
-              First steps
-            </h2>
-            <div className="mt-2">
-              <FirstStepsChecklist joinedClass={joined.length > 0} />
-            </div>
-          </section>
-        </aside>
+        <section aria-labelledby="first-steps">
+          <h2 id="first-steps" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
+            FIRST STEPS
+          </h2>
+          <div className="mt-2">
+            <FirstStepsChecklist joinedClass={joined.length > 0} />
+          </div>
+        </section>
       </div>
     </main>
   );
