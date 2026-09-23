@@ -288,8 +288,14 @@ handles actions — never duplicated. Per-page floating controls are forbidden.
   and the role (`Student`/`Teacher`) on the next line starting at the
   same left edge as the name, plus a chevron. The whole block is a menu
   trigger (`aria-haspopup="menu"`, `aria-expanded`, hover highlight):
-  clicking opens the account dropdown (Theme row, divider, ghost
-  Log out) in a bordered surface matching card style. The menu closes
+  clicking opens the account dropdown: `224px` wide, `bg-raised` (one
+  shade above card surfaces), `12px` radius, soft elevation shadow
+  (`0 8px 24px rgba(0,0,0,0.4)` — the one place shadows are allowed),
+  `150ms` fade-and-rise entrance (disabled under
+  `prefers-reduced-motion`). Right edge pinned to the trigger (`right-0`,
+  `8px` gap). Rows are `40px` with `12px` horizontal padding: Theme row
+  with subtle hover, hairline divider, ghost Log out (muted rest,
+  red hover). The menu closes
   on outside click, Escape, navigation, or logout. Generous vertical
   padding (`py-6`), relaxed avatar-to-text gap. Desktop renders it as a
   full-width strip under the sidebar row; mobile renders the same block
