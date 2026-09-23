@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogoutButton } from "../LogoutButton";
@@ -16,6 +16,35 @@ function initials(name: string): string {
 }
 
 export type ShellRole = "STUDENT" | "TEACHER";
+
+function ChevronDown() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-ink-3">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+/** Account dropdown: theme toggle, divider, log out. Closes on outside click, Escape, or logout. */
+function AccountMenu({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      data-account-menu
+      role="menu"
+      aria-label="Account"
+      className="absolute right-4 top-full z-20 mt-2 w-60 rounded-xl border border-line bg-surface p-2 md:right-6"
+    >
+      <div className="flex items-center justify-between px-2 py-1.5" role="none">
+        <span className="text-sm text-ink-2">Theme</span>
+        <ThemeToggle />
+      </div>
+      <div className="my-1 border-t border-line" role="separator" />
+      <div onClick={onClose} role="none">
+        <LogoutButton ghost />
+      </div>
+    </div>
+  );
+}
 
 function DashboardIcon() {
   return (
@@ -63,7 +92,25 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const links = NAV[role];
+
+  // Account menu closes on outside click or Escape (navigation links close it explicitly).
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onPointerDown(e: PointerEvent) {
+      if (!(e.target as HTMLElement).closest?.("[data-account-menu]")) setMenuOpen(false);
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
 
   function isActive(href: string) {
     if (pathname === href) return true;
@@ -73,6 +120,7 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
 
   function go(href: string) {
     setOpen(false);
+    setMenuOpen(false);
     router.push(href);
   }
 
@@ -89,6 +137,7 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
               <li key={l.href}>
                 <Link
                   href={l.href}
+                  onClick={() => setMenuOpen(false)}
                   aria-current={isActive(l.href) ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive(l.href)
@@ -105,21 +154,19 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
             ))}
           </ul>
         </nav>
-        <div className="rounded-xl border border-line bg-canvas p-2">
-          <div className="flex items-center justify-between px-2 py-1.5">
-            <span className="text-sm text-ink-2">Theme</span>
-            <ThemeToggle />
-          </div>
-          <div className="border-t border-line px-2 py-1.5" role="none">
-            <LogoutButton ghost />
-          </div>
-        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Desktop profile block */}
-        <div className="hidden border-b border-line bg-canvas px-6 py-6 md:block">
-          <p className="flex min-w-0 items-center justify-end gap-4">
+        {/* Desktop profile block + account menu */}
+        <div className="relative hidden border-b border-line bg-canvas px-6 py-6 md:block">
+          <button
+            type="button"
+            data-account-menu
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className="ml-auto flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
+          >
             <span
               aria-hidden="true"
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
@@ -130,13 +177,14 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
               <span className="block max-w-60 truncate text-base font-semibold leading-snug">{name}</span>
               <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
             </span>
-          </p>
+            <ChevronDown />
+          </button>
+          {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
         </div>
         {/* Mobile top bar */}
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-canvas px-4 py-3 md:hidden">
           <p className="text-sm font-semibold tracking-[0.2em]">SCIENCELAB</p>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -159,9 +207,16 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
             </button>
           </div>
         </header>
-        {/* Mobile profile block */}
-        <div className="border-b border-line bg-canvas px-4 py-6 md:hidden">
-          <p className="flex min-w-0 items-center justify-end gap-4">
+        {/* Mobile profile block + account menu */}
+        <div className="relative border-b border-line bg-canvas px-4 py-6 md:hidden">
+          <button
+            type="button"
+            data-account-menu
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className="ml-auto flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
+          >
             <span
               aria-hidden="true"
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
@@ -172,7 +227,9 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
               <span className="block truncate text-base font-semibold leading-snug">{name}</span>
               <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
             </span>
-          </p>
+            <ChevronDown />
+          </button>
+          {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
         </div>
         {open ? (
           <nav aria-label="Mobile" className="border-b border-line bg-surface px-4 py-3 md:hidden">

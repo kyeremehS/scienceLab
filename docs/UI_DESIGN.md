@@ -277,20 +277,24 @@ handles actions — never duplicated. Per-page floating controls are forbidden.
 
 - Sidebar (desktop, `w-60`, surface): single-line wordmark; icon + label
   nav (Student: Dashboard, Experiments, My Classes; Teacher: Dashboard,
-  Classes — no dead entries); bottom action block (Theme row + ghost Log
-  out in one bordered container). Active route: subtle accent-tinted
-  surface + ink text (`aria-current="page"`). The sidebar is complete
+  Classes — no dead entries). No account controls in the sidebar.
+  Active route: subtle accent-tinted surface + ink
+  text (`aria-current="page"`). The sidebar is complete
   navigation: every primary destination is reachable from it, so
   dashboards stay quick-access summaries (hero next-action, real-number
   stats, entry-point lists) and never the only path to a capability.
 - Profile block (both viewports): unit pinned to the right — avatar
   circle, then a left-aligned text column with the name on its own line
   and the role (`Student`/`Teacher`) on the next line starting at the
-  same left edge as the name. Generous vertical padding (`py-6`),
-  relaxed avatar-to-text gap. Desktop renders it as a full-width strip
-  under the sidebar row; mobile renders the same block under the top
-  bar. The top bar itself carries no avatar; the drawer reveals the
-  same links.
+  same left edge as the name, plus a chevron. The whole block is a menu
+  trigger (`aria-haspopup="menu"`, `aria-expanded`, hover highlight):
+  clicking opens the account dropdown (Theme row, divider, ghost
+  Log out) in a bordered surface matching card style. The menu closes
+  on outside click, Escape, navigation, or logout. Generous vertical
+  padding (`py-6`), relaxed avatar-to-text gap. Desktop renders it as a
+  full-width strip under the sidebar row; mobile renders the same block
+  under the top bar. Neither the sidebar nor the top bar carries account
+  controls; the drawer reveals nav links only.
 - Hero: live-state panel (date eyebrow + state-driven title, subline, and
   primary CTA), not decoration. Student: continue-experiment panel when an
   in-progress attempt exists, otherwise orientation (join/browse).
