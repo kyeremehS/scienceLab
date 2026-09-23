@@ -320,6 +320,36 @@ date updates, close/cancel with history).
 403 → assignment start inherits locked version → class + dashboard
 pages 200; live data cleaned up).
 
+## Gap fixes (pre-pilot) ✅
+
+**Scope:** Real-user gaps found in the docs-vs-implementation audit:
+`FR-TEA-31` (new), `FR-STU-33` (new), `FR-AUTH-03` (new), `FR-STU-04`
+dashboard sections, `FR-STU-24` grading rule, `DECISIONS.md` §§10–12.
+
+**Delivered:**
+
+- Teacher experiment creation: `experiment-creation-service.ts`
+  (full-package validation, atomic v1-`PUBLISHED` insert),
+  `POST /api/experiments`, teacher Experiments library + preview +
+  creator UI, sidebar entry
+- Student dashboard: Assigned work (with Start/Continue/Review per
+  derived status), In progress, Recently completed sections
+- Student leave class: `POST /api/classes/[id]/leave` (history
+  preserved, rejoin allowed) + two-step Leave control on My Classes
+- Change password while logged in: `POST /api/auth/change-password`
+  (current-password re-verified, rate-limited) + account page +
+  account-menu entry
+- Reflection closed by decision (observation prompts are the vehicle,
+  `DECISIONS.md` §11); short-answer grading is key-term overlap
+  (`FR-STU-24`, `DECISIONS.md` §12) with a shorter seed Q3 expected
+  answer (fresh installs only)
+- Tests: creation (3), grading rules (2) — 5 new
+
+**Verification:** 68/68 vitest, `tsc`, eslint clean; live end-to-end
+(create → catalogue → assign w/ locked version → dashboard Assigned
+work → leave → rejoin → change password → login with new password;
+live data cleaned up).
+
 ---
 
 ## Phase 8 — Hardening + deploy ⬜

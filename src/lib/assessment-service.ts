@@ -53,14 +53,43 @@ async function assessmentQuestionsFor(assessmentId: string) {
     .orderBy(asc(assessmentQuestions.questionOrder));
 }
 
+const STOPWORDS = new Set([
+  "about", "after", "again", "against", "because", "before", "between", "could",
+  "does", "doing", "down", "during", "each", "from", "further", "have", "having",
+  "here", "into", "more", "most", "other", "over", "same", "should", "such",
+  "than", "that", "their", "them", "then", "there", "these", "they", "this",
+  "those", "through", "under", "until", "very", "were", "what", "when",
+  "where", "which", "while", "with", "would", "your",
+]);
+
+function normalize(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function keyTerms(text: string): string[] {
+  return normalize(text)
+    .replace(/[^a-z0-9 ]/g, " ")
+    .split(" ")
+    .filter((w) => w.length >= 4 && !STOPWORDS.has(w));
+}
+
 /**
- * Content-defined grading (FR-STU-23, FR-STU-24): normalized comparison
- * against the defined expected answer. AI is never the grader.
+ * Content-defined grading (FR-STU-23, FR-STU-24, DECISIONS.md §12):
+ * multiple-choice by normalized exact match; short-answer by key-term
+ * overlap (at least half the expected key terms present). AI never grades.
  */
-export function gradeAnswer(expected: string | null, given: string): boolean {
+export function gradeAnswer(
+  expected: string | null,
+  given: string,
+  type: "MULTIPLE_CHOICE" | "SHORT_ANSWER" = "MULTIPLE_CHOICE",
+): boolean {
   if (!expected) return false;
-  const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
-  return norm(given) === norm(expected);
+  if (type === "MULTIPLE_CHOICE") return normalize(given) === normalize(expected);
+  const keys = keyTerms(expected);
+  if (keys.length === 0) return normalize(given) === normalize(expected);
+  const givenWords = new Set(normalize(given).replace(/[^a-z0-9 ]/g, " ").split(" "));
+  const matched = keys.filter((k) => givenWords.has(k)).length;
+  return matched >= Math.ceil(keys.length / 2);
 }
 
 /**
@@ -181,7 +210,7 @@ export async function handleSubmitAssessment(req: Request, attemptId: string): P
   const graded = questions.map((q) => ({
     questionId: q.id,
     answerText: byQuestion.get(q.id) as string,
-    isCorrect: gradeAnswer(q.expectedAnswer, byQuestion.get(q.id) as string),
+    isCorrect: gradeAnswer(q.expectedAnswer, byQuestion.get(q.id) as string, q.type),
   }));
   const correct = graded.filter((g) => g.isCorrect).length;
   const score = (correct / questions.length).toFixed(4);

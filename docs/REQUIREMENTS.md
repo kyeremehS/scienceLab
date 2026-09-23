@@ -108,6 +108,18 @@ Email verification is not required for the MVP and is explicitly deferred (see `
 
 ---
 
+### FR-AUTH-03 — Change password while logged in
+
+An authenticated user can change their password by providing the current password and a new password.
+
+Acceptance criteria:
+
+- System re-verifies the current password; a wrong current password produces a safe error.
+- System validates the new password under the same rules as registration.
+- On success the password is replaced; the current session continues.
+
+---
+
 # 4. Student Dashboard
 
 ### FR-STU-04 — View dashboard
@@ -375,15 +387,21 @@ When submitted, the system:
 
 ### FR-STU-23 — Evaluate multiple choice questions
 
-Multiple choice questions are automatically evaluated according to their defined correct answers.
+Multiple choice questions are automatically evaluated by normalized exact match against their defined correct answers.
 
 ---
 
 ### FR-STU-24 — Evaluate short-answer questions
 
-Short-answer questions use teacher/content-defined expected answers and simple evaluation rules.
+Short-answer questions use teacher/content-defined expected answers and simple evaluation rules:
+
+* Significant words (length 4 or more, excluding common stopwords) are extracted from the expected answer.
+* The response is correct when it contains at least half of those key terms (rounded up).
+* An expected answer with no key terms falls back to normalized exact match.
 
 AI is not the authoritative grader for short-answer questions.
+
+Content authors should keep expected answers to core terms so paraphrased student responses can pass (see `DECISIONS.md` §12).
 
 ---
 
@@ -512,6 +530,18 @@ A student can see:
 * Their teacher's name
 
 A student cannot access another student's private information or learning progress.
+
+---
+
+### FR-STU-33 — Leave class
+
+A student can leave a class they previously joined.
+
+Acceptance criteria:
+
+* The membership ends but the student's learning history is preserved.
+* Leaving does not delete attempts, observations, assessment results, or AI history.
+* The student may rejoin the same class later with its code.
 
 ---
 
@@ -865,6 +895,29 @@ The MVP does not provide predictive AI that determines which students are likely
 A teacher can only access student learning information for students who belong to a class owned by that teacher.
 
 The server enforces this authorization boundary.
+
+---
+
+### FR-TEA-31 — Create experiment
+
+A teacher can create an experiment as a complete content package in a single operation.
+
+The package contains:
+
+* Title, description, objectives, materials, safety instructions
+* Estimated duration, difficulty, STEM topic
+* Ordered steps, each with title and instructions
+* Observation definitions (prompt, required flag), each attached to a step
+* One assessment with a title, instructions, and ordered questions
+  (multiple-choice with options and a defined correct answer;
+  short-answer with a defined expected answer)
+
+Acceptance criteria:
+
+* The server validates the complete package and rejects incomplete or malformed content with safe, understandable errors.
+* On success the system creates the experiment identity with version 1 as `PUBLISHED`, including steps, observation definitions, assessment, and questions, atomically.
+* Teacher-created experiments are immediately discoverable and assignable like any published experiment.
+* Draft/edit-as-new-version workflows remain admin scope and are outside this requirement.
 
 ---
 

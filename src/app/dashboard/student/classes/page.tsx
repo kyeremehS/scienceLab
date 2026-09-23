@@ -6,6 +6,7 @@ import { classes, classMemberships, users } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
 import { PageHeader } from "../../PageHeader";
 import { JoinClassForm } from "../JoinClassForm";
+import { LeaveClassButton } from "./LeaveClassButton";
 
 /** Student's classes: joined list plus the code form (sidebar: My Classes). */
 export default async function StudentClassesPage() {
@@ -44,21 +45,24 @@ export default async function StudentClassesPage() {
         ) : (
           <ul className="mt-3 flex flex-col gap-3">
             {joined.map((c) => (
-              <li key={c.id} className="rounded-lg border border-line bg-surface px-4 py-3">
-                <p className="text-base font-semibold">
-                  <Link
-                    href={`/dashboard/student/classes/${c.id}`}
-                    className="underline decoration-line underline-offset-4 hover:text-accent-ink"
-                  >
-                    {c.name}
-                  </Link>
-                </p>
-                {c.description ? (
-                  <p className="mt-0.5 text-sm text-ink-2">{c.description}</p>
-                ) : null}
-                <p className="mt-1 text-sm text-ink-3">
-                  {c.teacherName} · joined {new Date(c.joinedAt).toLocaleDateString()}
-                </p>
+              <li key={c.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-base font-semibold">
+                    <Link
+                      href={`/dashboard/student/classes/${c.id}`}
+                      className="underline decoration-line underline-offset-4 hover:text-accent-ink"
+                    >
+                      {c.name}
+                    </Link>
+                  </p>
+                  {c.description ? (
+                    <p className="mt-0.5 text-sm text-ink-2">{c.description}</p>
+                  ) : null}
+                  <p className="mt-1 text-sm text-ink-3">
+                    {c.teacherName} · joined {new Date(c.joinedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <LeaveClassButton classId={c.id} className={c.name} />
               </li>
             ))}
           </ul>

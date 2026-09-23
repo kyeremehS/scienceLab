@@ -66,7 +66,25 @@ These assignment decisions are established and do not depend on the open version
 - Only active incomplete assignments participate in the independent-experiment gate (`FR-STU-07`; `DOMAIN_MODEL.md` §3.7, §6 rule 17); closed assignments are history only (`FR-TEA-24`).
 - Assignment lifecycle: `ACTIVE → CLOSED | CANCELLED`, history retained, no hard-delete in normal management (`FR-TEA-23`, `FR-TEA-24`; refined in `DATABASE_SCHEMA.md` §12).
 
-## 10. MVP infrastructure boundaries
+## 10. Teacher experiment creation publishes directly
+
+- **Decision:** a teacher creates an experiment as one complete package that becomes version 1 `PUBLISHED` immediately (`FR-TEA-31`). There is no teacher-side draft state because no role can publish a draft yet; draft/publish/archive workflows are admin scope for later.
+- **Consequences:** teacher-created content is instantly discoverable, assignable, and attemptable under the same versioning immutability as seeded content. Teachers cannot edit published content in the MVP; corrections require admin assistance or a new experiment.
+- **Source:** `REQUIREMENTS.md` `FR-TEA-31`; `DATABASE_SCHEMA.md` §§8–9 (whole-experiment versioning, one published version).
+
+## 11. Reflection is recorded through observation prompts
+
+- **Decision:** the Reflect stage of the learning loop has no separate entity. Reflective observation definitions (e.g. "Why is the resistor needed in this circuit?") and the troubleshooting prompts are the reflection vehicle: the student reflects by recording what they observed and what it means (`PRODUCT.md` §19 "record observations and reflections").
+- **Consequences:** no reflection table, no reflection-specific API. Experiment authors cover Reflect by including reflective required prompts; the seed experiment does. A dedicated reflection artifact is post-MVP scope.
+- **Source:** `PRODUCT.md` §§5–6, §19; `DOMAIN_MODEL.md` §3.6, §3.10.
+
+## 12. Short-answer grading is keyword overlap, MCQ stays exact
+
+- **Decision:** multiple-choice answers grade by normalized exact match against the defined correct option. Short answers grade by key-term overlap: significant words (length ≥ 4, excluding common stopwords) are extracted from the content-defined expected answer, and the response is correct when it contains at least half of them (rounded up; a keyword-less expected answer falls back to normalized equality). AI never grades (`FR-STU-24`).
+- **Consequences:** paraphrased student answers can pass while exact-option MCQs stay strict. The rule is deterministic and explainable; teachers authoring content should keep expected answers to core terms.
+- **Source:** `REQUIREMENTS.md` `FR-STU-24`.
+
+## 13. MVP infrastructure boundaries
 
 - **Decision:** the MVP uses minimal infrastructure sufficient for ~100 concurrent active users: relational storage, API layer, server validation, logging, migrations, seed/demo data, deployment. Explicitly excluded: distributed systems, complex analytics/scaling infrastructure, multi-region deployment, and all product exclusions in `PRODUCT.md` §15 / `REQUIREMENTS.md` §35 (payments, subscriptions, marketplace, social, live classes, voice/vision, native mobile, hardware, simulation, physical verification, complex recommendations, predictive models).
 - **Source:** `PRODUCT.md` §7–§8, §15; `REQUIREMENTS.md` §35, `CR-08`, `CR-12`.

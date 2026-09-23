@@ -93,7 +93,7 @@ const QUESTIONS: {
     type: "SHORT_ANSWER",
     questionText: "Your LED does not light when the circuit is completed. Name two things you would check, and why.",
     options: null,
-    expectedAnswer: "LED polarity (longer leg to positive) and complete connections / closed loop",
+    expectedAnswer: "LED polarity and complete connections",
   },
 ];
 

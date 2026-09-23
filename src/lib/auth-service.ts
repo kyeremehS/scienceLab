@@ -311,3 +311,55 @@ export async function handleResetPassword(req: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
   }
 }
+
+/**
+ * Changes the password for an authenticated user (FR-AUTH-03). The current
+ * password is re-verified; failures use the generic credential error.
+ */
+export async function handleChangePassword(req: Request): Promise<NextResponse> {
+  const user = await getRequestSession(req);
+  if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+
+  if (isRateLimited(`change:${user.id}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+  const params = (body ?? {}) as Record<string, unknown>;
+  if (typeof params.currentPassword !== "string" || typeof params.newPassword !== "string") {
+    return NextResponse.json({ error: "Current and new passwords are required." }, { status: 400 });
+  }
+  const passwordError = validatePassword(params.newPassword);
+  if (passwordError) {
+    return NextResponse.json({ error: passwordError }, { status: 400 });
+  }
+
+  try {
+    const rows = await db
+      .select({ passwordHash: users.passwordHash })
+      .from(users)
+      .where(eq(users.id, user.id))
+      .limit(1);
+    const row = rows[0];
+    const ok = row ? await verifyPassword(params.currentPassword, row.passwordHash) : false;
+    if (!ok) {
+      return NextResponse.json({ error: "Current password is incorrect." }, { status: 401 });
+    }
+    await db
+      .update(users)
+      .set({ passwordHash: await hashPassword(params.newPassword), updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (error) {
+    console.error("Password change failed:", error);
+    return NextResponse.json({ error: "Request failed. Please try again." }, { status: 500 });
+  }
+}

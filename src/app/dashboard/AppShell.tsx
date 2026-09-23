@@ -25,7 +25,7 @@ function ChevronDown() {
   );
 }
 
-/** Account dropdown: log out. Closes on outside click, Escape, or logout. */
+/** Account dropdown: change password, log out. Closes on outside click, Escape, or logout. */
 function AccountMenu({ onClose }: { onClose: () => void }) {
   return (
     <div
@@ -33,6 +33,15 @@ function AccountMenu({ onClose }: { onClose: () => void }) {
       aria-label="Account"
       className="menu-pop absolute right-0 top-full z-20 mt-2 w-56 rounded-xl border border-line bg-raised p-2 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
     >
+      <Link
+        href="/account/password"
+        role="menuitem"
+        onClick={onClose}
+        className="flex h-10 items-center rounded-lg px-3 text-sm text-ink-2 transition-colors hover:bg-ink/[0.04] hover:text-ink"
+      >
+        Change password
+      </Link>
+      <div className="my-0.5 border-t border-line/60" role="separator" />
       <div onClick={onClose} role="none">
         <LogoutButton ghost />
       </div>
@@ -79,6 +88,7 @@ const NAV: Record<ShellRole, { href: string; label: string; icon: () => React.Re
   TEACHER: [
     { href: "/dashboard/teacher", label: "Dashboard", icon: DashboardIcon },
     { href: "/dashboard/teacher/classes", label: "Classes", icon: ClassesIcon },
+    { href: "/dashboard/teacher/experiments", label: "Experiments", icon: FlaskIcon },
   ],
 };
 

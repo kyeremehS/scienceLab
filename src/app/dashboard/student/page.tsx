@@ -1,9 +1,10 @@
 import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { classes, classMemberships, users } from "@/db/schema";
-import { experimentSteps, experimentVersions } from "@/db/schema";
+import { assessmentSubmissions, assignments, classes, classMemberships, users } from "@/db/schema";
+import { experimentAttempts, experimentSteps, experimentVersions } from "@/db/schema";
+import { stepProgress } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
 import { Hero, StatCards } from "../Hero";
 import { FirstStepsChecklist } from "./FirstStepsChecklist";
@@ -49,6 +50,77 @@ export default async function StudentDashboard() {
     }),
   );
 
+  // Assigned work (FR-STU-04): active assignments across all joined classes,
+  // each with the student's derived status.
+  const classIds = joined.map((c) => c.id);
+  const classNameById = new Map(joined.map((c) => [c.id, c.name]));
+  const activeAssignments = classIds.length === 0
+    ? []
+    : await db
+        .select({
+          id: assignments.id,
+          classId: assignments.classId,
+          experimentId: assignments.experimentId,
+          title: experimentVersions.title,
+          dueAt: assignments.dueAt,
+        })
+        .from(assignments)
+        .innerJoin(experimentVersions, eq(experimentVersions.id, assignments.experimentVersionId))
+        .where(and(inArray(assignments.classId, classIds), eq(assignments.status, "ACTIVE")));
+  const myAttempts = await db
+    .select()
+    .from(experimentAttempts)
+    .where(eq(experimentAttempts.studentId, user.id));
+  const attemptByExperiment = new Map(myAttempts.map((a) => [a.experimentId, a]));
+  const assignedWork = activeAssignments.map((a) => {
+    const attempt = attemptByExperiment.get(a.experimentId);
+    return {
+      ...a,
+      className: classNameById.get(a.classId) ?? "Class",
+      status: (attempt ? attempt.status : "NOT_STARTED") as "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED",
+      attemptId: attempt?.id ?? null,
+    };
+  });
+
+  // In-progress and recently completed attempts with live titles and scores.
+  const attemptMeta = await Promise.all(
+    myAttempts.map(async (a) => {
+      const vRows = await db
+        .select({ title: experimentVersions.title, versionId: experimentVersions.id })
+        .from(experimentVersions)
+        .where(eq(experimentVersions.id, a.experimentVersionId))
+        .limit(1);
+      const steps = await db
+        .select({ id: experimentSteps.id })
+        .from(experimentSteps)
+        .where(eq(experimentSteps.experimentVersionId, a.experimentVersionId));
+      const done = await db
+        .select({ id: stepProgress.id })
+        .from(stepProgress)
+        .where(and(eq(stepProgress.attemptId, a.id), eq(stepProgress.status, "COMPLETED")));
+      const subs = await db
+        .select({ score: assessmentSubmissions.score })
+        .from(assessmentSubmissions)
+        .where(eq(assessmentSubmissions.attemptId, a.id))
+        .limit(1);
+      return {
+        id: a.id,
+        experimentId: a.experimentId,
+        status: a.status,
+        title: vRows[0]?.title ?? "Experiment",
+        stepsCompleted: done.length,
+        stepsTotal: steps.length,
+        score: subs[0]?.score ?? null,
+        completedAt: a.completedAt,
+      };
+    }),
+  );
+  const inProgress = attemptMeta.filter((a) => a.status === "IN_PROGRESS");
+  const recentlyCompleted = attemptMeta
+    .filter((a) => a.status === "COMPLETED")
+    .sort((a, b) => +new Date(b.completedAt ?? 0) - +new Date(a.completedAt ?? 0))
+    .slice(0, 3);
+
   const firstName = user.name.split(" ")[0];
   const teachers = [...new Set(joined.map((c) => c.teacherName))];
   const today = new Date().toLocaleDateString("en-US", {
@@ -86,6 +158,36 @@ export default async function StudentDashboard() {
       />
 
       <section aria-labelledby="experiments">
+        {assignedWork.length > 0 ? (
+          <div className="mb-8">
+            <h2 id="assigned" className="text-base font-semibold tracking-tight">
+              Assigned work
+            </h2>
+            <ul className="mt-3 flex flex-col gap-2">
+              {assignedWork.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{a.title}</span>
+                    <span className="block font-mono text-xs text-ink-3">
+                      {a.className.toUpperCase()} · {a.status.replace("_", " ")}
+                      {a.dueAt ? ` · DUE ${new Date(a.dueAt).toLocaleDateString().toUpperCase()}` : ""}
+                    </span>
+                  </span>
+                  <NavLink
+                    href={a.attemptId ? `/dashboard/student/attempts/${a.attemptId}` : `/dashboard/student/experiments/${a.experimentId}`}
+                    arrow="forward"
+                    className="shrink-0"
+                  >
+                    {a.status === "NOT_STARTED" ? "Start" : a.status === "COMPLETED" ? "Review" : "Continue"}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <div className="flex items-baseline justify-between">
           <h2 id="experiments" className="text-base font-semibold tracking-tight">
             Your experiments
@@ -118,6 +220,53 @@ export default async function StudentDashboard() {
             .
           </p>
         )}
+        {inProgress.length > 0 ? (
+          <div className="mt-8">
+            <h2 className="text-base font-semibold tracking-tight">In progress</h2>
+            <ul className="mt-3 flex flex-col gap-2">
+              {inProgress.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{a.title}</span>
+                    <span className="block font-mono text-xs text-ink-3">
+                      STEP {a.stepsCompleted} OF {a.stepsTotal}
+                    </span>
+                  </span>
+                  <NavLink href={`/dashboard/student/attempts/${a.id}`} arrow="forward" className="shrink-0">
+                    Continue
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {recentlyCompleted.length > 0 ? (
+          <div className="mt-8">
+            <h2 className="text-base font-semibold tracking-tight">Recently completed</h2>
+            <ul className="mt-3 flex flex-col gap-2">
+              {recentlyCompleted.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{a.title}</span>
+                    <span className="block font-mono text-xs text-ink-3">
+                      {a.score !== null ? `SCORE ${Math.round(Number(a.score) * 100)}% · ` : ""}
+                      {a.completedAt ? new Date(a.completedAt).toLocaleDateString().toUpperCase() : ""}
+                    </span>
+                  </span>
+                  <NavLink href={`/dashboard/student/attempts/${a.id}`} arrow="forward" className="shrink-0">
+                    Review
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </section>
 
       <div aria-label="Progress panel" className="grid gap-8 border-t border-line pt-8 sm:grid-cols-3">

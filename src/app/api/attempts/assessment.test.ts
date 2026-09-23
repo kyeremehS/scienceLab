@@ -21,6 +21,7 @@ import {
   users,
 } from "@/db/schema";
 import {
+  gradeAnswer,
   handleCompleteAttempt,
   handleGetAssessment,
   handleGetResult,
@@ -153,6 +154,29 @@ function submitBody(answers: { questionId: string; answerText: string }[]) {
 }
 
 // FR-STU-21–FR-STU-30, FR-TEA-25–FR-TEA-30 end-to-end against real PostgreSQL.
+describe.skipIf(!hasDb)("assessment grading rules", () => {
+  it("MCQ grades by normalized exact match", () => {
+    expect(gradeAnswer("Beta", "  beta ", "MULTIPLE_CHOICE")).toBe(true);
+    expect(gradeAnswer("Beta", "Alpha", "MULTIPLE_CHOICE")).toBe(false);
+    expect(gradeAnswer(null, "Beta", "MULTIPLE_CHOICE")).toBe(false);
+  });
+
+  it("short-answer grades by key-term overlap (FR-STU-24, DECISIONS.md §12)", () => {
+    expect(gradeAnswer("hello world", "Hello  World", "SHORT_ANSWER")).toBe(true);
+    expect(
+      gradeAnswer(
+        "LED polarity and complete connections",
+        "I would check polarity and connections",
+        "SHORT_ANSWER",
+      ),
+    ).toBe(true);
+    expect(gradeAnswer("LED polarity and complete connections", "something unrelated here", "SHORT_ANSWER")).toBe(false);
+    expect(gradeAnswer(null, "anything", "SHORT_ANSWER")).toBe(false);
+    // Keyword-less expected answers fall back to normalized equality.
+    expect(gradeAnswer("a b c", "a b c", "SHORT_ANSWER")).toBe(true);
+    expect(gradeAnswer("a b c", "a b d", "SHORT_ANSWER")).toBe(false);
+  });
+});
 describe.skipIf(!hasDb)("assessment, completion, results, progress", () => {
   afterAll(async () => {
     const found = await db

@@ -87,6 +87,16 @@ Resource naming below is logical, not a prescription of exact routes or HTTP ver
 - **Success:** full pre-start information returned.
 - **Errors:** unknown/non-published experiment → safe not-found/denied; unauthenticated → denied.
 
+### 3.3 Create experiment (teacher)
+
+- **Purpose:** let a teacher contribute a complete experiment package (`FR-TEA-31`).
+- **Authn:** required (teacher).
+- **Authz:** teacher role; content is shared (no per-teacher ownership of experiments).
+- **Resource:** Experiment + Experiment Version (v1 `PUBLISHED`) + Steps + Observation Definitions + Assessment + Questions, created atomically.
+- **Rules:** full package validated (required content fields; at least one step; MCQ options with a defined correct answer; short-answer expected answers); version 1 publishes immediately per `DECISIONS.md` §10.
+- **Success:** `201` with the created experiment identity and version.
+- **Errors:** validation failure; unauthenticated/non-teacher → denied; partial failure → no partial content (transactional).
+
 ---
 
 ## 4. Starting experiments and assignment gating (`FR-STU-07`, `FR-STU-08`, `FR-STU-09`)

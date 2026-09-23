@@ -215,3 +215,29 @@ export async function handleJoinedClasses(req: Request): Promise<NextResponse> {
 
   return NextResponse.json({ classes: rows }, { status: 200 });
 }
+
+/**
+ * POST /api/classes/[id]/leave — student leaves a joined class (FR-STU-33).
+ * Membership ends; learning history is preserved, mirroring teacher removal.
+ */
+export async function handleLeaveClass(req: Request, classId: string): Promise<NextResponse> {
+  const student = await requireRole(req, "STUDENT");
+  if (!student) return NextResponse.json({ error: "Not authorized." }, { status: 403 });
+
+  const updated = await db
+    .update(classMemberships)
+    .set({ active: false, leftAt: new Date() })
+    .where(
+      and(
+        eq(classMemberships.classId, classId),
+        eq(classMemberships.studentId, student.id),
+        eq(classMemberships.active, true),
+      ),
+    )
+    .returning({ id: classMemberships.id });
+
+  if (updated.length === 0) {
+    return NextResponse.json({ error: "Membership not found." }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true }, { status: 200 });
+}
