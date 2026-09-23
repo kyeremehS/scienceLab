@@ -157,7 +157,10 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
   (2xl semibold) → section eyebrow (xs semibold, tracking wide, ink-3) →
   card title (base semibold) → metadata (sm ink-2, mono where codes/counts)
   → body (sm/base ink-2).
-- Spacing: form fields `gap-4`, sections `gap-1` label-to-input, page padding `px-6 py-12`, dashboard sections `gap-10`.
+- Spacing: form fields `gap-4`, sections `gap-1` label-to-input, page padding `px-4 sm:px-6`, dashboard sections `gap-10`.
+- Content width, global: every authenticated `main` is `max-w-6xl` so card
+  grids use the space between sidebar and browser edge; grids add a third
+  column at `lg` where cards would otherwise stretch.
 
 ## 8. Color Usage
 

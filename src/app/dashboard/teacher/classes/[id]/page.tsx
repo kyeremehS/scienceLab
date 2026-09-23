@@ -33,7 +33,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     .where(and(eq(classMemberships.classId, id), eq(classMemberships.active, true)));
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-12 sm:px-6">
       <PageHeader title={row.name} subtitle={row.description ?? "Class workspace"}>
         <p className="mt-2 text-sm">
           <NavLink href="/dashboard/teacher/classes" arrow="back">

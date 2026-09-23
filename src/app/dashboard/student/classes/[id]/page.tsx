@@ -57,7 +57,7 @@ export default async function StudentClassPage({ params }: { params: Promise<{ i
     .where(and(eq(assignments.classId, id), eq(assignments.status, "ACTIVE")));
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-12 sm:px-6">
       <PageHeader title={cls.name} subtitle={cls.description ?? undefined}>
         <p className="mt-2 text-sm">
           <NavLink href="/dashboard/student/classes" arrow="back">

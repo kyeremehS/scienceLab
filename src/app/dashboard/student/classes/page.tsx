@@ -27,7 +27,7 @@ export default async function StudentClassesPage() {
     .where(and(eq(classMemberships.studentId, user.id), eq(classMemberships.active, true)));
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-12 sm:px-6">
       <PageHeader
         title="My classes"
         subtitle="Classes you have joined. New code from a teacher? Join below."

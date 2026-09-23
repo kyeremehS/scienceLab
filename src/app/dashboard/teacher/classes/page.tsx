@@ -25,7 +25,7 @@ export default async function TeacherClassesPage() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-12 sm:px-6">
       <PageHeader
         title="Classes"
         subtitle="Share a class code so students can join."

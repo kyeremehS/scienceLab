@@ -35,7 +35,7 @@ export default async function ExperimentsCataloguePage() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-12 sm:px-6">
       <PageHeader
         title="Experiments"
         subtitle="Published experiments you can explore."
@@ -43,7 +43,7 @@ export default async function ExperimentsCataloguePage() {
       {withCounts.length === 0 ? (
         <p className="text-sm text-ink-2">No published experiments yet.</p>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {withCounts.map((e) => (
             <ExperimentCard key={e.experimentId} experiment={e} />
           ))}

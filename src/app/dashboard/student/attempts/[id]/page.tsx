@@ -30,7 +30,7 @@ export default async function AttemptPage({ params }: { params: Promise<{ id: st
   const state = await buildAttemptState(attempt);
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
       <PageHeader
         title={versions[0]?.title ?? "Experiment"}
         subtitle="Follow each step, record what you observe, and mark steps complete as you go."
