@@ -3,9 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { AccountMenu } from "./AccountMenu";
 import { LogoutButton } from "../LogoutButton";
 import { ThemeToggle } from "../ThemeToggle";
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => part[0] ?? "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export type ShellRole = "STUDENT" | "TEACHER";
 
@@ -96,16 +104,43 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
             ))}
           </ul>
         </nav>
-        <div className="border-t border-line pt-3">
-          <AccountMenu name={name} role={roleLabel} />
+        <div className="rounded-xl border border-line bg-canvas p-2">
+          <div className="flex items-center justify-between px-2 py-1.5">
+            <span className="text-sm text-ink-2">Theme</span>
+            <ThemeToggle />
+          </div>
+          <div className="border-t border-line px-2 py-1.5" role="none">
+            <LogoutButton ghost />
+          </div>
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* Desktop identity strip */}
+        <div className="hidden justify-end border-b border-line bg-canvas px-6 py-2.5 md:flex">
+          <p className="flex min-w-0 items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-raised text-xs font-semibold text-accent-ink"
+            >
+              {initials(name)}
+            </span>
+            <span className="min-w-0 text-right">
+              <span className="block max-w-40 truncate text-sm font-medium leading-tight">{name}</span>
+              <span className="block text-xs leading-tight text-ink-3">{roleLabel}</span>
+            </span>
+          </p>
+        </div>
         {/* Mobile top bar */}
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-canvas px-4 py-3 md:hidden">
           <p className="text-sm font-semibold tracking-[0.2em]">SCIENCELAB</p>
           <div className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-raised text-xs font-semibold text-accent-ink"
+            >
+              {initials(name)}
+            </span>
             <ThemeToggle />
             <button
               type="button"

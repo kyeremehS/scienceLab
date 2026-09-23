@@ -256,37 +256,23 @@ progress trace, Continue CTA) → YOUR ASSIGNED WORK (per-assignment progress)
 ## 13. Authenticated App Shell
 
 Authenticated pages render inside a persistent sidebar shell
-(`dashboard/layout.tsx` + `AppShell`): icon navigation, user block, and
-utility controls; mobile collapses to a top bar + hamburger drawer.
-Per-page floating controls are forbidden.
+(`dashboard/layout.tsx` + `AppShell`). Top strip handles identity, sidebar
+handles actions — never duplicated. Per-page floating controls are forbidden.
 
-- Sidebar (desktop, `w-60`, surface): stacked wordmark top; nav with
-  geometric line icons + labels (Student: Dashboard, Experiments; Teacher:
-  Dashboard, Classes — no dead entries); user block bottom (name, role,
-  theme, logout). Active route: subtle accent-tinted surface + ink text
-  (`aria-current="page"`).
-- Mobile: wordmark + theme + hamburger; drawer reveals the same links.
-- Surfaces: page on canvas; cards/panels on surface with `border-line`.
+- Sidebar (desktop, `w-60`, surface): single-line wordmark; icon + label
+  nav (Student: Dashboard, Experiments; Teacher: Dashboard, Classes — no
+  dead entries); bottom action block (Theme row + ghost Log out in one
+  bordered container). Active route: subtle accent-tinted surface + ink
+  text (`aria-current="page"`).
+- Top strip (desktop): right-aligned identity chip — fixed-size avatar
+  initials, name truncated with ellipsis, role. Mobile top bar carries the
+  avatar next to the theme toggle; drawer reveals the same links.
 - Hero: live-state panel (date eyebrow + state-driven title, subline, and
   primary CTA), not decoration. Student: continue-experiment panel when an
   in-progress attempt exists, otherwise orientation (join/browse).
   Teacher: operational summary + manage-classes CTA.
 - Summary cards: 3–4 real numbers only. Side rail: teachers / upcoming /
   activity from live queries; honest empties otherwise.
-
-## 13. Authenticated App Shell
-
-All authenticated pages render inside one shell (`dashboard/layout.tsx` +
-`AppShell`): top bar with wordmark, role navigation, and utility controls;
-mobile collapses to a hamburger menu. Per-page floating controls are
-forbidden — `PageHeader` carries title/subtitle only.
-
-- Desktop bar: `SCIENCELAB` wordmark left; nav center/left (Teacher:
-  Dashboard, Classes; Student: Dashboard, Experiments); theme toggle +
-  logout right. Active route: raised pill + ink text (`aria-current="page"`).
-- Mobile: wordmark + theme + hamburger; menu reveals the same links plus theme/logout.
-- Surfaces: page on canvas; cards/panels on surface with `border-line`;
-  never blank-canvas heading stacks — content lives on surfaces.
 
 ## 14. Empty States (designed, not blank)
 
