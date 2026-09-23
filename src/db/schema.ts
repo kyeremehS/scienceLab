@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  foreignKey,
   integer,
   jsonb,
   pgEnum,
@@ -26,6 +27,22 @@ export const versionStatusEnum = pgEnum("version_status", [
 export const questionTypeEnum = pgEnum("question_type", [
   "MULTIPLE_CHOICE",
   "SHORT_ANSWER",
+]);
+
+export const assignmentStatusEnum = pgEnum("assignment_status", [
+  "ACTIVE",
+  "CLOSED",
+  "CANCELLED",
+]);
+
+export const attemptStatusEnum = pgEnum("attempt_status", [
+  "IN_PROGRESS",
+  "COMPLETED",
+]);
+
+export const stepProgressStatusEnum = pgEnum("step_progress_status", [
+  "CURRENT",
+  "COMPLETED",
 ]);
 
 export const users = pgTable("users", {
@@ -211,5 +228,130 @@ export const assessmentQuestions = pgTable(
   },
   (t) => [
     uniqueIndex("assessment_questions_order_unique").on(t.assessmentId, t.questionOrder),
+  ],
+);
+
+/**
+ * Teacher assignment of an experiment version to a class (DATABASE_SCHEMA.md §12).
+ * Version locked at creation; table is persistence-only in Phase 4 — teacher
+ * assignment endpoints arrive with Phase 7 (FR-TEA-15–FR-TEA-24).
+ */
+export const assignments = pgTable(
+  "assignments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    classId: uuid("class_id")
+      .notNull()
+      .references(() => classes.id),
+    teacherId: uuid("teacher_id")
+      .notNull()
+      .references(() => users.id),
+    experimentId: uuid("experiment_id")
+      .notNull()
+      .references(() => experiments.id),
+    experimentVersionId: uuid("experiment_version_id")
+      .notNull()
+      .references(() => experimentVersions.id),
+    status: assignmentStatusEnum("status").notNull().default("ACTIVE"),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }).defaultNow().notNull(),
+    startAt: timestamp("start_at", { withTimezone: true }),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // One active assignment per class/experiment (FR-TEA-17).
+    uniqueIndex("assignments_one_active_per_class_experiment")
+      .on(t.classId, t.experimentId)
+      .where(sql`${t.status} = 'ACTIVE'`),
+    // Version integrity: (version, experiment) must belong together (§21).
+    foreignKey({
+      columns: [t.experimentVersionId, t.experimentId],
+      foreignColumns: [experimentVersions.id, experimentVersions.experimentId],
+      name: "assignments_version_experiment_fk",
+    }),
+  ],
+);
+
+/**
+ * One student's live run of an experiment (DATABASE_SCHEMA.md §13).
+ * Nullable assignment_id: NULL = independent start.
+ */
+export const experimentAttempts = pgTable(
+  "experiment_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    studentId: uuid("student_id")
+      .notNull()
+      .references(() => users.id),
+    experimentId: uuid("experiment_id")
+      .notNull()
+      .references(() => experiments.id),
+    experimentVersionId: uuid("experiment_version_id")
+      .notNull()
+      .references(() => experimentVersions.id),
+    assignmentId: uuid("assignment_id").references(() => assignments.id),
+    status: attemptStatusEnum("status").notNull().default("IN_PROGRESS"),
+    startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // One attempt per student per experiment in the MVP (FR-STU-09).
+    uniqueIndex("experiment_attempts_student_experiment_unique").on(t.studentId, t.experimentId),
+    // Version integrity: (version, experiment) must belong together (§21).
+    foreignKey({
+      columns: [t.experimentVersionId, t.experimentId],
+      foreignColumns: [experimentVersions.id, experimentVersions.experimentId],
+      name: "experiment_attempts_version_experiment_fk",
+    }),
+  ],
+);
+
+/**
+ * Per-step progress within an attempt (DATABASE_SCHEMA.md §14).
+ * No row for (attempt, step) = NOT_STARTED.
+ */
+export const stepProgress = pgTable(
+  "step_progress",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    attemptId: uuid("attempt_id")
+      .notNull()
+      .references(() => experimentAttempts.id),
+    experimentStepId: uuid("experiment_step_id")
+      .notNull()
+      .references(() => experimentSteps.id),
+    status: stepProgressStatusEnum("status").notNull(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("step_progress_attempt_step_unique").on(t.attemptId, t.experimentStepId),
+  ],
+);
+
+/**
+ * Student-recorded observations within an attempt (DATABASE_SCHEMA.md §15).
+ * Edit while IN_PROGRESS = update row; unique pair prevents duplicates.
+ */
+export const observations = pgTable(
+  "observations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    attemptId: uuid("attempt_id")
+      .notNull()
+      .references(() => experimentAttempts.id),
+    observationDefinitionId: uuid("observation_definition_id")
+      .notNull()
+      .references(() => observationDefinitions.id),
+    responseText: text("response_text").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("observations_attempt_definition_unique").on(t.attemptId, t.observationDefinitionId),
   ],
 );

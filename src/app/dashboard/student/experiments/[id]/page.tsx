@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
+  experimentAttempts,
   experimentSteps,
   experimentVersions,
   observationDefinitions,
@@ -10,6 +11,7 @@ import {
 import { getPageUser } from "@/lib/page-session";
 import { CircuitIllustration } from "@/app/auth/CircuitIllustration";
 import { PageHeader } from "../../../PageHeader";
+import { StartExperimentButton } from "./StartExperimentButton";
 
 export default async function ExperimentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getPageUser();
@@ -50,6 +52,17 @@ export default async function ExperimentDetailPage({ params }: { params: Promise
     .from(observationDefinitions)
     .orderBy(asc(observationDefinitions.displayOrder));
   const requiredCount = obsDefs.filter((o) => o.required).length;
+
+  const existingAttempts = await db
+    .select({ id: experimentAttempts.id })
+    .from(experimentAttempts)
+    .where(
+      and(
+        eq(experimentAttempts.studentId, user.id),
+        eq(experimentAttempts.experimentId, id),
+      ),
+    )
+    .limit(1);
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
@@ -136,10 +149,9 @@ export default async function ExperimentDetailPage({ params }: { params: Promise
         <h2 id="start" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
           START
         </h2>
-        <p className="mt-2 text-sm text-ink-2">
-          Starting experiments — attempts, step tracking, and observations —
-          arrives with Phase 4.
-        </p>
+        <div className="mt-3">
+          <StartExperimentButton experimentId={id} hasAttempt={existingAttempts.length > 0} />
+        </div>
       </section>
     </main>
   );

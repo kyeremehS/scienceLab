@@ -188,22 +188,42 @@ render).
 
 ---
 
-## Phase 4 — Attempts + steps + observations ⬜
+## Phase 4 — Attempts + steps + observations ✅
 
 **Scope:** `FR-STU-07`–`FR-STU-16`, `CR-04`, `CR-07` (gating, one-attempt,
 progression, persistence/resume).
 
-**To deliver:**
+**Delivered:**
 
-- `experiment_attempts` (nullable `assignment_id`, version inheritance),
-  `step_progress` (absent = `NOT_STARTED`, version-consistency check),
-  `observations` tables + migration + triggers
-- Start/resume, assignment gate across all active classes, sequential
-  progression with backward review, observation record/edit, read-only after
-  completion
-- Experiment runner UI (per `UI_DESIGN.md` evolution)
+- 4 tables + migration (`0005`, restrictive FKs, composite version FKs,
+  partial uniques, §24 trigger backstops): `assignments` (persistence-only —
+  teacher endpoints stay Phase 7), `experiment_attempts` (nullable
+  `assignment_id`, version inheritance), `step_progress` (absent =
+  `NOT_STARTED`, version-consistency check), `observations`
+- `src/lib/attempts-service.ts` — start/resume, gate across all active
+  classes (closed/cancelled excluded), sequential progression with backward
+  review, observation record/edit, owner-only + `IN_PROGRESS`-only guards,
+  23505-safe concurrent starts, transactional start/step completion
+- Routes: `POST /api/experiments/[id]/start`, `GET /api/attempts/[id]`,
+  `POST .../steps/[stepId]/complete` (422 with next-required step on skip),
+  `POST .../observations`, `PATCH .../observations/[observationId]`
+- Runner UI: experiment detail Start/Continue button (gating message inline),
+  workspace page (`AttemptRunner`: step navigator done/current/todo,
+  instructions, observation record/edit, Previous/Continue, progress strip,
+  honest Phase 5/6 placeholders); contract §§15–17
+- Tests: `attempts.test.ts` (gating single + multi-class + close-lifts-gate,
+  assignment version inheritance, one-attempt incl. concurrent race,
+  sequential + idempotent repeat, observation linkage/edit/duplicate/foreign,
+  cross-student 404s, resume GET, trigger backstops incl. DELETE paths) —
+  10 tests
 
-**Verification:** _pending_
+**Verification:** 43/43 vitest, `tsc`, eslint clean; live end-to-end
+(register 201 → catalogue → start 201 → skip 422 → complete step →
+observation 201 → resume GET → runner + detail pages 200 with Continue
+label; live data cleaned up). One live-found bug fixed (BEFORE DELETE
+trigger returned `NEW`, which is null in DELETE context and silently
+skipped deletes — now `TG_OP`-branched; file fix mirrored into dev DB via
+`CREATE OR REPLACE`, migration `0005` uncommitted/local-only at the time).
 
 ---
 
