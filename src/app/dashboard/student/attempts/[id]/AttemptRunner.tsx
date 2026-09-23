@@ -174,7 +174,7 @@ export function AttemptRunner({ initial }: { initial: AttemptState }) {
   const currentPosition = selectedIndex >= 0 ? selectedIndex + 1 : doneCount;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
+    <div className="flex w-full flex-col gap-8">
       {/* Slim progress header */}
       <div>
         <div className="flex items-baseline justify-between gap-4">
