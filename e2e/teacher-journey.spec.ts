@@ -54,8 +54,8 @@ test("teacher runs a class end to end with a student", async ({ browser }) => {
 
   // Student sees assigned work and starts it from the detail page.
   await student.goto("/dashboard/student");
-  await expect(student.getByText("Assigned by your teacher")).toBeVisible();
-  await student.getByRole("link", { name: "Building a Simple Electrical Circuit" }).first().click();
+  await expect(student.getByText("Assigned work")).toBeVisible();
+  await student.getByRole("link", { name: "Start" }).click();
   await student.getByRole("button", { name: /start experiment/i }).click();
   await expect(student).toHaveURL(/\/dashboard\/student\/attempts\//);
 

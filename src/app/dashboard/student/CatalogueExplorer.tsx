@@ -3,51 +3,49 @@
 import { useState } from "react";
 import { ExperimentCard, type ExperimentCardData } from "./experiments/ExperimentCard";
 
-/** Catalogue with honest client-side topic/level filters (no backend search in MVP). */
+/** Catalogue with honest client-side topic filters (no backend search in MVP). */
 export function CatalogueExplorer({ experiments }: { experiments: ExperimentCardData[] }) {
   const topics = [...new Set(experiments.map((e) => e.topic))];
-  const levels = [...new Set(experiments.map((e) => e.difficulty))];
-  const filters = [...topics, ...levels];
-  const [filter, setFilter] = useState<string | null>(null);
-  const visible = filter
-    ? experiments.filter((e) => e.topic === filter || e.difficulty === filter)
-    : experiments;
+  const [topic, setTopic] = useState<string | null>(null);
+  const visible = topic ? experiments.filter((e) => e.topic === topic) : experiments;
 
   if (experiments.length === 0) {
-    return <p className="mt-3 text-sm text-[#64748B]">No published experiments yet.</p>;
+    return <p className="mt-3 text-sm text-ink-2">No published experiments yet.</p>;
   }
   return (
     <div>
-      <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter the catalogue">
-        <button
-          type="button"
-          onClick={() => setFilter(null)}
-          aria-pressed={filter === null}
-          className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-            filter === null
-              ? "border-[#0F172A] font-medium text-[#0F172A]"
-              : "border-black/10 text-[#64748B]"
-          }`}
-        >
-          All subjects
-        </button>
-        {filters.map((f) => (
+      {topics.length > 1 ? (
+        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by topic">
           <button
-            key={f}
             type="button"
-            onClick={() => setFilter(filter === f ? null : f)}
-            aria-pressed={filter === f}
+            onClick={() => setTopic(null)}
+            aria-pressed={topic === null}
             className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-              filter === f
-                ? "border-[#0F172A] font-medium text-[#0F172A]"
-                : "border-black/10 text-[#64748B]"
+              topic === null
+                ? "border-accent bg-accent/[0.08] font-medium text-accent-ink"
+                : "border-line text-ink-2 hover:bg-raised"
             }`}
           >
-            {f}
+            All topics
           </button>
-        ))}
-      </div>
-      <ul className="mt-3 grid gap-6 sm:grid-cols-2">
+          {topics.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTopic(topic === t ? null : t)}
+              aria-pressed={topic === t}
+              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                topic === t
+                  ? "border-accent bg-accent/[0.08] font-medium text-accent-ink"
+                  : "border-line text-ink-2 hover:bg-raised"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((e) => (
           <ExperimentCard key={e.experimentId} experiment={e} />
         ))}

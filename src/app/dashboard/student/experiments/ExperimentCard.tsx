@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { NavLink } from "@/app/NavLink";
+import { CircuitIllustration } from "@/app/auth/CircuitIllustration";
 
 export interface ExperimentCardData {
   experimentId: string;
@@ -10,27 +11,29 @@ export interface ExperimentCardData {
   stepCount: number;
 }
 
-/** Catalogue card: outline badges, title, duration + details link. */
+/** Brilliant-style experiment card: diagram visual, metadata, single CTA. */
 export function ExperimentCard({ experiment }: { experiment: ExperimentCardData }) {
   return (
-    <li className="flex flex-col gap-3 rounded-xl border border-black/[0.06] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center gap-2">
-        <span className="rounded-lg border border-black/10 px-2.5 py-1 text-xs font-medium text-[#0F172A]">
-          {experiment.topic}
-        </span>
-        <span className="rounded-lg border border-black/10 px-2.5 py-1 text-xs font-medium text-[#0F172A]">
-          {experiment.difficulty}
-        </span>
+    <li className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
+      <div className="border-b border-line bg-canvas px-4 pt-4">
+        <CircuitIllustration className="w-full" />
       </div>
-      <p className="text-[15px] font-semibold leading-snug text-[#0F172A]">{experiment.title}</p>
-      <div className="mt-auto flex items-center justify-between pt-2">
-        <span className="text-sm text-[#64748B]">~{experiment.durationMinutes} min</span>
-        <Link
-          href={`/dashboard/student/experiments/${experiment.experimentId}`}
-          className="text-sm font-medium text-[#0F172A]"
-        >
-          View details
-        </Link>
+      <div className="flex flex-1 flex-col gap-1 px-4 py-3">
+        <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">
+          {experiment.topic.toUpperCase()} · {experiment.difficulty.toUpperCase()}
+        </p>
+        <p className="text-base font-semibold">{experiment.title}</p>
+        <p className="text-sm text-ink-2">
+          {experiment.stepCount} steps · {experiment.durationMinutes} min
+        </p>
+        <p className="mt-2">
+          <NavLink
+            href={`/dashboard/student/experiments/${experiment.experimentId}`}
+            arrow="forward"
+          >
+            View experiment
+          </NavLink>
+        </p>
       </div>
     </li>
   );
