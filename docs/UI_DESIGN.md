@@ -263,11 +263,22 @@ elements (auth circuit, empty-state motif, workspace diagrams in Phase 4+),
 never decoration. ScienceLab must not read as Linear-with-a-science-logo:
 the student experience stays experiential, the teacher one managerial.
 
-## 12.2 Student dashboard target (lands with Phases 4–7 data)
+## 12.2 Student dashboard (light-fixed replica)
 
-CONTINUE EXPERIMENT (current attempt: experiment, step x/y, next action,
-progress trace, Continue CTA) → YOUR ASSIGNED WORK (per-assignment progress)
-→ RECENTLY COMPLETED. No part is built or faked before its data exists.
+The student dashboard is an intentional light-surface exception (like
+transactional email): fixed slate/white values, readable in both themes
+because it never uses theme tokens. Structure top to bottom:
+
+GREETING + real activity streak (shown only when ≥ 1 day; computed from
+attempt starts, step completions, and recorded observations) →
+CONTINUE card (current attempt: title, current step + title, progress
+trace, Resume CTA) + goal ring (completed / started, all-time) →
+ASSIGNED rail (status pill, relative due date, title, teacher · class,
+title links through) → CATALOGUE (topic/level filter chips, 2-up cards:
+badges, title, duration, View details) → RECENTLY COMPLETED (score cards).
+Join lives on My Classes (sidebar); teachers/activity/checklist are not
+on this surface. No part is built or faked before its data exists —
+streak, goal, and filters all derive from real rows.
 
 ## 13. Authenticated App Shell
 

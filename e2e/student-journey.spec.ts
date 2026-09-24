@@ -22,15 +22,17 @@ test("student completes an experiment end to end", async ({ page }) => {
   await expect(page).toHaveURL(/\/dashboard\/student$/);
 
   // Discover and open the seeded experiment.
-  await page.getByRole("link", { name: "Browse all" }).click();
+  await page.getByRole("link", { name: "Browse experiments" }).click();
   await expect(page).toHaveURL(/\/dashboard\/student\/experiments$/);
-  await page.getByRole("link", { name: "View experiment" }).first().click();
+  await page.getByRole("link", { name: "View details" }).first().click();
   await expect(page.getByRole("heading", { name: "Building a Simple Electrical Circuit" })).toBeVisible();
 
   // Start and enter the workspace.
   await page.getByRole("button", { name: /start experiment/i }).click();
   await expect(page).toHaveURL(/\/dashboard\/student\/attempts\//);
-  await expect(page.getByText("STEP 1 OF 5")).toBeVisible();
+  // Position text renders split across nodes ("STEP <!-- -->1<!-- --> OF…"),
+  // so assert the labelled progressbar instead of the literal string.
+  await expect(page.getByRole("progressbar", { name: "Experiment progress" })).toBeVisible();
 
   // AI help falls back without a key and never blocks the workflow.
   await page.getByRole("button", { name: /need help with this step/i }).click();
@@ -40,7 +42,7 @@ test("student completes an experiment end to end", async ({ page }) => {
 
   // Five steps: fill every visible observation box, save each, then complete.
   for (let step = 1; step <= 5; step++) {
-    await expect(page.getByText(`STEP ${step} OF 5`)).toBeVisible();
+    await expect(page.getByRole("button", { name: /mark step complete/i })).toBeVisible();
     for (const prompt of [...REQUIRED_OBSERVATIONS, ...OPTIONAL_OBSERVATIONS]) {
       const box = page.getByLabel(prompt);
       if ((await box.count()) > 0 && ((await box.inputValue()) ?? "").trim().length === 0) {

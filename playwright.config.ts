@@ -12,7 +12,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 120000,
   // Generous assertions: a cold Next dev server compiles routes on first hit.
-  expect: { timeout: 20000 },
+  expect: { timeout: 45000 },
   workers: 1,
   use: {
     baseURL: "http://localhost:3100",
