@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Reference layout skeletons (different stack: shadcn/lucide).
+    "docs/*.tsx",
   ]),
 ]);
 

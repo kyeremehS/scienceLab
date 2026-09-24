@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { buildAttemptState } from "@/lib/attempts-service";
+import { NavLink } from "@/app/NavLink";
 import { AIPanel } from "./AIPanel";
 import { AssessmentSection } from "./AssessmentSection";
 
@@ -126,7 +127,7 @@ function ObservationBox({
 }
 
 /** Experiment workspace, focus mode: one step, one action, quiet chrome (FR-STU-10–FR-STU-16). */
-export function AttemptRunner({ initial }: { initial: AttemptState }) {
+export function AttemptRunner({ initial, title }: { initial: AttemptState; title: string }) {
   const [state, setState] = useState<AttemptState>(initial);
   const [error, setError] = useState<string | null>(null);
   const [stepPending, setStepPending] = useState(false);
@@ -176,18 +177,27 @@ export function AttemptRunner({ initial }: { initial: AttemptState }) {
 
   return (
     <div className="flex w-full flex-col gap-8">
-      {/* Slim progress header */}
-      <div>
-        <div className="flex items-baseline justify-between gap-4">
-          <p className="font-mono text-xs text-ink-3">
+      {/* Sticky workspace header: back, title, live position. Static on
+          mobile where the shell header already sticks. */}
+      <div className="md:sticky md:top-0 md:z-20 md:-mx-6 md:border-b md:border-line md:bg-canvas/95 md:px-6 md:py-3 md:backdrop-blur">
+        <div className="flex min-w-0 items-center gap-3">
+          <NavLink
+            href={`/dashboard/student/experiments/${state.attempt.experimentId}`}
+            arrow="back"
+            className="shrink-0"
+          >
+            Experiment
+          </NavLink>
+          <p className="min-w-0 truncate text-sm font-semibold">{title}</p>
+          <p className="ml-auto shrink-0 font-mono text-xs text-ink-3">
             STEP {currentPosition} OF {totalCount}
           </p>
-          <p className="font-mono text-xs text-ink-3">
-            {state.progress.requiredObservationsRecorded}/{state.progress.requiredObservationsTotal} OBSERVATIONS
-          </p>
         </div>
+      </div>
+      {/* Slim progress header: trace + dots + observation count */}
+      <div>
         <div
-          className="mt-2 h-1 overflow-hidden rounded-full bg-raised"
+          className="h-1 overflow-hidden rounded-full bg-raised"
           role="progressbar"
           aria-valuenow={doneCount}
           aria-valuemin={0}
@@ -196,8 +206,9 @@ export function AttemptRunner({ initial }: { initial: AttemptState }) {
         >
           <div className="h-full rounded-full bg-accent" style={{ width: `${progressPct}%` }} />
         </div>
-        {/* Step dots: jump anywhere; completed steps stay completed */}
-        <div className="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Steps">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          {/* Step dots: jump anywhere; completed steps stay completed */}
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Steps">
           {state.steps.map((s) => {
             const active = s.id === selected.id;
             const done = s.status === "COMPLETED";
@@ -220,6 +231,10 @@ export function AttemptRunner({ initial }: { initial: AttemptState }) {
               </button>
             );
           })}
+          </div>
+          <p className="font-mono text-xs text-ink-3">
+            {state.progress.requiredObservationsRecorded}/{state.progress.requiredObservationsTotal} OBSERVATIONS
+          </p>
         </div>
       </div>
 
