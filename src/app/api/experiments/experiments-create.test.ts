@@ -50,7 +50,7 @@ async function registerAs(role: "STUDENT" | "TEACHER", tag: string) {
 
 function validPackage(overrides: Record<string, unknown> = {}) {
   return {
-    title: "Teacher Magnetism",
+    title: `Teacher Magnetism ${stamp}`,
     description: "Explore magnets.",
     objectives: "Understand poles.",
     materials: "Magnets\nIron filings",
@@ -197,7 +197,14 @@ describe.skipIf(!hasDb)("teacher experiment creation", () => {
 
   it("FR-TEA-31: validation rejects malformed packages without partial rows", async () => {
     const teacher = await registerAs("TEACHER", "bad");
-    const before = await db.select({ id: experiments.id }).from(experiments);
+    const countOurs = async () =>
+      (
+        await db
+          .select({ id: experimentVersions.id })
+          .from(experimentVersions)
+          .where(like(experimentVersions.title, `Teacher Magnetism ${stamp}%`))
+      ).length;
+    const before = await countOurs();
 
     const cases: Record<string, unknown>[] = [
       validPackage({ title: "" }),
@@ -229,8 +236,7 @@ describe.skipIf(!hasDb)("teacher experiment creation", () => {
       const res = await handleCreateExperiment(teacher.authed("/api/experiments", postPackage(pkg)));
       expect(res.status).toBe(400);
     }
-    const after = await db.select({ id: experiments.id }).from(experiments);
-    expect(after.length).toBe(before.length);
+    expect(await countOurs()).toBe(before);
   });
 
   it("FR-TEA-31: students cannot create; created content is assignable and startable", async () => {

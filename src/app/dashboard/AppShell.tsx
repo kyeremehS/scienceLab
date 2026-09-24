@@ -138,10 +138,13 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
       >
         Skip to content
       </a>
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-surface px-4 py-6 md:flex">
-        <p className="whitespace-nowrap px-3 text-sm font-semibold tracking-[0.18em]">SCIENCELAB</p>
-        <nav aria-label="Primary" className="mt-8 flex-1">
+      {/* Desktop sidebar: 280px rail, 72px icon rail on md */}
+      <aside className="sticky top-0 hidden h-screen shrink-0 flex-col border-r border-line bg-surface md:flex md:w-[72px] lg:w-[280px]">
+        <div className="flex h-16 shrink-0 items-center border-b border-line px-4 lg:px-6">
+          <p className="hidden whitespace-nowrap text-sm font-semibold tracking-[0.18em] lg:block">SCIENCELAB</p>
+          <p aria-hidden="true" className="text-sm font-semibold lg:hidden">SL</p>
+        </div>
+        <nav aria-label="Primary" className="flex-1 overflow-y-auto p-3">
           <ul className="flex flex-col gap-1">
             {links.map((l) => (
               <li key={l.href}>
@@ -149,7 +152,8 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
                   href={l.href}
                   onClick={() => setMenuOpen(false)}
                   aria-current={isActive(l.href) ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  title={l.label}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors md:justify-center lg:justify-start ${
                     isActive(l.href)
                       ? "bg-accent/[0.08] text-ink"
                       : "text-ink-2 hover:bg-raised hover:text-ink"
@@ -158,7 +162,7 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
                   <span aria-hidden="true" className={isActive(l.href) ? "text-accent-ink" : ""}>
                     <l.icon />
                   </span>
-                  {l.label}
+                  <span className="hidden lg:inline">{l.label}</span>
                 </Link>
               </li>
             ))}

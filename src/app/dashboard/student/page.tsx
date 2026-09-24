@@ -6,9 +6,8 @@ import { assessmentSubmissions, assignments, classes, classMemberships, users } 
 import { experimentAttempts, experimentSteps, experimentVersions } from "@/db/schema";
 import { stepProgress } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
-import { Hero, StatCards } from "../Hero";
 import { FirstStepsChecklist } from "./FirstStepsChecklist";
-import { ExperimentCard } from "./experiments/ExperimentCard";
+import { CatalogueExplorer } from "./CatalogueExplorer";
 
 export default async function StudentDashboard() {
   const user = await getPageUser();
@@ -116,10 +115,14 @@ export default async function StudentDashboard() {
     }),
   );
   const inProgress = attemptMeta.filter((a) => a.status === "IN_PROGRESS");
-  const recentlyCompleted = attemptMeta
-    .filter((a) => a.status === "COMPLETED")
+  const completedAll = attemptMeta.filter((a) => a.status === "COMPLETED");
+  const scored = completedAll.filter((a) => a.score !== null);
+  const avgScore =
+    scored.length === 0 ? null : Math.round((scored.reduce((s, a) => s + Number(a.score), 0) / scored.length) * 100);
+  const recentlyCompleted = [...completedAll]
     .sort((a, b) => +new Date(b.completedAt ?? 0) - +new Date(a.completedAt ?? 0))
     .slice(0, 3);
+  const continuing = inProgress[0] ?? null;
 
   const firstName = user.name.split(" ")[0];
   const teachers = [...new Set(joined.map((c) => c.teacherName))];
@@ -133,80 +136,147 @@ export default async function StudentDashboard() {
     .slice(0, 4);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-      <Hero
-        eyebrow={today}
-        title={`Good morning, ${firstName}.`}
-        subtitle={
-          joined.length > 0
-            ? "Continue your practical learning journey."
-            : "Join a class or explore an experiment to begin."
-        }
-        cta={
-          joined.length > 0
-            ? { label: "Browse experiments →", href: "/dashboard/student/experiments" }
-            : undefined
-        }
-      />
-
-      <StatCards
-        stats={[
-          { value: String(experimentsWithCounts.length), label: "Experiments available" },
-          { value: String(joined.length), label: joined.length === 1 ? "Class joined" : "Classes joined" },
-          { value: String(teachers.length), label: teachers.length === 1 ? "Teacher" : "Teachers" },
-        ]}
-      />
-
-      <section aria-labelledby="experiments">
-        {assignedWork.length > 0 ? (
-          <div className="mb-8">
-            <h2 id="assigned" className="text-base font-semibold tracking-tight">
-              Assigned work
-            </h2>
-            <ul className="mt-3 flex flex-col gap-2">
-              {assignedWork.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8">
+      {/* Hero row: continue (dominant) + progress summary (quiet) */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <section
+          aria-labelledby="continue-heading"
+          className="flex flex-col justify-between gap-6 rounded-xl border border-line bg-surface p-6 lg:col-span-8"
+        >
+          {continuing ? (
+            <>
+              <div>
+                <p className="font-mono text-xs text-ink-3">CONTINUE WHERE YOU LEFT OFF</p>
+                <h2 id="continue-heading" className="mt-1 text-xl font-semibold tracking-tight">
+                  {continuing.title}
+                </h2>
+                <p className="mt-1 text-sm text-ink-2">
+                  Step {continuing.stepsCompleted + 1} of {continuing.stepsTotal}
+                </p>
+              </div>
+              <div>
+                <div
+                  className="h-1.5 w-full overflow-hidden rounded-full bg-raised"
+                  role="progressbar"
+                  aria-valuenow={continuing.stepsCompleted}
+                  aria-valuemin={0}
+                  aria-valuemax={continuing.stepsTotal}
+                  aria-label="Attempt progress"
                 >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold">{a.title}</span>
-                    <span className="block font-mono text-xs text-ink-3">
-                      {a.className.toUpperCase()} · {a.status.replace("_", " ")}
-                      {a.dueAt ? ` · DUE ${new Date(a.dueAt).toLocaleDateString().toUpperCase()}` : ""}
-                    </span>
+                  <div
+                    className="h-full rounded-full bg-accent"
+                    style={{ width: `${continuing.stepsTotal > 0 ? Math.round((continuing.stepsCompleted / continuing.stepsTotal) * 100) : 0}%` }}
+                  />
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-4">
+                  <span className="font-mono text-xs text-ink-3">
+                    {continuing.stepsCompleted}/{continuing.stepsTotal} STEPS
                   </span>
+                  <NavLink href={`/dashboard/student/attempts/${continuing.id}`} arrow="forward">
+                    Resume experiment
+                  </NavLink>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <p className="font-mono text-xs text-ink-3">{today.toUpperCase()}</p>
+                <h2 id="continue-heading" className="mt-1 text-xl font-semibold tracking-tight">
+                  Good morning, {firstName}.
+                </h2>
+                <p className="mt-1 text-sm text-ink-2">
+                  {joined.length > 0
+                    ? "Continue your practical learning journey."
+                    : "Join a class or explore an experiment to begin."}
+                </p>
+              </div>
+              <div>
+                <NavLink href="/dashboard/student/experiments" arrow="forward">
+                  Browse experiments
+                </NavLink>
+              </div>
+            </>
+          )}
+        </section>
+
+        <section
+          aria-labelledby="progress-heading"
+          className="flex flex-col items-start justify-center gap-2 rounded-xl border border-line bg-surface p-6 lg:col-span-4"
+        >
+          <h2 id="progress-heading" className="font-mono text-xs text-ink-3">YOUR PROGRESS</h2>
+          <p className="text-2xl font-semibold tracking-tight">
+            {completedAll.length}
+            <span className="ml-2 text-sm font-normal text-ink-2">
+              completed · {inProgress.length} in progress{avgScore !== null ? ` · ${avgScore}% avg` : ""}
+            </span>
+          </p>
+          <p className="text-xs text-ink-3">{joined.length} class{joined.length === 1 ? "" : "es"} joined</p>
+        </section>
+      </div>
+
+      {assignedWork.length > 0 ? (
+        <section aria-labelledby="assigned">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 id="assigned" className="text-base font-semibold tracking-tight">
+              Assigned by your teacher
+            </h2>
+            <p className="font-mono text-xs text-ink-3">{assignedWork.length} ACTIVE</p>
+          </div>
+          <div className="-mx-1 mt-3 flex gap-4 overflow-x-auto px-1 pb-2">
+            {assignedWork.map((a) => (
+              <div
+                key={a.id}
+                className="flex w-[260px] shrink-0 flex-col gap-2 rounded-lg border border-line bg-surface p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${
+                      a.status === "COMPLETED"
+                        ? "bg-success/10 text-success"
+                        : a.status === "IN_PROGRESS"
+                          ? "bg-accent/[0.08] text-accent-ink"
+                          : "bg-raised text-ink-2"
+                    }`}
+                  >
+                    {a.status.replace("_", " ")}
+                  </span>
+                  {a.dueAt ? (
+                    <span className="truncate text-[11px] text-ink-3">
+                      Due {new Date(a.dueAt).toLocaleDateString()}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="text-sm font-medium leading-snug">{a.title}</p>
+                <p className="truncate text-xs text-ink-3">{a.className}</p>
+                <p className="mt-1">
                   <NavLink
                     href={a.attemptId ? `/dashboard/student/attempts/${a.attemptId}` : `/dashboard/student/experiments/${a.experimentId}`}
                     arrow="forward"
-                    className="shrink-0"
                   >
                     {a.status === "NOT_STARTED" ? "Start" : a.status === "COMPLETED" ? "Review" : "Continue"}
                   </NavLink>
-                </li>
-              ))}
-            </ul>
+                </p>
+              </div>
+            ))}
           </div>
-        ) : null}
+        </section>
+      ) : null}
+
+      <section aria-labelledby="experiments">
         <div className="flex items-baseline justify-between">
           <h2 id="experiments" className="text-base font-semibold tracking-tight">
-            Your experiments
+            Explore the catalogue
           </h2>
           <NavLink href="/dashboard/student/experiments">
             Browse all
           </NavLink>
         </div>
-        {experimentsWithCounts.length === 0 ? (
-          <p className="mt-3 text-sm text-ink-2">No published experiments yet.</p>
-        ) : (
-          <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {experimentsWithCounts.map((e) => (
-              <ExperimentCard key={e.experimentId} experiment={e} />
-            ))}
-          </ul>
-        )}
+        <CatalogueExplorer experiments={experimentsWithCounts} />
+      </section>
 
-        <h2 className="mt-8 text-base font-semibold tracking-tight">My classes</h2>
+      <section aria-labelledby="my-classes">
+        <h2 id="my-classes" className="text-base font-semibold tracking-tight">My classes</h2>
         {joined.length === 0 ? (
           <p className="mt-2 text-sm text-ink-2">
             You haven&apos;t joined a class yet — see the first steps below.
@@ -220,54 +290,32 @@ export default async function StudentDashboard() {
             .
           </p>
         )}
-        {inProgress.length > 0 ? (
-          <div className="mt-8">
-            <h2 className="text-base font-semibold tracking-tight">In progress</h2>
-            <ul className="mt-3 flex flex-col gap-2">
-              {inProgress.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold">{a.title}</span>
-                    <span className="block font-mono text-xs text-ink-3">
-                      STEP {a.stepsCompleted} OF {a.stepsTotal}
-                    </span>
-                  </span>
-                  <NavLink href={`/dashboard/student/attempts/${a.id}`} arrow="forward" className="shrink-0">
-                    Continue
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        {recentlyCompleted.length > 0 ? (
-          <div className="mt-8">
-            <h2 className="text-base font-semibold tracking-tight">Recently completed</h2>
-            <ul className="mt-3 flex flex-col gap-2">
-              {recentlyCompleted.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold">{a.title}</span>
-                    <span className="block font-mono text-xs text-ink-3">
-                      {a.score !== null ? `SCORE ${Math.round(Number(a.score) * 100)}% · ` : ""}
-                      {a.completedAt ? new Date(a.completedAt).toLocaleDateString().toUpperCase() : ""}
-                    </span>
-                  </span>
-                  <NavLink href={`/dashboard/student/attempts/${a.id}`} arrow="forward" className="shrink-0">
-                    Review
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
       </section>
+
+      {recentlyCompleted.length > 0 ? (
+        <section aria-labelledby="recently-completed">
+          <h2 id="recently-completed" className="text-base font-semibold tracking-tight">Recently completed</h2>
+          <ul className="mt-3 flex flex-col gap-2">
+            {recentlyCompleted.map((a) => (
+              <li
+                key={a.id}
+                className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold">{a.title}</span>
+                  <span className="block font-mono text-xs text-ink-3">
+                    {a.score !== null ? `SCORE ${Math.round(Number(a.score) * 100)}% · ` : ""}
+                    {a.completedAt ? new Date(a.completedAt).toLocaleDateString().toUpperCase() : ""}
+                  </span>
+                </span>
+                <NavLink href={`/dashboard/student/attempts/${a.id}`} arrow="forward" className="shrink-0">
+                  Review
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <div aria-label="Progress panel" className="grid gap-8 border-t border-line pt-8 sm:grid-cols-3">
         <section aria-labelledby="teachers">
