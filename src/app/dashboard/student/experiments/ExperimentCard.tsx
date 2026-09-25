@@ -38,8 +38,8 @@ export function ExperimentCard({
         featured ? "sm:col-span-2" : ""
       }`}
     >
-      <div className="border-b border-line bg-canvas px-4 pt-3">
-        <ExperimentVisual topic={experiment.topic} className="mx-auto w-full max-w-[220px]" />
+      <div className="flex h-44 shrink-0 items-center justify-center border-b border-line bg-canvas px-4">
+        <ExperimentVisual topic={experiment.topic} className="h-full w-auto max-w-full" />
       </div>
       <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -55,7 +55,7 @@ export function ExperimentCard({
             </span>
           ) : null}
         </div>
-        <p className="font-display text-lg font-semibold tracking-tight">{experiment.title}</p>
+        <p className="min-h-[3.25rem] font-display text-lg font-semibold leading-snug tracking-tight">{experiment.title}</p>
         <div className="flex items-center gap-4 text-sm text-ink-2">
           <span>{experiment.stepCount} steps</span>
           <span>{experiment.durationMinutes} min</span>
