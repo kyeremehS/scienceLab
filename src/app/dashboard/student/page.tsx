@@ -220,10 +220,10 @@ export default async function StudentDashboard() {
 
         <section
           aria-labelledby="progress-heading"
-          className="flex flex-col justify-center gap-3 rounded-xl border border-line bg-surface p-6 lg:col-span-4"
+          className="lg:col-span-4"
         >
           <h2 id="progress-heading" className="text-sm font-medium text-ink-2">Your progress</h2>
-          <dl className="grid grid-cols-3 gap-3">
+          <dl className="mt-2 flex gap-6">
             <div>
               <dt className="text-xs text-ink-3">Completed</dt>
               <dd className="mt-0.5 text-2xl font-semibold tracking-tight">{completedAll.length}</dd>
@@ -239,7 +239,7 @@ export default async function StudentDashboard() {
               </dd>
             </div>
           </dl>
-          <p className="text-xs text-ink-3">{joined.length} class{joined.length === 1 ? "" : "es"} joined</p>
+          <p className="mt-1 text-xs text-ink-3">{joined.length} class{joined.length === 1 ? "" : "es"} joined</p>
         </section>
       </div>
 
@@ -251,15 +251,15 @@ export default async function StudentDashboard() {
             </h2>
             <p className="text-sm text-ink-3">{assignedWork.length} active</p>
           </div>
-          <div className="-mx-1 mt-3 flex gap-4 overflow-x-auto px-1 pb-2">
-            {assignedWork.map((a) => (
-              <div
+          <ul className="mt-3 flex flex-col">
+            {assignedWork.map((a, i) => (
+              <li
                 key={a.id}
-                className="flex w-[260px] shrink-0 flex-col gap-2 rounded-lg border border-line bg-surface p-4"
+                className={`flex items-center justify-between gap-4 py-3 ${i !== assignedWork.length - 1 ? "border-b border-line" : ""}`}
               >
-                <div className="flex items-center gap-2">
+                <span className="flex min-w-0 items-center gap-3">
                   <span
-                    className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${
+                    className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] ${
                       a.status === "COMPLETED"
                         ? "bg-success/10 text-success"
                         : a.status === "IN_PROGRESS"
@@ -269,25 +269,24 @@ export default async function StudentDashboard() {
                   >
                     {a.status.replace("_", " ")}
                   </span>
-                  {a.dueAt ? (
-                    <span className="truncate text-[11px] text-ink-3">
-                      Due {new Date(a.dueAt).toLocaleDateString()}
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{a.title}</span>
+                    <span className="block truncate text-xs text-ink-3">
+                      {a.className}
+                      {a.dueAt ? ` · Due ${new Date(a.dueAt).toLocaleDateString()}` : ""}
                     </span>
-                  ) : null}
-                </div>
-                <p className="text-sm font-medium leading-snug">{a.title}</p>
-                <p className="truncate text-xs text-ink-3">{a.className}</p>
-                <p className="mt-1">
-                  <NavLink
-                    href={a.attemptId ? `/dashboard/student/attempts/${a.attemptId}` : `/dashboard/student/experiments/${a.experimentId}`}
-                    arrow="forward"
-                  >
-                    {a.status === "NOT_STARTED" ? "Start" : a.status === "COMPLETED" ? "Review" : "Continue"}
-                  </NavLink>
-                </p>
-              </div>
+                  </span>
+                </span>
+                <NavLink
+                  href={a.attemptId ? `/dashboard/student/attempts/${a.attemptId}` : `/dashboard/student/experiments/${a.experimentId}`}
+                  arrow="forward"
+                  className="shrink-0"
+                >
+                  {a.status === "NOT_STARTED" ? "Start" : a.status === "COMPLETED" ? "Review" : "Continue"}
+                </NavLink>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ) : null}
 
@@ -306,10 +305,7 @@ export default async function StudentDashboard() {
         />
       </section>
 
-      <section
-        aria-labelledby="my-classes"
-        className="rounded-xl border border-line bg-surface p-5 sm:p-6"
-      >
+      <section aria-labelledby="my-classes">
         <h2 id="my-classes" className="font-display text-lg font-semibold tracking-tight">My classes</h2>
         {joined.length === 0 ? (
           <p className="mt-2 text-sm text-ink-2">
@@ -329,53 +325,39 @@ export default async function StudentDashboard() {
       {recentlyCompleted.length > 0 ? (
         <section aria-labelledby="recently-completed">
           <h2 id="recently-completed" className="font-display text-lg font-semibold tracking-tight">Recently completed</h2>
-          <ul className="mt-3 grid gap-4 sm:grid-cols-2">
-            {recentlyCompleted.map((a) => (
+          <ul className="mt-1 flex flex-col">
+            {recentlyCompleted.map((a, i) => (
               <li
                 key={a.id}
-                className="rounded-xl border border-line bg-surface p-5"
+                className={`flex items-center justify-between gap-4 py-3 ${i !== recentlyCompleted.length - 1 ? "border-b border-line" : ""}`}
               >
-                <p className="font-display text-base font-semibold tracking-tight">{a.title}</p>
-                <dl className="mt-3 grid grid-cols-2 gap-3">
-                  <div>
-                    <dt className="text-xs text-ink-3">Score</dt>
-                    <dd className="mt-0.5 text-lg font-semibold tracking-tight">
-                      {a.score !== null ? `${Math.round(Number(a.score) * 100)}%` : "—"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-ink-3">Completed</dt>
-                    <dd className="mt-0.5 text-lg font-semibold tracking-tight">
-                      {a.completedAt ? new Date(a.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—"}
-                    </dd>
-                  </div>
-                </dl>
-                <p className="mt-3">
-                  <Link
-                    href={`/dashboard/student/attempts/${a.id}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-ink"
-                  >
-                    Review
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </Link>
-                </p>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold">{a.title}</span>
+                  <span className="mt-0.5 flex gap-4 text-xs text-ink-3">
+                    <span>Score {a.score !== null ? `${Math.round(Number(a.score) * 100)}%` : "—"}</span>
+                    <span>{a.completedAt ? new Date(a.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""}</span>
+                  </span>
+                </span>
+                <Link
+                  href={`/dashboard/student/attempts/${a.id}`}
+                  className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-accent-ink"
+                >
+                  Review
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </Link>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <section
-          aria-labelledby="teacher-info"
-          className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 sm:p-6 lg:col-span-4"
-        >
-          <div>
-            <h2 id="teachers" className="text-sm font-medium text-ink-2">
-              Your teachers
-            </h2>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-4">
+          <h2 id="teachers" className="text-sm font-medium text-ink-2">
+            Your teachers
+          </h2>
             {teachers.length === 0 ? (
               <p className="mt-2 text-sm text-ink-2">
                 No teachers yet — join a class with a code from your teacher.
@@ -397,9 +379,7 @@ export default async function StudentDashboard() {
             )}
           </div>
 
-          <div className="border-t border-line" role="separator" />
-
-          <div>
+          <div className="mt-6 border-t border-line pt-6">
             <h2 id="activity" className="text-sm font-medium text-ink-2">
               Recent activity
             </h2>
@@ -420,11 +400,10 @@ export default async function StudentDashboard() {
               </ul>
             )}
           </div>
-        </section>
 
         <section
           aria-labelledby="first-steps"
-          className="rounded-xl border border-copper/40 bg-surface p-5 sm:p-6 lg:col-span-8"
+          className="border-l-2 border-copper pl-4 sm:pl-5 lg:col-span-8"
         >
           <h2 id="first-steps" className="font-display text-lg font-semibold tracking-tight">First steps</h2>
           <p className="mt-1 text-sm text-ink-2">Your next actions toward finishing a first experiment.</p>
