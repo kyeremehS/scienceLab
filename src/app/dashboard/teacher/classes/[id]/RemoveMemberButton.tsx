@@ -49,7 +49,7 @@ export function RemoveMemberButton({ classId, studentId, studentName }: { classI
         disabled={pending}
         className="rounded-lg bg-foreground px-3 py-1.5 text-sm font-medium text-background disabled:opacity-50"
       >
-        {pending ? "Removing…" : "Confirm"}
+        Confirm
       </button>
       <button
         type="button"

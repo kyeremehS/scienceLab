@@ -71,7 +71,7 @@ export function AIPanel({ attemptId, stepId }: { attemptId: string; stepId: stri
         disabled={pending}
         className="mt-2 rounded-lg border border-line px-4 py-1.5 text-sm font-medium transition-opacity disabled:opacity-50"
       >
-        {pending ? "Asking…" : "Ask for help"}
+        Ask for help
       </button>
       {answer ? (
         <div className="mt-3 rounded-lg border border-line bg-canvas px-4 py-3">

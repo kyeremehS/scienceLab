@@ -53,7 +53,7 @@ export function StartExperimentButton({
         disabled={pending}
         className="rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
       >
-        {pending ? "Starting…" : hasAttempt ? "Continue experiment" : "Start experiment"}
+        {hasAttempt ? "Continue experiment" : "Start experiment"}
       </button>
     </div>
   );

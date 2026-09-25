@@ -148,7 +148,7 @@ export default function RegisterPage() {
           disabled={pending}
           className="w-full rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
         >
-          {pending ? "Creating account…" : "Create account"}
+          Create account
         </button>
       </form>
       <p className="mt-4 text-sm text-ink-2">

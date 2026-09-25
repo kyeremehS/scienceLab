@@ -57,7 +57,7 @@ export function JoinClassForm({ compact = false }: { compact?: boolean }) {
         disabled={pending}
         className="w-full rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
       >
-        {pending ? "Joining…" : "Join class"}
+        Join class
       </button>
     </form>
   );

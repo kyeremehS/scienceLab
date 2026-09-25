@@ -334,7 +334,7 @@ export function AssignmentsManager({ classId }: { classId: string }) {
             disabled={creating || !experimentId}
             className="self-start rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
           >
-            {creating ? "Assigning…" : "Assign experiment"}
+            Assign experiment
           </button>
         </form>
       </section>

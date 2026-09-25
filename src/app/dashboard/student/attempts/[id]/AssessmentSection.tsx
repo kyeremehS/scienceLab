@@ -202,7 +202,7 @@ export function AssessmentSection({
               disabled={completing}
               className="mt-6 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
             >
-              {completing ? "Completing…" : "Complete experiment →"}
+              Complete experiment →
             </button>
           ) : null}
         </section>
@@ -257,7 +257,7 @@ export function AssessmentSection({
             disabled={pending}
             className="self-start rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
           >
-            {pending ? "Submitting…" : "Submit assessment"}
+            Submit assessment
           </button>
         </form>
       )}

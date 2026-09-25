@@ -54,7 +54,7 @@ export function LeaveClassButton({ classId, className }: { classId: string; clas
           onClick={leave}
           className="rounded-lg border border-line px-3 py-1 text-[13px] font-medium text-error disabled:opacity-50"
         >
-          {pending ? "Leaving…" : "Leave class"}
+          Leave class
         </button>
         <button
           type="button"

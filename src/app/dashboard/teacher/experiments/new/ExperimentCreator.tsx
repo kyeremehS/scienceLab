@@ -258,7 +258,7 @@ export function ExperimentCreator() {
         disabled={pending}
         className="self-start rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
       >
-        {pending ? "Publishing…" : "Publish experiment"}
+        Publish experiment
       </button>
     </form>
   );

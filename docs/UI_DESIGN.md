@@ -76,7 +76,8 @@ never a typed arrow character.
 
 Light mode is a luminance shift of the same identity, never a separate look.
 
-**Motion:** subtle and purposeful only (label swaps, loading states). No
+**Motion:** subtle and purposeful only (loading states). Buttons keep a
+static label and disable while pending — never label swaps. No
 decorative animation.
 
 **Tone:** technical, educational, practical. Landing and product copy state
@@ -130,7 +131,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 - Heading `Welcome back`, subheading `Sign in to continue learning.`
 - Fields: Email, Password (with in-field eye-icon toggle, `aria-label` + `aria-pressed`).
-- Primary button: full-width `Sign in`, loading state `Signing in…` (disabled while pending).
+- Primary button: full-width `Sign in` (static label, disabled while pending).
 - Secondary: `Forgot password?`, then `No account yet? Register`.
 - Errors shown in a single `role="alert"` paragraph above the button: invalid input messages from server, or generic `Invalid email or password.` Never indicate which field failed.
 
@@ -139,7 +140,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 - Heading `Create your account`, subheading `Start learning science by doing.`
 - Fields per requirements (`FR-STU-01`, `FR-TEA-01`): Full name, Email, Password (min 8, shown as helper text), Confirm password (client-side match check only — never sent, never validated server-side), role selector `I am a…` (Student/Teacher radio, legend visually hidden but present for screen readers).
 - Role selection chooses the endpoint (`/api/auth/register/student` vs `/teacher`); the body carries only name/email/password. The selector renders as two selectable cards (Student / Teacher) in a `fieldset` + `legend`; the native radio is visually hidden but remains the accessible control. Selected card: accent border + very subtle tint (`bg-accent/[0.05]`) — state, not emphasis. No Admin option exists anywhere in registration — the server exposes no admin-registration route and ignores body-provided roles.
-- Primary button: full-width `Create account`, loading state `Creating account…`.
+- Primary button: full-width `Create account` (static label, disabled while pending).
 - Secondary: `Already have an account? Log in`.
 - Errors in `role="alert"`: field validation, or `An account with this email already exists.` on duplicate. No terms/privacy text (no such pages exist in the MVP).
 
@@ -153,7 +154,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 ## 4. Validation, Loading, and Error States
 
 - Client performs only format pre-checks (required attributes, `type="email"`, `minLength`); the server verdict is authoritative and its message is what renders.
-- While pending: button disabled + loading label. Form stays interactive except submission.
+- While pending: button disabled (label unchanged). Form stays interactive except submission.
 - Errors: single assertive region (`role="alert"`), error-token text, preserved across renders until next submit.
 
 ## 5. Responsive Behavior
@@ -166,7 +167,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
   one viewport is incomplete.
 - Form column width: capped at 520px on desktop; `max-w-md` on mobile.
 - Brand and form blocks are each internally compact with no large vertical gaps; both sides vertically centered on desktop.
-- No layout shift between idle/loading/error states (button label swaps, region reserved by flow).
+- No layout shift between idle/loading/error states (static labels, region reserved by flow).
 
 ## 6. Accessibility (`CR-11`)
 
@@ -364,7 +365,7 @@ state). Name the delivering phase when the capability is future work.
 
 ## 16. Loading, Error, and Discovery States
 
-- Loading: button label swap + disabled; skeletons only for known-length
+- Loading: static label + disabled; skeletons only for known-length
   content (dashboard cards); no spinners for sub-second transitions.
 - Errors: single assertive region with the server message; route-level
   failures redirect to the nearest list (unknown class/experiment →
