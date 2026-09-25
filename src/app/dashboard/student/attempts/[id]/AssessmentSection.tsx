@@ -63,9 +63,11 @@ function ResultView({ result }: { result: ResultData }) {
 export function AssessmentSection({
   attemptId,
   onCompleted,
+  onBlocked,
 }: {
   attemptId: string;
   onCompleted: (state: AttemptState) => void;
+  onBlocked: () => void;
 }) {
   const [assessment, setAssessment] = useState<{
     id: string;
@@ -152,9 +154,14 @@ export function AssessmentSection({
         attempt?: AttemptState;
         completed?: boolean;
         error?: string;
+        remaining?: { steps: number; observations: number; assessment: boolean };
       } | null;
       if (!res.ok || !data?.attempt) {
         setError(data?.error ?? "Could not complete the experiment.");
+        // Guide the student back: jump to the first step that still needs work.
+        if (res.status === 422 && data?.remaining && (data.remaining.observations > 0 || data.remaining.steps > 0)) {
+          onBlocked();
+        }
         setCompleting(false);
         return;
       }

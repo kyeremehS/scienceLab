@@ -175,6 +175,22 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
   const progressPct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
   const currentPosition = selectedIndex >= 0 ? selectedIndex + 1 : doneCount;
 
+  function missingObservationCount(s: StepState): number {
+    return s.observations.filter((o) => o.required && !o.observationId).length;
+  }
+
+  /** Jump to the first step still missing a required observation (or step). */
+  function focusFirstIncomplete() {
+    const stepWithMissingObs = state.steps.find((s) => missingObservationCount(s) > 0);
+    if (stepWithMissingObs) {
+      setSelectedId(stepWithMissingObs.id);
+      return;
+    }
+    const incomplete = state.steps.find((s) => s.status !== "COMPLETED");
+    if (incomplete) setSelectedId(incomplete.id);
+    document.getElementById("step-title")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <div className="flex w-full flex-col gap-8">
       {/* Sticky workspace header: back, title, live position. Static on
@@ -212,14 +228,16 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
           {state.steps.map((s) => {
             const active = s.id === selected.id;
             const done = s.status === "COMPLETED";
+            const missing = missingObservationCount(s);
             return (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => setSelectedId(s.id)}
-                aria-label={`Step ${s.order}: ${s.title}, ${done ? "completed" : s.status === "CURRENT" ? "current" : "not started"}`}
+                aria-label={`Step ${s.order}: ${s.title}, ${done ? "completed" : s.status === "CURRENT" ? "current" : "not started"}${missing > 0 ? `, ${missing} required observation${missing === 1 ? "" : "s"} missing` : ""}`}
                 aria-current={active ? "step" : undefined}
-                className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs transition-colors ${
+                title={missing > 0 ? `${missing} required observation${missing === 1 ? "" : "s"} missing` : undefined}
+                className={`relative flex h-7 w-7 items-center justify-center rounded-full border text-xs transition-colors ${
                   active
                     ? "border-accent font-semibold text-accent-ink"
                     : done
@@ -228,6 +246,9 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
                 }`}
               >
                 <span aria-hidden="true">{done ? "✓" : s.order}</span>
+                {missing > 0 ? (
+                  <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-copper" />
+                ) : null}
               </button>
             );
           })}
@@ -293,7 +314,11 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
 
         {finished && (
           <div className="border-t border-line pt-6">
-            <AssessmentSection attemptId={state.attempt.id} onCompleted={setState} />
+            <AssessmentSection
+              attemptId={state.attempt.id}
+              onCompleted={setState}
+              onBlocked={focusFirstIncomplete}
+            />
           </div>
         )}
       </section>
