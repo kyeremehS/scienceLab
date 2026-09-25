@@ -110,6 +110,20 @@ describe.skipIf(!hasDb)("classes and membership", () => {
     expect(badCode.status).toBe(404);
   });
 
+  it("stores class names in normal case, never shouting capitals", async () => {
+    const teacher = await registerAs("TEACHER", "case");
+    const created = await handleCreateClass(
+      teacher.authed("/api/classes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "  PHYSICS 101 " }),
+      }),
+    );
+    expect(created.status).toBe(201);
+    const { class: cls } = (await created.json()) as { class: { id: string; name: string } };
+    expect(cls.name).toBe("Physics 101");
+  });
+
   it("enforces teacher ownership and preserves history on removal", async () => {
     const teacherA = await registerAs("TEACHER", "ta");
     const teacherB = await registerAs("TEACHER", "tb");

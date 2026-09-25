@@ -19,7 +19,7 @@ export function FirstStepsChecklist({ joinedClass }: { joinedClass: boolean }) {
 
   return (
     <ul className="flex flex-col gap-1">
-      {steps.map((s) => (
+      {steps.map((s, i) => (
         <li key={s.label}>
           {s.expandable ? (
             <div>
@@ -31,9 +31,9 @@ export function FirstStepsChecklist({ joinedClass }: { joinedClass: boolean }) {
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line text-xs text-transparent"
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[10px] text-ink-3"
                 >
-                  ✓
+                  {i + 1}
                 </span>
                 <span className="flex-1 text-ink-2">{s.label}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-ink-3">
@@ -50,11 +50,11 @@ export function FirstStepsChecklist({ joinedClass }: { joinedClass: boolean }) {
             <span className="flex items-center gap-3 px-2 py-1.5 text-sm">
               <span
                 aria-hidden="true"
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs ${
-                  s.done ? "border-accent bg-accent text-[#083f3c]" : "border-line text-transparent"
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] ${
+                  s.done ? "bg-copper text-[#0c0a09]" : "border border-line text-ink-3"
                 }`}
               >
-                ✓
+                {s.done ? "✓" : i + 1}
               </span>
               <span className={s.done ? "text-ink" : "text-ink-2"}>{s.label}</span>
             </span>

@@ -424,7 +424,7 @@ export default async function StudentDashboard() {
 
         <section
           aria-labelledby="first-steps"
-          className="rounded-xl border border-accent/25 bg-surface p-5 sm:p-6 lg:col-span-8"
+          className="rounded-xl border border-copper/40 bg-surface p-5 sm:p-6 lg:col-span-8"
         >
           <h2 id="first-steps" className="font-display text-lg font-semibold tracking-tight">First steps</h2>
           <p className="mt-1 text-sm text-ink-2">Your next actions toward finishing a first experiment.</p>

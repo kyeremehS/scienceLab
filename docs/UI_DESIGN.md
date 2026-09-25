@@ -42,9 +42,9 @@ Components consume these tokens, never raw palette values:
 
 | Token | Light | Dark |
 |---|---|---|
-| Page background (`--background`/`bg-canvas`) | `#FAFAF9` (warm off-white) | Near-black `#0A0A0A` |
-| Surface (`bg-surface`) | `#FFFFFF` | `#141414` |
-| Elevated (`bg-raised`, hovers) | `#F5F5F4` | `#1C1C1C` |
+| Page background (`--background`/`bg-canvas`) | `#FAFAF9` (warm off-white) | Warm off-black `#0C0A09` |
+| Surface (`bg-surface`) | `#FFFFFF` | `#151210` |
+| Elevated (`bg-raised`, hovers) | `#F5F5F4` | `#1E1A16` |
 | Border (`border-line`) | Black 10% | White 12% |
 | Primary text (`text-ink`) | `#171717` | `#F5F5F5` |
 | Secondary text (`text-ink-2`) | `#525252` | `#A3A3A3` |

@@ -43,7 +43,12 @@ export async function handleCreateClass(req: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
   const params = (body ?? {}) as Record<string, unknown>;
-  const name = typeof params.name === "string" ? params.name.trim() : "";
+  const rawName = typeof params.name === "string" ? params.name.trim() : "";
+  // Class names are data, not labels: store normal case like user names.
+  const name = rawName
+    .split(/\s+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
   if (name.length < 2 || name.length > 100) {
     return NextResponse.json({ error: "Class name must be 2–100 characters." }, { status: 400 });
   }
