@@ -21,13 +21,20 @@ textures, spacing, and interaction states — not decoration.
 ### Layout philosophy
 
 Sidebar + hero-as-current-state + summary cards + content cards, with
-context sections (teachers, activity, first steps) in a quiet full-width
-row below the main content — never a side rail competing with it. The
-dashboard answers "what should I do next?", not "what records
-exist?". The hero shows the student's live learning state (continue panel
-when an attempt exists, orientation otherwise); the teacher hero shows
-operational state. Every block is backed by live queries; upcoming slots are
-omitted or honestly labeled — never faked.
+context sections in cards below the main content — never a side rail
+competing with it. One containment rule per page: every distinct block
+gets its own card (same radius/border/fill), separated by spacing, never
+a mix of cards and bare sections. The dashboard answers "what should I
+do next?", not "what records exist?". The hero shows the student's live
+learning state (continue panel when an attempt exists, orientation
+otherwise); the teacher hero shows operational state. Every block is
+backed by live queries; upcoming slots are omitted or honestly labeled —
+never faked.
+
+Actionable content (checklists, next actions) gets more width and a
+stronger card than passive read-only info; passive blocks share a
+narrower, quieter card. Names are data and render in normal case —
+casing is normalized at registration, never shouted via CSS.
 
 ### Design tokens (`src/app/globals.css`)
 

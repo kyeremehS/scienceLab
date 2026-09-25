@@ -79,7 +79,13 @@ export async function handleRegister(role: UserRole, req: Request): Promise<Next
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  const name = (params.name as string).trim();
+  const rawName = (params.name as string).trim();
+  // Names are data, not labels: store them in normal case so no surface
+  // ever renders a shouting "FULL UPPERCASE" name.
+  const name = rawName
+    .split(/\s+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
   const email = normalizeEmail(params.email as string);
   const passwordHash = await hashPassword(params.password as string);
 

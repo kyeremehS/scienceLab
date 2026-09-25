@@ -306,7 +306,10 @@ export default async function StudentDashboard() {
         />
       </section>
 
-      <section aria-labelledby="my-classes">
+      <section
+        aria-labelledby="my-classes"
+        className="rounded-xl border border-line bg-surface p-5 sm:p-6"
+      >
         <h2 id="my-classes" className="font-display text-lg font-semibold tracking-tight">My classes</h2>
         {joined.length === 0 ? (
           <p className="mt-2 text-sm text-ink-2">
@@ -326,81 +329,106 @@ export default async function StudentDashboard() {
       {recentlyCompleted.length > 0 ? (
         <section aria-labelledby="recently-completed">
           <h2 id="recently-completed" className="font-display text-lg font-semibold tracking-tight">Recently completed</h2>
-          <ul className="mt-3 flex flex-col gap-2">
+          <ul className="mt-3 grid gap-4 sm:grid-cols-2">
             {recentlyCompleted.map((a) => (
               <li
                 key={a.id}
-                className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3"
+                className="rounded-xl border border-line bg-surface p-5"
               >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">{a.title}</span>
-                  <span className="block font-mono text-xs text-ink-3">
-                    {a.score !== null ? `SCORE ${Math.round(Number(a.score) * 100)}% · ` : ""}
-                    {a.completedAt ? new Date(a.completedAt).toLocaleDateString().toUpperCase() : ""}
-                  </span>
-                </span>
-                <NavLink href={`/dashboard/student/attempts/${a.id}`} arrow="forward" className="shrink-0">
-                  Review
-                </NavLink>
+                <p className="font-display text-base font-semibold tracking-tight">{a.title}</p>
+                <dl className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <dt className="text-xs text-ink-3">Score</dt>
+                    <dd className="mt-0.5 text-lg font-semibold tracking-tight">
+                      {a.score !== null ? `${Math.round(Number(a.score) * 100)}%` : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-ink-3">Completed</dt>
+                    <dd className="mt-0.5 text-lg font-semibold tracking-tight">
+                      {a.completedAt ? new Date(a.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—"}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-3">
+                  <Link
+                    href={`/dashboard/student/attempts/${a.id}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-ink"
+                  >
+                    Review
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </Link>
+                </p>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
 
-      <div aria-label="Progress panel" className="grid gap-8 border-t border-line pt-8 sm:grid-cols-3">
-        <section aria-labelledby="teachers">
-          <h2 id="teachers" className="text-sm font-medium text-ink-2">
-            Your teachers
-          </h2>
-          {teachers.length === 0 ? (
-            <p className="mt-2 text-sm text-ink-2">
-              No teachers yet — join a class with a code from your teacher.
-            </p>
-          ) : (
-            <ul className="mt-3 flex flex-col gap-3">
-              {teachers.map((t) => (
-                <li key={t} className="flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
-                  >
-                    {t.split(" ").map((p) => p[0] ?? "").join("").slice(0, 2).toUpperCase()}
-                  </span>
-                  <span className="text-sm font-medium">{t}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <section
+          aria-labelledby="teacher-info"
+          className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 sm:p-6 lg:col-span-4"
+        >
+          <div>
+            <h2 id="teachers" className="text-sm font-medium text-ink-2">
+              Your teachers
+            </h2>
+            {teachers.length === 0 ? (
+              <p className="mt-2 text-sm text-ink-2">
+                No teachers yet — join a class with a code from your teacher.
+              </p>
+            ) : (
+              <ul className="mt-3 flex flex-col gap-3">
+                {teachers.map((t) => (
+                  <li key={t} className="flex items-center gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+                    >
+                      {t.split(" ").map((p) => p[0] ?? "").join("").slice(0, 2).toUpperCase()}
+                    </span>
+                    <span className="text-sm font-medium">{t}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="border-t border-line" role="separator" />
+
+          <div>
+            <h2 id="activity" className="text-sm font-medium text-ink-2">
+              Recent activity
+            </h2>
+            {activity.length === 0 ? (
+              <p className="mt-2 text-sm text-ink-2">
+                Your learning activity appears here as you start experimenting.
+              </p>
+            ) : (
+              <ul className="mt-3 flex flex-col gap-2 text-sm">
+                {activity.map((a) => (
+                  <li key={a.id} className="flex items-baseline justify-between gap-3">
+                    <p className="font-medium">Joined {a.name}</p>
+                    <p className="shrink-0 text-xs text-ink-3">
+                      {new Date(a.joinedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </section>
 
-        <section aria-labelledby="activity">
-          <h2 id="activity" className="text-sm font-medium text-ink-2">
-            Recent activity
-          </h2>
-          {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-ink-2">
-              Your learning activity appears here as you start experimenting.
-            </p>
-          ) : (
-            <ul className="mt-3 flex flex-col gap-3 text-sm">
-              {activity.map((a) => (
-                <li key={a.id}>
-                  <p className="font-medium">Joined {a.name}</p>
-                  <p className="text-xs text-ink-3">
-                    {new Date(a.joinedAt).toLocaleDateString()}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section aria-labelledby="first-steps">
-          <h2 id="first-steps" className="text-sm font-medium text-ink-2">
-            First steps
-          </h2>
-          <div className="mt-2">
+        <section
+          aria-labelledby="first-steps"
+          className="rounded-xl border border-accent/25 bg-surface p-5 sm:p-6 lg:col-span-8"
+        >
+          <h2 id="first-steps" className="font-display text-lg font-semibold tracking-tight">First steps</h2>
+          <p className="mt-1 text-sm text-ink-2">Your next actions toward finishing a first experiment.</p>
+          <div className="mt-3">
             <FirstStepsChecklist joinedClass={joined.length > 0} />
           </div>
         </section>
