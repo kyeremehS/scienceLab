@@ -19,6 +19,14 @@
   --accent-ink: #0b6e6a;
   --circuit-accent: var(--accent);
   --error: #dc2626;
+  /* Warm copper: LED glow, progress, completion. Teal stays interactive;
+     copper never acts as a link, focus, or active-nav color. */
+  --copper: #d97a2b;
+  --copper-glow: #f5a524;
+  /* Illustration linework: neutral graphite + copper highlights, never
+     the interactive teal — diagrams must not read as clickable. */
+  --diagram-line: #6b6f76;
+  --diagram-glow: var(--copper-glow);
 }
 
 /* Class-driven theme (toggled manually, defaults from OS via head script). */
@@ -34,6 +42,10 @@
   --accent-ink: #5eead4;
   --circuit-accent: var(--accent);
   --error: #f87171;
+  --copper: #e08a3c;
+  --copper-glow: #f5a524;
+  --diagram-line: #8a8f98;
+  --diagram-glow: var(--copper-glow);
 }
 
 @theme inline {
@@ -49,8 +61,13 @@
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-error: var(--error);
+  --color-copper: var(--copper);
+  --color-copper-glow: var(--copper-glow);
+  --color-diagram-line: var(--diagram-line);
+  --color-diagram-glow: var(--diagram-glow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
 }
 
 body {

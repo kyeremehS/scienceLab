@@ -1,5 +1,5 @@
-import { NavLink } from "@/app/NavLink";
-import { CircuitIllustration } from "@/app/auth/CircuitIllustration";
+import Link from "next/link";
+import { ExperimentVisual } from "./ExperimentVisual";
 
 export interface ExperimentCardData {
   experimentId: string;
@@ -11,28 +11,63 @@ export interface ExperimentCardData {
   stepCount: number;
 }
 
-/** Brilliant-style experiment card: diagram visual, metadata, single CTA. */
-export function ExperimentCard({ experiment }: { experiment: ExperimentCardData }) {
+function Chevron() {
   return (
-    <li className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
-      <div className="border-b border-line bg-canvas px-4 pt-4">
-        <CircuitIllustration className="w-full" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  );
+}
+
+/**
+ * Catalogue card: per-topic motif, topic and level in separate slots,
+ * display title, duration/steps meta, chevron CTA.
+ */
+export function ExperimentCard({
+  experiment,
+  featured,
+  assigned,
+}: {
+  experiment: ExperimentCardData;
+  featured?: boolean;
+  assigned?: boolean;
+}) {
+  return (
+    <li
+      className={`flex flex-col overflow-hidden rounded-xl border border-line bg-surface ${
+        featured ? "sm:col-span-2" : ""
+      }`}
+    >
+      <div className="border-b border-line bg-canvas px-4 pt-3">
+        <ExperimentVisual topic={experiment.topic} className="mx-auto w-full max-w-[220px]" />
       </div>
-      <div className="flex flex-1 flex-col gap-1 px-4 py-3">
-        <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">
-          {experiment.topic.toUpperCase()} · {experiment.difficulty.toUpperCase()}
-        </p>
-        <p className="text-base font-semibold">{experiment.title}</p>
-        <p className="text-sm text-ink-2">
-          {experiment.stepCount} steps · {experiment.durationMinutes} min
-        </p>
+      <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-2">
+            {experiment.topic}
+          </span>
+          <span className="rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-2">
+            {experiment.difficulty}
+          </span>
+          {assigned ? (
+            <span className="rounded-md bg-accent/[0.08] px-2 py-0.5 text-xs font-medium text-accent-ink">
+              Assigned
+            </span>
+          ) : null}
+        </div>
+        <p className="font-display text-lg font-semibold tracking-tight">{experiment.title}</p>
+        <div className="flex items-center gap-4 text-sm text-ink-2">
+          <span>{experiment.stepCount} steps</span>
+          <span>{experiment.durationMinutes} min</span>
+        </div>
         <p className="mt-2">
-          <NavLink
+          <Link
             href={`/dashboard/student/experiments/${experiment.experimentId}`}
-            arrow="forward"
+            className="inline-flex items-center gap-1 text-sm font-medium text-accent-ink"
           >
             View experiment
-          </NavLink>
+            <Chevron />
+          </Link>
         </p>
       </div>
     </li>

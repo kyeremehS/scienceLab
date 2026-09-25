@@ -4,7 +4,13 @@ import { useState } from "react";
 import { ExperimentCard, type ExperimentCardData } from "./experiments/ExperimentCard";
 
 /** Catalogue with honest client-side topic filters (no backend search in MVP). */
-export function CatalogueExplorer({ experiments }: { experiments: ExperimentCardData[] }) {
+export function CatalogueExplorer({
+  experiments,
+  assignedExperimentIds,
+}: {
+  experiments: ExperimentCardData[];
+  assignedExperimentIds?: Set<string>;
+}) {
   const topics = [...new Set(experiments.map((e) => e.topic))];
   const [topic, setTopic] = useState<string | null>(null);
   const visible = topic ? experiments.filter((e) => e.topic === topic) : experiments;
@@ -46,8 +52,13 @@ export function CatalogueExplorer({ experiments }: { experiments: ExperimentCard
         </div>
       ) : null}
       <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((e) => (
-          <ExperimentCard key={e.experimentId} experiment={e} />
+        {visible.map((e, i) => (
+          <ExperimentCard
+            key={e.experimentId}
+            experiment={e}
+            featured={i === 0 && visible.length > 1}
+            assigned={assignedExperimentIds?.has(e.experimentId) ?? false}
+          />
         ))}
       </ul>
     </div>

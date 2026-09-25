@@ -46,7 +46,24 @@ Components consume these tokens, never raw palette values:
 | Accent text (`text-accent-ink`: links) | `#0B6E6A` (readable cut of the accent) | `#5EEAD4` (readable cut of the accent) |
 | Circuit accent (`--circuit-accent`) | Follows `--accent` | Follows `--accent` |
 | Error (`text-error`) | `#DC2626` | `#F87171` |
+| Warm copper (`text-copper`: progress traces, completion glow) | `#D97A2B` | `#E08A3C` |
+| Copper glow (`--copper-glow`: illustration highlights) | `#F5A524` | `#F5A524` |
+| Diagram linework (`--diagram-line`: neutral graphite, never interactive teal) | `#6B6F76` | `#8A8F98` |
 | Focus ring | 2px `var(--accent)`, offset 2px (global rule) | Same |
+
+Teal is interactive-only (links, active states, focus, selection).
+Copper is progress/completion only, never a link or focus color.
+Diagram linework is graphite + copper glow so illustrations never read
+as clickable.
+
+### Display type
+
+Headings use Space Grotesk (`font-display`, 500–700) for a technical,
+instrument character; body and UI text stay quiet Geist. Eyebrow labels
+use sentence case — hierarchy comes from size/weight/color, never
+tracking or all-caps. Meta facts get separate visual slots, never
+middle-dot-joined strings. Forward motion uses a chevron icon element,
+never a typed arrow character.
 
 Light mode is a luminance shift of the same identity, never a separate look.
 
@@ -265,9 +282,14 @@ the student experience stays experiential, the teacher one managerial.
 
 ## 12.2 Student dashboard target (lands with Phases 4–7 data)
 
-CONTINUE EXPERIMENT (current attempt: experiment, step x/y, next action,
-progress trace, Continue CTA) → YOUR ASSIGNED WORK (per-assignment progress)
-→ RECENTLY COMPLETED. No part is built or faked before its data exists.
+CONTINUE EXPERIMENT (current attempt: experiment, step x/y clamped to the
+total, next action, copper progress trace, Continue CTA with chevron —
+dominant card: larger padding, stronger border) → YOUR ASSIGNED WORK
+(per-assignment progress) → RECENTLY COMPLETED. Catalogue cards carry a
+per-topic motif (circuit / flask / leaf, graphite + copper glow), topic
+and level in separate slots, and a featured first item (double width +
+Assigned marker where applicable). No part is built or faked before its
+data exists.
 
 ## 13. Authenticated App Shell
 

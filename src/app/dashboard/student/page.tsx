@@ -1,4 +1,5 @@
 import { NavLink } from "@/app/NavLink";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
@@ -90,13 +91,17 @@ export default async function StudentDashboard() {
         .where(eq(experimentVersions.id, a.experimentVersionId))
         .limit(1);
       const steps = await db
-        .select({ id: experimentSteps.id })
+        .select({ id: experimentSteps.id, order: experimentSteps.stepOrder, title: experimentSteps.title })
         .from(experimentSteps)
         .where(eq(experimentSteps.experimentVersionId, a.experimentVersionId));
       const done = await db
-        .select({ id: stepProgress.id })
+        .select({ id: stepProgress.id, stepId: stepProgress.experimentStepId })
         .from(stepProgress)
         .where(and(eq(stepProgress.attemptId, a.id), eq(stepProgress.status, "COMPLETED")));
+      const doneIds = new Set(done.map((d) => d.stepId));
+      const nextStep = steps
+        .filter((s) => !doneIds.has(s.id))
+        .sort((x, y) => x.order - y.order)[0] ?? null;
       const subs = await db
         .select({ score: assessmentSubmissions.score })
         .from(assessmentSubmissions)
@@ -109,6 +114,7 @@ export default async function StudentDashboard() {
         title: vRows[0]?.title ?? "Experiment",
         stepsCompleted: done.length,
         stepsTotal: steps.length,
+        nextStepTitle: nextStep?.title ?? null,
         score: subs[0]?.score ?? null,
         completedAt: a.completedAt,
       };
@@ -123,6 +129,11 @@ export default async function StudentDashboard() {
     .sort((a, b) => +new Date(b.completedAt ?? 0) - +new Date(a.completedAt ?? 0))
     .slice(0, 3);
   const continuing = inProgress[0] ?? null;
+  // Clamp: when steps are done but observations/assessment remain, the
+  // current position is the last step, never total + 1.
+  const continuingPosition = continuing
+    ? Math.min(continuing.stepsCompleted + 1, Math.max(continuing.stepsTotal, 1))
+    : 0;
 
   const firstName = user.name.split(" ")[0];
   const teachers = [...new Set(joined.map((c) => c.teacherName))];
@@ -141,17 +152,18 @@ export default async function StudentDashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <section
           aria-labelledby="continue-heading"
-          className="flex flex-col justify-between gap-6 rounded-xl border border-line bg-surface p-6 lg:col-span-8"
+          className="flex flex-col justify-between gap-6 rounded-2xl border border-accent/25 bg-surface p-6 sm:p-8 lg:col-span-8"
         >
           {continuing ? (
             <>
               <div>
-                <p className="font-mono text-xs text-ink-3">CONTINUE WHERE YOU LEFT OFF</p>
-                <h2 id="continue-heading" className="mt-1 text-xl font-semibold tracking-tight">
+                <p className="text-sm text-ink-2">Continue where you left off</p>
+                <h2 id="continue-heading" className="mt-1 font-display text-2xl font-semibold tracking-tight">
                   {continuing.title}
                 </h2>
                 <p className="mt-1 text-sm text-ink-2">
-                  Step {continuing.stepsCompleted + 1} of {continuing.stepsTotal}
+                  Step {continuingPosition} of {continuing.stepsTotal}
+                  {continuing.nextStepTitle ? ` — ${continuing.nextStepTitle}` : ""}
                 </p>
               </div>
               <div>
@@ -164,25 +176,31 @@ export default async function StudentDashboard() {
                   aria-label="Attempt progress"
                 >
                   <div
-                    className="h-full rounded-full bg-accent"
+                    className="h-full rounded-full bg-copper"
                     style={{ width: `${continuing.stepsTotal > 0 ? Math.round((continuing.stepsCompleted / continuing.stepsTotal) * 100) : 0}%` }}
                   />
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-4">
-                  <span className="font-mono text-xs text-ink-3">
-                    {continuing.stepsCompleted}/{continuing.stepsTotal} STEPS
+                  <span className="text-sm text-ink-2">
+                    {continuing.stepsCompleted} of {continuing.stepsTotal} steps done
                   </span>
-                  <NavLink href={`/dashboard/student/attempts/${continuing.id}`} arrow="forward">
+                  <Link
+                    href={`/dashboard/student/attempts/${continuing.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"
+                  >
                     Resume experiment
-                  </NavLink>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </Link>
                 </div>
               </div>
             </>
           ) : (
             <>
               <div>
-                <p className="font-mono text-xs text-ink-3">{today.toUpperCase()}</p>
-                <h2 id="continue-heading" className="mt-1 text-xl font-semibold tracking-tight">
+                <p className="text-sm text-ink-2">{today}</p>
+                <h2 id="continue-heading" className="mt-1 font-display text-2xl font-semibold tracking-tight">
                   Good morning, {firstName}.
                 </h2>
                 <p className="mt-1 text-sm text-ink-2">
@@ -202,15 +220,25 @@ export default async function StudentDashboard() {
 
         <section
           aria-labelledby="progress-heading"
-          className="flex flex-col items-start justify-center gap-2 rounded-xl border border-line bg-surface p-6 lg:col-span-4"
+          className="flex flex-col justify-center gap-3 rounded-xl border border-line bg-surface p-6 lg:col-span-4"
         >
-          <h2 id="progress-heading" className="font-mono text-xs text-ink-3">YOUR PROGRESS</h2>
-          <p className="text-2xl font-semibold tracking-tight">
-            {completedAll.length}
-            <span className="ml-2 text-sm font-normal text-ink-2">
-              completed · {inProgress.length} in progress{avgScore !== null ? ` · ${avgScore}% avg` : ""}
-            </span>
-          </p>
+          <h2 id="progress-heading" className="text-sm font-medium text-ink-2">Your progress</h2>
+          <dl className="grid grid-cols-3 gap-3">
+            <div>
+              <dt className="text-xs text-ink-3">Completed</dt>
+              <dd className="mt-0.5 text-2xl font-semibold tracking-tight">{completedAll.length}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">In progress</dt>
+              <dd className="mt-0.5 text-2xl font-semibold tracking-tight">{inProgress.length}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">Avg score</dt>
+              <dd className="mt-0.5 text-2xl font-semibold tracking-tight">
+                {avgScore !== null ? `${avgScore}%` : "—"}
+              </dd>
+            </div>
+          </dl>
           <p className="text-xs text-ink-3">{joined.length} class{joined.length === 1 ? "" : "es"} joined</p>
         </section>
       </div>
@@ -218,10 +246,10 @@ export default async function StudentDashboard() {
       {assignedWork.length > 0 ? (
         <section aria-labelledby="assigned">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 id="assigned" className="text-base font-semibold tracking-tight">
+            <h2 id="assigned" className="font-display text-lg font-semibold tracking-tight">
               Assigned by your teacher
             </h2>
-            <p className="font-mono text-xs text-ink-3">{assignedWork.length} ACTIVE</p>
+            <p className="text-sm text-ink-3">{assignedWork.length} active</p>
           </div>
           <div className="-mx-1 mt-3 flex gap-4 overflow-x-auto px-1 pb-2">
             {assignedWork.map((a) => (
@@ -265,18 +293,21 @@ export default async function StudentDashboard() {
 
       <section aria-labelledby="experiments">
         <div className="flex items-baseline justify-between">
-          <h2 id="experiments" className="text-base font-semibold tracking-tight">
+          <h2 id="experiments" className="font-display text-lg font-semibold tracking-tight">
             Explore the catalogue
           </h2>
           <NavLink href="/dashboard/student/experiments">
             Browse all
           </NavLink>
         </div>
-        <CatalogueExplorer experiments={experimentsWithCounts} />
+        <CatalogueExplorer
+          experiments={experimentsWithCounts}
+          assignedExperimentIds={new Set(assignedWork.map((a) => a.experimentId))}
+        />
       </section>
 
       <section aria-labelledby="my-classes">
-        <h2 id="my-classes" className="text-base font-semibold tracking-tight">My classes</h2>
+        <h2 id="my-classes" className="font-display text-lg font-semibold tracking-tight">My classes</h2>
         {joined.length === 0 ? (
           <p className="mt-2 text-sm text-ink-2">
             You haven&apos;t joined a class yet — see the first steps below.
@@ -294,7 +325,7 @@ export default async function StudentDashboard() {
 
       {recentlyCompleted.length > 0 ? (
         <section aria-labelledby="recently-completed">
-          <h2 id="recently-completed" className="text-base font-semibold tracking-tight">Recently completed</h2>
+          <h2 id="recently-completed" className="font-display text-lg font-semibold tracking-tight">Recently completed</h2>
           <ul className="mt-3 flex flex-col gap-2">
             {recentlyCompleted.map((a) => (
               <li
@@ -319,8 +350,8 @@ export default async function StudentDashboard() {
 
       <div aria-label="Progress panel" className="grid gap-8 border-t border-line pt-8 sm:grid-cols-3">
         <section aria-labelledby="teachers">
-          <h2 id="teachers" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
-            YOUR TEACHERS
+          <h2 id="teachers" className="text-sm font-medium text-ink-2">
+            Your teachers
           </h2>
           {teachers.length === 0 ? (
             <p className="mt-2 text-sm text-ink-2">
@@ -344,8 +375,8 @@ export default async function StudentDashboard() {
         </section>
 
         <section aria-labelledby="activity">
-          <h2 id="activity" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
-            RECENT ACTIVITY
+          <h2 id="activity" className="text-sm font-medium text-ink-2">
+            Recent activity
           </h2>
           {activity.length === 0 ? (
             <p className="mt-2 text-sm text-ink-2">
@@ -366,8 +397,8 @@ export default async function StudentDashboard() {
         </section>
 
         <section aria-labelledby="first-steps">
-          <h2 id="first-steps" className="text-xs font-semibold tracking-[0.15em] text-ink-3">
-            FIRST STEPS
+          <h2 id="first-steps" className="text-sm font-medium text-ink-2">
+            First steps
           </h2>
           <div className="mt-2">
             <FirstStepsChecklist joinedClass={joined.length > 0} />
