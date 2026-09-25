@@ -205,8 +205,8 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
             Experiment
           </NavLink>
           <p className="min-w-0 truncate text-sm font-semibold">{title}</p>
-          <p className="ml-auto shrink-0 font-mono text-xs text-ink-3">
-            STEP {currentPosition} OF {totalCount}
+          <p className="ml-auto shrink-0 text-xs text-ink-3">
+            Step {currentPosition} of {totalCount}
           </p>
         </div>
       </div>
@@ -220,7 +220,7 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
           aria-valuemax={totalCount}
           aria-label="Experiment progress"
         >
-          <div className="h-full rounded-full bg-accent" style={{ width: `${progressPct}%` }} />
+          <div className="h-full rounded-full bg-copper" style={{ width: `${progressPct}%` }} />
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           {/* Step dots: jump anywhere; completed steps stay completed */}
@@ -253,8 +253,8 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
             );
           })}
           </div>
-          <p className="font-mono text-xs text-ink-3">
-            {state.progress.requiredObservationsRecorded}/{state.progress.requiredObservationsTotal} OBSERVATIONS
+          <p className="text-xs text-ink-3">
+            {state.progress.requiredObservationsRecorded} of {state.progress.requiredObservationsTotal} observations recorded
           </p>
         </div>
       </div>
@@ -267,10 +267,21 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
 
       {/* Current step focus */}
       <section aria-labelledby="step-title">
-        <p className="text-xs font-semibold tracking-[0.15em] text-ink-3">
-          STEP {selected.order} · {selected.status.replace("_", " ")}
-        </p>
-        <h2 id="step-title" className="mt-2 text-2xl font-semibold tracking-tight">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-ink-3">
+            Step {selected.order}
+          </p>
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              selected.status === "COMPLETED"
+                ? "bg-success/10 text-success"
+                : "bg-accent/[0.08] text-accent-ink"
+            }`}
+          >
+            {selected.status === "COMPLETED" ? "Completed" : selected.status === "CURRENT" ? "Current step" : "Not started"}
+          </span>
+        </div>
+        <h2 id="step-title" className="mt-2 font-display text-2xl font-semibold tracking-tight">
           {selected.title}
         </h2>
         <p className="mt-3 text-base leading-relaxed text-ink-2">{selected.instructions}</p>
@@ -296,18 +307,26 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
               type="button"
               disabled={stepPending}
               onClick={() => completeStep(selected.id)}
-              className="rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
             >
-              {stepPending ? "Saving…" : "Mark step complete & continue →"}
+              {stepPending ? "Saving…" : "Mark step complete & continue"}
+              {!stepPending ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              ) : null}
             </button>
           )}
           {selectedIndex > 0 && (
             <button
               type="button"
               onClick={() => setSelectedId(state.steps[selectedIndex - 1].id)}
-              className="text-sm font-medium text-ink-3 underline underline-offset-4 hover:text-ink-2"
+              className="inline-flex items-center gap-1 text-sm font-medium text-ink-3 underline underline-offset-4 hover:text-ink-2"
             >
-              ← Back
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              Back
             </button>
           )}
         </div>
@@ -331,7 +350,7 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
           aria-expanded={aiOpen}
           className="flex w-full items-center justify-between gap-3 text-left"
         >
-          <span className="text-xs font-semibold tracking-[0.15em] text-ink-3">NEED HELP WITH THIS STEP?</span>
+          <span className="text-sm font-medium text-ink-2">Need help with this step?</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-ink-3">
             <path d={aiOpen ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"} />
           </svg>
