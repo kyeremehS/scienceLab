@@ -55,7 +55,7 @@ export function ExperimentCard({
             </span>
           ) : null}
         </div>
-        <p className="min-h-[3.25rem] font-display text-lg font-semibold leading-snug tracking-tight">{experiment.title}</p>
+        <p className="line-clamp-2 min-h-[3.25rem] font-display text-lg font-semibold leading-snug tracking-tight">{experiment.title}</p>
         <div className="flex items-center gap-4 text-sm text-ink-2">
           <span>{experiment.stepCount} steps</span>
           <span>{experiment.durationMinutes} min</span>
