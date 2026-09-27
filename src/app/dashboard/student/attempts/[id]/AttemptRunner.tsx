@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { buildAttemptState } from "@/lib/attempts-service";
 import { NavLink } from "@/app/NavLink";
 import { AIPanel } from "./AIPanel";
@@ -11,67 +11,20 @@ type StepState = AttemptState["steps"][number];
 type ObservationState = StepState["observations"][number];
 
 function ObservationBox({
-  attemptId,
   observation,
   disabled,
-  onChanged,
-  onError,
+  value,
+  onChange,
+  onBlurSave,
+  inputRef,
 }: {
-  attemptId: string;
   observation: ObservationState;
   disabled: boolean;
-  onChanged: (state: AttemptState) => void;
-  onError: (message: string) => void;
+  value: string;
+  onChange: (value: string) => void;
+  onBlurSave: (value: string) => void;
+  inputRef: (element: HTMLTextAreaElement | null) => void;
 }) {
-  const [draft, setDraft] = useState(observation.responseText ?? "");
-  const [editing, setEditing] = useState(observation.observationId === null);
-  const [pending, setPending] = useState(false);
-
-  async function save() {
-    if (draft.trim().length === 0) {
-      onError("Observation text is required.");
-      return;
-    }
-    setPending(true);
-    try {
-      const isNew = observation.observationId === null;
-      const url = isNew
-        ? `/api/attempts/${attemptId}/observations`
-        : `/api/attempts/${attemptId}/observations/${observation.observationId}`;
-      const res = await fetch(url, {
-        method: isNew ? "POST" : "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          isNew
-            ? { observationDefinitionId: observation.definitionId, responseText: draft }
-            : { responseText: draft },
-        ),
-      });
-      const data = (await res.json().catch(() => null)) as { error?: string } | null;
-      if (!res.ok) {
-        onError(data?.error ?? "Could not save the observation.");
-        setPending(false);
-        return;
-      }
-      // Re-read authoritative state so progress counts stay truthful.
-      const stateRes = await fetch(`/api/attempts/${attemptId}`);
-      const stateData = (await stateRes.json().catch(() => null)) as {
-        attempt?: AttemptState;
-        error?: string;
-      } | null;
-      if (!stateRes.ok || !stateData?.attempt) {
-        onError(stateData?.error ?? "Saved, but the updated state could not be loaded. Refresh the page.");
-        setPending(false);
-        return;
-      }
-      onChanged(stateData.attempt);
-      setEditing(false);
-    } catch {
-      onError("Could not save the observation.");
-    }
-    setPending(false);
-  }
-
   return (
     <div>
       <p className="text-sm">
@@ -80,48 +33,23 @@ function ObservationBox({
           {observation.required ? "REQUIRED" : "OPTIONAL"}
         </span>
       </p>
-      {!editing && observation.responseText !== null ? (
-        <div className="mt-2">
-          <p className="text-sm text-ink-2">{observation.responseText}</p>
-          {!disabled && (
-            <button
-              type="button"
-              onClick={() => {
-                setDraft(observation.responseText ?? "");
-                setEditing(true);
-              }}
-              className="mt-2 text-sm font-medium text-accent-ink underline"
-            >
-              Edit
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="mt-2 flex flex-col gap-2">
-          <label htmlFor={`obs-${observation.definitionId}`} className="sr-only">
-            {observation.prompt}
-          </label>
-          <textarea
-            id={`obs-${observation.definitionId}`}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={3}
-            maxLength={2000}
-            disabled={disabled || pending}
-            className="rounded-lg border border-line bg-transparent px-3 py-2 text-sm"
-          />
-          {!disabled && (
-            <button
-              type="button"
-              onClick={save}
-              disabled={pending}
-              className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
-            >
-              {observation.observationId ? "Save changes" : "Record observation"}
-            </button>
-          )}
-        </div>
-      )}
+      <div className="mt-2 flex flex-col gap-2">
+        <label htmlFor={`obs-${observation.definitionId}`} className="sr-only">
+          {observation.prompt}
+        </label>
+        <textarea
+          id={`obs-${observation.definitionId}`}
+          ref={inputRef}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={(e) => onBlurSave(e.target.value)}
+          rows={3}
+          maxLength={2000}
+          disabled={disabled}
+          placeholder={observation.responseText === null ? "Write what you observed…" : undefined}
+          className="rounded-lg border border-line bg-transparent px-3 py-2 text-sm"
+        />
+      </div>
     </div>
   );
 }
@@ -132,6 +60,11 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
   const [error, setError] = useState<string | null>(null);
   const [stepPending, setStepPending] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  // Unsaved observation text, keyed by definition id. Drafts mirror the
+  // boxes for rendering; saves read the live DOM value so a fast
+  // type-then-click can never outrun React state.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const boxRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
   const currentId = state.progress.currentStepId;
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -142,10 +75,73 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
   const finished = state.progress.totalSteps > 0 && state.progress.completedSteps >= state.progress.totalSteps;
   const readOnly = state.attempt.status !== "IN_PROGRESS";
 
+  /** Persist one observation if its text differs. Returns false on failure.
+   *  A 409 means the text is already stored (e.g. a blur-save won the race),
+   *  which counts as success. */
+  async function persistObservation(o: ObservationState, text: string): Promise<boolean> {
+    const trimmed = text.trim();
+    if (trimmed === (o.responseText ?? "") || trimmed.length === 0) return true;
+    const isNew = o.observationId === null;
+    try {
+      const res = await fetch(
+        isNew
+          ? `/api/attempts/${state.attempt.id}/observations`
+          : `/api/attempts/${state.attempt.id}/observations/${o.observationId}`,
+        {
+          method: isNew ? "POST" : "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            isNew
+              ? { observationDefinitionId: o.definitionId, responseText: trimmed }
+              : { responseText: trimmed },
+          ),
+        },
+      );
+      if (res.status === 409) return true;
+      if (!res.ok) return false;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Silent best-effort save when a box loses focus — work is never lost. */
+  async function blurSave(o: ObservationState, text: string) {
+    const ok = await persistObservation(o, text);
+    if (!ok) {
+      setError("Could not save the observation.");
+      return;
+    }
+    if (text.trim() !== (o.responseText ?? "") && text.trim().length > 0) {
+      const stateRes = await fetch(`/api/attempts/${state.attempt.id}`);
+      const stateData = (await stateRes.json().catch(() => null)) as {
+        attempt?: AttemptState;
+      } | null;
+      if (stateData?.attempt) {
+        setState(stateData.attempt);
+        setDrafts({});
+      }
+    }
+  }
+
   async function completeStep(stepId: string) {
     setStepPending(true);
     setError(null);
     try {
+      // Persist any changed observation text first; a save failure stops
+      // the advance so nothing the student wrote is silently lost.
+      const step = state.steps.find((s) => s.id === stepId);
+      if (step) {
+        for (const o of step.observations) {
+          const live = boxRefs.current[o.definitionId]?.value ?? drafts[o.definitionId] ?? o.responseText ?? "";
+          const ok = await persistObservation(o, live);
+          if (!ok) {
+            setError("Could not save the observation.");
+            setStepPending(false);
+            return;
+          }
+        }
+      }
       const res = await fetch(`/api/attempts/${state.attempt.id}/steps/${stepId}/complete`, {
         method: "POST",
       });
@@ -153,12 +149,13 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
         attempt?: AttemptState;
         error?: string;
       } | null;
-      if (!res.ok || !data?.attempt) {
-        setError(data?.error ?? "Could not complete the step.");
-        setStepPending(false);
-        return;
-      }
-      setState(data.attempt);
+          if (!res.ok || !data?.attempt) {
+            setError(data?.error ?? "Could not complete the step.");
+            setStepPending(false);
+            return;
+          }
+          setState(data.attempt);
+      setDrafts({});
       setSelectedId(data.attempt.progress.currentStepId);
     } catch {
       setError("Could not complete the step.");
@@ -291,11 +288,16 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
             {selected.observations.map((o) => (
               <ObservationBox
                 key={o.definitionId}
-                attemptId={state.attempt.id}
                 observation={o}
                 disabled={readOnly}
-                onChanged={setState}
-                onError={setError}
+                value={drafts[o.definitionId] ?? o.responseText ?? ""}
+                onChange={(value) => setDrafts((d) => ({ ...d, [o.definitionId]: value }))}
+                onBlurSave={(value) => {
+                  if (!readOnly) void blurSave(o, value);
+                }}
+                inputRef={(element) => {
+                  boxRefs.current[o.definitionId] = element;
+                }}
               />
             ))}
           </div>
@@ -309,7 +311,7 @@ export function AttemptRunner({ initial, title }: { initial: AttemptState; title
               onClick={() => completeStep(selected.id)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
             >
-              Mark step complete & continue
+              Save & continue
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M9 18l6-6-6-6" />
               </svg>

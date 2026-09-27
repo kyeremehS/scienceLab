@@ -38,21 +38,26 @@ test("student completes an experiment end to end", async ({ page }) => {
   await page.getByRole("button", { name: "Ask for help" }).click();
   await expect(page.getByText("OFFLINE HELP")).toBeVisible();
 
-  // Five steps: fill every visible observation box, save each, then complete.
-  for (let step = 1; step <= 5; step++) {
-    await expect(page.getByText(`STEP ${step} OF 5`)).toBeVisible();
+  // Steps: fill every visible observation box, then one action saves
+  // everything and advances. Synchronize on the step heading after each
+  // click — renders can lag a click behind, and completions are idempotent.
+  for (let round = 1; round <= 12; round++) {
+    if ((await page.getByText("ASSESSMENT").count()) > 0) break;
     for (const prompt of [...REQUIRED_OBSERVATIONS, ...OPTIONAL_OBSERVATIONS]) {
       const box = page.getByLabel(prompt);
       if ((await box.count()) > 0 && ((await box.inputValue()) ?? "").trim().length === 0) {
-        await box.fill(`E2E observation for step ${step}.`);
+        await box.fill(`E2E observation round ${round}.`);
       }
     }
-    for (;;) {
-      const saveButtons = page.getByRole("button", { name: /record observation/i });
-      if ((await saveButtons.count()) === 0) break;
-      await saveButtons.first().click();
-    }
-    await page.getByRole("button", { name: /mark step complete/i }).click();
+    const before = await page.locator("h2#step-title").textContent().catch(() => null);
+    await page.getByRole("button", { name: /save & continue/i }).click();
+    await page.waitForFunction(
+      (prev) =>
+        (document.body.textContent ?? "").includes("ASSESSMENT") ||
+        document.getElementById("step-title")?.textContent !== prev,
+      before,
+      { timeout: 20000 },
+    );
   }
 
   // Assessment appears once all steps are done.
@@ -65,7 +70,11 @@ test("student completes an experiment end to end", async ({ page }) => {
 
   // Complete and review the result.
   await page.getByRole("button", { name: /complete experiment/i }).click();
-  await expect(page.getByText("Completed", { exact: true }).first()).toBeVisible();
+  // Pin to the result card's own status row: bare "Completed" also matches
+  // step pills, which would let an unfinished completion slip through.
+  await expect(
+    page.locator("dl", { hasText: "Score" }).getByText("Completed", { exact: true }),
+  ).toBeVisible();
 
   // Dashboard reflects the completed work.
   await page.goto("/dashboard/student");
