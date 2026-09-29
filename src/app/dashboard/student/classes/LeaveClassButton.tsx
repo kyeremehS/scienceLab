@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/** Two-step leave control for the student's class list (FR-STU-33). */
+/**
+ * Two-step leave control, vertically centered against the class card.
+ * Leaving is non-destructive: membership ends, learning history stays.
+ */
 export function LeaveClassButton({ classId, className }: { classId: string; className: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
@@ -33,15 +36,17 @@ export function LeaveClassButton({ classId, className }: { classId: string; clas
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="shrink-0 text-[13px] font-medium text-[#5dcaa5]"
+        className="shrink-0 self-center text-[13px] font-medium text-[#6366F1]"
       >
         Leave
       </button>
     );
   }
   return (
-    <span className="flex shrink-0 flex-col items-end gap-1">
-      <span className="text-xs text-ink-2">Leave {className}?</span>
+    <span className="flex shrink-0 flex-col items-end justify-center gap-1 self-center">
+      <span className="text-xs text-ink-2">
+        Leave {className}? You can rejoin anytime with the class code from your teacher.
+      </span>
       {error ? (
         <span role="alert" className="text-xs text-error">
           {error}

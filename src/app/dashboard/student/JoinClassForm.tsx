@@ -43,7 +43,7 @@ export function JoinClassForm({ compact = false }: { compact?: boolean }) {
           type="text"
           required
           autoComplete="off"
-          placeholder="e.g. K7Q2MD"
+          placeholder="e.g. k7q2md"
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           className="rounded-lg border border-line bg-transparent px-3 py-2 font-mono uppercase"
