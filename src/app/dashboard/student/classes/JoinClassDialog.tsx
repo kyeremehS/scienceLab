@@ -33,7 +33,7 @@ export function JoinClassDialog() {
         onClick={onBackdropClick}
         onClose={() => setOpen(false)}
         aria-labelledby="join-dialog-title"
-        className="w-[min(92vw,420px)] rounded-xl border border-line bg-surface p-6 text-ink backdrop:bg-black/50"
+        className="m-auto w-[min(92vw,420px)] rounded-xl border border-line bg-surface p-6 text-ink backdrop:bg-black/50"
       >
         <h2 id="join-dialog-title" className="font-display text-lg font-semibold tracking-tight">
           Join with a code
