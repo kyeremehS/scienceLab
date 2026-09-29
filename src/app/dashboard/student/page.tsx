@@ -353,16 +353,16 @@ export default async function StudentDashboard() {
         </section>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        <div className="lg:col-span-4">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
+        <div className="min-w-0">
           <h2 id="teachers" className="text-sm font-medium text-ink-2">
             Your teachers
           </h2>
-            {teachers.length === 0 ? (
-              <p className="mt-2 text-sm text-ink-2">
-                No teachers yet — join a class with a code from your teacher.
-              </p>
-            ) : (
+          {teachers.length === 0 ? (
+            <p className="mt-2 max-w-[42ch] text-sm text-ink-2">
+              No teachers yet — join a class with a code from your teacher.
+            </p>
+          ) : (
               <ul className="mt-3 flex flex-col gap-3">
                 {teachers.map((t) => (
                   <li key={t} className="flex items-center gap-3">
@@ -384,7 +384,7 @@ export default async function StudentDashboard() {
               Recent activity
             </h2>
             {activity.length === 0 ? (
-              <p className="mt-2 text-sm text-ink-2">
+              <p className="mt-2 max-w-[42ch] text-sm text-ink-2">
                 Your learning activity appears here as you start experimenting.
               </p>
             ) : (
@@ -403,7 +403,7 @@ export default async function StudentDashboard() {
 
         <section
           aria-labelledby="first-steps"
-          className="border-l-2 border-copper pl-4 sm:pl-5 lg:col-span-8"
+          className="min-w-0 border-l-2 border-copper pl-4 sm:pl-5"
         >
           <h2 id="first-steps" className="font-display text-lg font-semibold tracking-tight">First steps</h2>
           <p className="mt-1 text-sm text-ink-2">Your next actions toward finishing a first experiment.</p>
