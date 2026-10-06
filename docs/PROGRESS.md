@@ -258,6 +258,13 @@ with stubbed HTTP; no `OPENROUTER_API_KEY` is configured on any
 environment yet — set it (plus optional `AI_MODEL` override) before any
 demo that needs live answers.
 
+**Prod hardening (post-Phase-5):** Socratic tutor prompt; multi-turn
+memory (last 6 exchanges sent + `GET assist/history` for the panel);
+streaming SSE end-to-end with full-text logging; one retry on 429/502;
+context now includes recorded observations and step progress; panel
+shows history, suggestion chips, and offline badge. Verified live
+against Inkling Small (streamed answer + logged row).
+
 ---
 
 ## Phase 6 — Assessment + completion + results ✅

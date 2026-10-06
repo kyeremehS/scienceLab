@@ -13,7 +13,7 @@ import {
   stepProgress,
   users,
 } from "@/db/schema";
-import { handleAiAssist } from "@/lib/ai-service";
+import { handleAiAssist, handleListAssists } from "@/lib/ai-service";
 import { handleStartExperiment } from "@/lib/attempts-service";
 import { handleRegister } from "@/lib/auth-service";
 import { clearRateLimits } from "@/lib/rate-limit";
@@ -323,5 +323,94 @@ describe.skipIf(!hasDb)("ai assistance", () => {
     }
     const limited = await handleAiAssist(student.authed(`/api/attempts/${attemptId}/assist`, askBody()), attemptId);
     expect(limited.status).toBe(429);
+  });
+
+  it("follow-ups carry conversation history to the model", async () => {
+    const student = await registerAs("STUDENT", "hist");
+    const exp = await makeExperiment("hist");
+    const attemptId = await startFor(student, exp.experimentId);
+
+    vi.stubGlobal("fetch", mockCompletion("First answer."));
+    const first = await handleAiAssist(student.authed(`/api/attempts/${attemptId}/assist`, askBody({ question: "First question?" })), attemptId);
+    expect(first.status).toBe(200);
+
+    const fetchMock = mockCompletion("Second answer.");
+    vi.stubGlobal("fetch", fetchMock);
+    const second = await handleAiAssist(student.authed(`/api/attempts/${attemptId}/assist`, askBody({ question: "Follow-up?" })), attemptId);
+    expect(second.status).toBe(200);
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    const sent = JSON.parse(init.body as string) as {
+      messages: { role: string; content: string }[];
+    };
+    const combined = sent.messages.map((m) => m.content).join("\n");
+    expect(combined).toContain("First question?");
+    expect(combined).toContain("First answer.");
+    expect(sent.messages[sent.messages.length - 1].content).toContain("Follow-up?");
+
+    const listed = await handleListAssists(student.authed(`/api/attempts/${attemptId}/assist/history`), attemptId);
+    expect(listed.status).toBe(200);
+    const listJson = (await listed.json()) as { interactions: { question: string }[] };
+    expect(listJson.interactions).toHaveLength(2);
+
+    const intruder = await registerAs("STUDENT", "hist-intr");
+    expect(
+      (await handleListAssists(intruder.authed(`/api/attempts/${attemptId}/assist/history`), attemptId)).status,
+    ).toBe(404);
+  });
+
+  it("stream:true pipes SSE and logs the full text", async () => {
+    const student = await registerAs("STUDENT", "stream");
+    const exp = await makeExperiment("stream");
+    const attemptId = await startFor(student, exp.experimentId);
+
+    const sse =
+      'data: {"choices":[{"delta":{"content":"Hel"}}]}\n\ndata: {"choices":[{"delta":{"content":"lo"}}]}\n\ndata: [DONE]\n';
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(sse, { status: 200, headers: { "Content-Type": "text/event-stream" } })),
+    );
+    const res = await handleAiAssist(
+      student.authed(`/api/attempts/${attemptId}/assist`, askBody({ stream: true })),
+      attemptId,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    const raw = await res.text();
+    const streamed = raw
+      .split("\n")
+      .filter((line) => line.trim().startsWith("data:"))
+      .map((line) => line.trim().slice(5).trim())
+      .filter((payload) => payload !== "[DONE]")
+      .map((payload) => (JSON.parse(payload) as { choices?: { delta?: { content?: string } }[] }).choices?.[0]?.delta?.content ?? "")
+      .join("");
+    expect(streamed).toBe("Hello");
+
+    const rows = await db
+      .select({ response: aiInteractions.responseText })
+      .from(aiInteractions)
+      .where(eq(aiInteractions.attemptId, attemptId));
+    expect(rows).toHaveLength(1);
+    expect(rows[0].response).toBe("Hello");
+  });
+
+  it("retries once on upstream 502 then succeeds", async () => {
+    const student = await registerAs("STUDENT", "retry");
+    const exp = await makeExperiment("retry");
+    const attemptId = await startFor(student, exp.experimentId);
+
+    const fetchMock = vi
+      .fn(async () => new Response("{}", { status: 502 }))
+      .mockImplementationOnce(async () => new Response("{}", { status: 502 }))
+      .mockImplementationOnce(async () =>
+        new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "Recovered." } }] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    const res = await handleAiAssist(student.authed(`/api/attempts/${attemptId}/assist`, askBody()), attemptId);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { response: string }).response).toBe("Recovered.");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
