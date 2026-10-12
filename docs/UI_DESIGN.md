@@ -55,6 +55,8 @@ Components consume these tokens, never raw palette values:
 | Accent text (`text-accent-ink`: links) | `#0B6E6A` (readable cut of the accent) | `#5EEAD4` (readable cut of the accent) |
 | Circuit accent (`--circuit-accent`) | Follows `--accent` | Follows `--accent` |
 | Error (`text-error`) | `#DC2626` | `#F87171` |
+| Success (`text-success`: correct, completed) | `#15803D` | `#34D399` |
+| Warning (`text-warning`: attention states, bold or icon-paired only) | `#B45309` | `#FBBF24` |
 | Warm copper (`text-copper`: progress traces, completion glow) | `#D97A2B` | `#E08A3C` |
 | Copper glow (`--copper-glow`: illustration highlights) | `#F5A524` | `#F5A524` |
 | Diagram linework (`--diagram-line`: neutral graphite, never interactive teal) | `#6B6F76` | `#8A8F98` |

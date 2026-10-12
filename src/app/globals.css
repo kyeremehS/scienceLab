@@ -19,6 +19,8 @@
   --accent-ink: #0b6e6a;
   --circuit-accent: var(--accent);
   --error: #dc2626;
+  --success: #15803d;
+  --warning: #b45309;
   /* Warm copper: LED glow, progress, completion. Teal stays interactive;
      copper never acts as a link, focus, or active-nav color. */
   --copper: #d97a2b;
@@ -42,6 +44,8 @@
   --accent-ink: #5eead4;
   --circuit-accent: var(--accent);
   --error: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
   --copper: #e08a3c;
   --copper-glow: #f5a524;
   --diagram-line: #8a8f98;
@@ -61,6 +65,8 @@
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-error: var(--error);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-copper: var(--copper);
   --color-copper-glow: var(--copper-glow);
   --color-diagram-line: var(--diagram-line);

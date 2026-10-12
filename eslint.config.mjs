@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Reference layout skeletons (different stack: shadcn/lucide).
     "docs/*.tsx",
+    // Third-party agent-skill tooling (not project code, untracked).
+    ".continue/**",
+    ".opencode/**",
   ]),
 ]);
 
