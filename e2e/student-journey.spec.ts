@@ -35,7 +35,7 @@ test("student completes an experiment end to end", async ({ page }) => {
   // AI help falls back without a key and never blocks the workflow.
   await page.getByRole("button", { name: /need help with this step/i }).click();
   await page.getByPlaceholder(/stuck\? ask about this step/i).fill("My LED isn't lighting.");
-  await page.getByRole("button", { name: "Ask for help" }).click();
+  await page.getByRole("button", { name: "Send question" }).click();
   await expect(page.getByText("OFFLINE HELP")).toBeVisible();
 
   // Steps: fill every visible observation box, then one action saves
