@@ -18,7 +18,7 @@ export function NavLink({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-[6px] text-[13px] font-medium text-[#5dcaa5] no-underline transition-colors duration-150 hover:text-[#9fe1cb]${className ? ` ${className}` : ""}`}
+      className={`inline-flex items-center gap-[6px] text-[13px] font-medium text-accent-ink no-underline transition-colors duration-150 hover:text-accent${className ? ` ${className}` : ""}`}
     >
       {arrow === "back" ? <span aria-hidden="true">←</span> : null}
       <span>{children}</span>

@@ -18,9 +18,20 @@ function getServerSnapshot() {
   return false;
 }
 
-/** Manual light/dark toggle. Persists to localStorage; defaults to the OS setting. */
-export function ThemeToggle({ className = "" }: { className?: string }) {
+/** Manual light/dark toggle. Persists to localStorage; defaults to the OS setting.
+ *  `tone="band"` swaps to the on-teal treatment for use over a teal band. */
+export function ThemeToggle({
+  className = "",
+  tone = "field",
+}: {
+  className?: string;
+  tone?: "field" | "band";
+}) {
   const dark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const toneClasses =
+    tone === "band"
+      ? "border-on-band-eyebrow/60 text-on-band-nav hover:text-on-band"
+      : "border-line text-ink-3 hover:text-ink";
 
   function toggle() {
     const next = !getSnapshot();
@@ -39,7 +50,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={dark ?? false}
       title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink-3 transition-colors hover:text-ink ${className}`}
+      className={`flex h-9 w-9 items-center justify-center rounded-btn border transition-colors ${toneClasses} ${className}`}
     >
       {dark ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

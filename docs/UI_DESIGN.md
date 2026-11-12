@@ -7,8 +7,8 @@
 
 ## 0. Locked Visual Language
 
-> Near-black + off-white + cyan/teal scientific accent + thin borders +
-> technical diagrams + restrained geometry.
+> Cool near-black + cool off-white + teal structural bands + orange
+> actions + thin borders + technical diagrams + restrained geometry.
 
 ### Philosophy
 
@@ -44,35 +44,56 @@ Components consume these tokens, never raw palette values:
 
 | Token | Light | Dark |
 |---|---|---|
-| Page background (`--background`/`bg-canvas`) | `#FAFAF9` (warm off-white) | Warm off-black `#0C0A09` |
-| Surface (`bg-surface`) | `#FFFFFF` | `#151210` |
-| Elevated (`bg-raised`, hovers) | `#F5F5F4` | `#1E1A16` |
-| Border (`border-line`) | Black 10% | White 12% |
-| Primary text (`text-ink`) | `#171717` | `#F5F5F5` |
-| Secondary text (`text-ink-2`) | `#525252` | `#A3A3A3` |
-| Muted text (`text-ink-3`) | `#737373` | `#737373` |
-| Accent (`--accent`: diagrams, indicators, focus, selection) | `#20C9C3` (single token, both themes) | `#20C9C3` |
-| Accent text (`text-accent-ink`: links) | `#0B6E6A` (readable cut of the accent) | `#5EEAD4` (readable cut of the accent) |
+| Page background (`--background`/`bg-canvas`) | `#F3F6F7` (cool off-white) | `#0A181D` (cool teal-black) |
+| Surface (`bg-surface`) | `#FFFFFF` | `#11272E` |
+| Elevated (`bg-raised`, hovers) | `#E9EFF0` | `#17343D` |
+| Border (`border-line`) | `#E1E8EA` | `#1F3C44` |
+| Primary text (`text-ink`) | `#10242B` | `#E9F2F4` |
+| Secondary text (`text-ink-2`) | `#35505A` | `#A3BAC1` |
+| Muted text (`text-ink-3`) | `#4A6068` | `#7C959D` |
+| Teal band (`--teal`: header, hero, feature band) | `#0B7A96` | `#0B7A96` (unchanged) |
+| Deep teal (`--teal-deep`: footer band, links on white) | `#0B6E88` | `#0B6E88` (unchanged) |
+| Teal ink (`--teal-ink`: text on white buttons) | `#0B5F75` | `#0B5F75` (unchanged) |
+| Light teal (`--teal-light`: decoration) | `#1190AE` | `#1190AE` (unchanged) |
+| Pale teal (`--teal-pale`: body text on teal bands) | `#DDF3F8` | `#DDF3F8` (unchanged) |
+| Accent (`--accent`: diagrams, indicators, focus, selection) | `#0B7A96` | `#1190AE` (lighter cut for the dark field) |
+| Accent text (`text-accent-ink`: links) | `#0B6E88` | `#9ADCEC` |
 | Circuit accent (`--circuit-accent`) | Follows `--accent` | Follows `--accent` |
+| Orange (`--orange`: primary actions) | `#C2410C` | `#C2410C` (unchanged) |
+| Orange hover (`--orange-hover`) | `#9A3412` | `#9A3412` (unchanged) |
+| Orange tint (`--orange-tint`: attention note) | `#FFF1E8` | `#2B1710` |
+| Orange tint text (`--orange-tint-ink`) | `#7A2E0A` | `#EFA079` |
+| On-band text (`--on-band` / `-soft` / `-muted` / `-nav` / `-eyebrow`) | `#FFFFFF` / `#E3F6FA` / `#BFE9F3` / `#D8F1F7` / `#9ADCEC` | Same (bands identical) |
+| Band divider (`--band-divider`) | `#3C93AB` | `#3C93AB` |
+| Subjects strip (`--subjects-ink`) | `#A9BEC4` | `#4A6068` |
 | Error (`text-error`) | `#DC2626` | `#F87171` |
-| Warm copper (`text-copper`: progress traces, completion glow) | `#D97A2B` | `#E08A3C` |
-| Copper glow (`--copper-glow`: illustration highlights) | `#F5A524` | `#F5A524` |
-| Diagram linework (`--diagram-line`: neutral graphite, never interactive teal) | `#6B6F76` | `#8A8F98` |
-| Focus ring | 2px `var(--accent)`, offset 2px (global rule) | Same |
+| Progress traces (`text-copper`, orange family) | `#C2410C` | `#E06B2C` |
+| Copper glow (`--copper-glow`: illustration highlights) | `#C2410C` | `#F07438` |
+| Diagram linework (`--diagram-line`) | `#4A6068` | `#7C959D` |
+| Focus ring | 2px `var(--accent)`, offset 2px (global rule); on a `.band` surface the pale cut `--on-band-eyebrow` | Same |
+| Geometry (`rounded-btn` / `rounded-card` / `rounded-panel`) | 8px / 14px / 16px | Same |
+| Depth (`shadow-card` / `shadow-hero`) | `0 1px 3px rgba(16,36,43,.08)` / `0 24px 60px rgba(4,50,63,.35)` | Same |
 
-Teal is interactive-only (links, active states, focus, selection).
-Copper is progress/completion only, never a link or focus color.
-Diagram linework is graphite + copper glow so illustrations never read
-as clickable.
+Two color families only: **teal** (structure, bands, links, focus) and
+**orange** (primary actions, progress, attention). Teal and orange bands
+are identical in both themes; dark mode shifts the neutral field around
+them and uses lighter cuts of teal for text and graphics. White on
+`#0B7A96` (5.4:1) and on `#C2410C` (5.9:1) both pass AA — neither main
+color is lightened. Copper tokens follow the orange family (progress and
+completion only, never a link or focus color). Diagram linework is
+muted teal-graphite + orange glow so illustrations never read as
+clickable.
 
 ### Display type
 
-Headings use Space Grotesk (`font-display`, 500–700) for a technical,
-instrument character; body and UI text stay quiet Geist. Eyebrow labels
-use sentence case — hierarchy comes from size/weight/color, never
-tracking or all-caps. Meta facts get separate visual slots, never
-middle-dot-joined strings. Forward motion uses a chevron icon element,
-never a typed arrow character.
+Headings and the wordmark use Space Grotesk (`font-display`, weights
+500/700) for a technical, instrument character; body and UI text use
+Inter (400/500/600). Eyebrow labels are a fixed treatment — 13px,
+uppercase, weight 600, `0.16em` tracking (`text-eyebrow`) — and the
+wordmark is 22px bold uppercase at `0.14em` (`text-logo`); hierarchy
+otherwise comes from size/weight/color. Meta facts get separate visual
+slots, never middle-dot-joined strings. Forward motion uses a chevron
+icon element, never a typed arrow character.
 
 Light mode is a luminance shift of the same identity, never a separate look.
 
@@ -88,10 +109,10 @@ never inflated claims ("AI-powered", "revolutionary", "personalized", "future of
 
 Modern scientific publication + educational product + restrained interface.
 
-- Light-first: token canvas surfaces, ink text. Dark mode mirrors with near-black surfaces.
-- One accent color: the single `--accent` token for primary actions and key highlights. No additional accent colors.
+- Light-first: token canvas surfaces, ink text. Dark mode mirrors the neutral field; teal and orange bands stay identical.
+- Two color families: teal (`--teal*`, `--accent*`) carries structure, bands, links, and focus; orange (`--orange*`) carries primary actions, progress, and attention. No third hue.
 - Scientific identity comes from **content-relevant illustration** (the simple electrical circuit — the MVP's first experiment), a faint measurement-grid backdrop, and precise typography — never from decorative gradients, blobs, or stock imagery.
-- Depth is flat: 1px borders (token line), no drop shadows on cards, restrained radii (`rounded-lg` for inputs and buttons).
+- Depth is restrained: 1px borders (token line) plus the two depth tokens — `shadow-card` on cards, `shadow-hero` on the hero panel. Radii: `rounded-btn` (inputs, buttons), `rounded-card` (cards), `rounded-panel` (panels).
 
 ## 2. Auth Experience
 
@@ -147,8 +168,8 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 ## 3. Form Components
 
 - Labels: `text-sm font-medium`, always associated via `htmlFor`.
-- Inputs: transparent background, 1px border, `rounded-lg`, `px-3 py-2`. Password fields use an in-field eye icon button (44px touch target, `aria-label`, `aria-pressed`); no separate text toggle. Focus: visible outline (default focus-visible ring, never removed).
-- Buttons (primary): `rounded-lg`, solid foreground fill, disabled at 50% opacity while pending.
+- Inputs: transparent background, 1px border, `rounded-btn`, `px-3 py-2`. Password fields use an in-field eye icon button (44px touch target, `aria-label`, `aria-pressed`); no separate text toggle. Focus: visible outline (default focus-visible ring, never removed).
+- Buttons (primary): `rounded-btn`, solid `bg-orange` fill with white label, disabled at 50% opacity while pending.
 - Radio/fieldset: `fieldset` + `legend` for the role selector.
 
 ## 4. Validation, Loading, and Error States
@@ -178,12 +199,13 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 ## 7. Typography and Spacing
 
-- Typeface: Geist (sans + mono), as configured in `layout.tsx`. Headings semibold, tight tracking; body regular.
+- Typeface: Inter (body/UI, 400/500/600) + Space Grotesk (headings and wordmark, 500/700) as configured in `layout.tsx`; Geist Mono remains for codes and counts. Headings medium–bold, tight tracking; body regular.
 - Scale: brand statement ~3xl semibold; form heading 2xl semibold; subheading sm ink-2; labels sm medium.
-- Product type scale: display (hero statements, 4xl tight) → page heading
-  (2xl semibold) → section eyebrow (xs semibold, tracking wide, ink-3) →
-  card title (base semibold) → metadata (sm ink-2, mono where codes/counts)
-  → body (sm/base ink-2).
+- Product type scale: hero statement (62px/1.05; 40px on phones) → page
+  heading (2xl semibold) → section heading (38–40px) → card title
+  (19–20px) → intro paragraph (18–19px/1.6–1.7) → body and buttons
+  (15–17px) → eyebrow (`text-eyebrow`, 13px uppercase 0.16em) →
+  metadata (sm ink-2, mono where codes/counts).
 - Spacing: form fields `gap-4`, sections `gap-1` label-to-input, page padding `px-4 sm:px-6`, dashboard sections `gap-10`.
 - Content width, global: every authenticated `main` is `max-w-6xl` so card
   grids use the space between sidebar and browser edge; grids add a third
@@ -198,7 +220,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 | Primary text | token ink | token ink |
 | Secondary text | token ink-2 | token ink-2 |
 | Borders | token line | token line |
-| Primary button | foreground fill | foreground fill |
+| Primary button | orange fill, white label | Same (orange unchanged) |
 | Error text | token error | token error |
 | Accent (illustration, focus, selection) | token accent | token accent |
 | Links | `NavLink` (`src/app/NavLink.tsx`), never raw values | Same |
@@ -207,8 +229,8 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 
 All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
 
-- Text `#5dcaa5`, no underline, `13px`, medium weight.
-- Hover lightens to `#9fe1cb` with a `150ms` color transition.
+- Text `text-accent-ink` (token), no underline, `13px`, medium weight.
+- Hover shifts to `text-accent` (token) with a `150ms` color transition.
 - Arrow links (`←` / `→`) render the arrow as a separate `aria-hidden`
   span with a `6px` flex gap to the label.
 - Title links (e.g. class names), buttons, and sidebar nav keep their own
@@ -228,8 +250,11 @@ All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
 ## 9. Do Not Use
 
 - Purple/blue gradients, glassmorphism, floating blobs, AI sparkles, stock photos.
-- Drop shadows on cards; radii larger than `rounded-lg`.
-- Additional accent colors beyond the single accent + `NavLink` teal (§8.1) + neutrals + error.
+- Radii outside the token set (`rounded-btn` 8px, `rounded-card` 14px,
+  `rounded-panel` 16px), or shadows beyond `shadow-card` / `shadow-hero`
+  (the account dropdown's menu elevation is the one exception, §13).
+- Hues beyond teal + orange + neutrals + error (§0); raw hex values in
+  components — tokens only.
 - Terms/privacy links, onboarding wizards, social-login buttons, or any field beyond name/email/password(+confirm)/role.
 - Client-side enforcement of any server rule (role, gating, eligibility).
 - Statistics, charts, or progress bars without real backing data.
@@ -242,7 +267,8 @@ statement, product-loop subtext, and the same two actions (Get started / Log in)
 
 Below the actions sits a LearningLoopDiagram (Learn → Perform → Observe →
 Reflect → Assess with a return arc) — visually distinct from the auth circuit,
-tied to the product loop. CTA buttons use the standard `rounded-lg` geometry.
+tied to the product loop. CTA buttons use `rounded-btn` geometry (8px);
+cards and panels use `rounded-card` / `rounded-panel`.
 
 ## 11. Transactional Email
 
@@ -265,7 +291,8 @@ Restrained product emails, not marketing pages. Implementation:
 ## 12. Teacher UI System
 
 Dashboards answer three questions in order: what needs doing, what is
-managed, what is happening. Section eyebrows (`text-xs` semibold tracking)
+managed, what is happening. Section eyebrows (`text-eyebrow`: 13px
+semibold uppercase, 0.16em)
 separate YOUR CLASSES / ACTIVE ASSIGNMENTS / RECENT ACTIVITY (teacher) and
 equivalent student sections. Class names are the visual anchor on cards;
 codes are mono with a copy action.
@@ -323,7 +350,8 @@ handles actions — never duplicated. Per-page floating controls are forbidden.
   trigger (`aria-haspopup="menu"`, `aria-expanded`, hover highlight):
   clicking opens the account dropdown: `224px` wide, `bg-raised` (one
   shade above card surfaces), `12px` radius, soft elevation shadow
-  (`0 8px 24px rgba(0,0,0,0.4)` — the one place shadows are allowed),
+  (`0 8px 24px rgba(0,0,0,0.4)` — menu-specific, distinct from
+  `shadow-card` / `shadow-hero`),
   `150ms` fade-and-rise entrance (disabled under
   `prefers-reduced-motion`). Right edge pinned to the trigger (`right-0`,
   `8px` gap). The menu holds the ghost Log out row (`40px`, `12px`
@@ -352,16 +380,18 @@ state). Name the delivering phase when the capability is future work.
 
 - Navigation: active route gets a raised-surface pill + ink text
   (`aria-current="page"`), not color alone. Same treatment desktop/mobile.
-- Cards: surface, 1px line border, `rounded-lg`; title semibold, metadata
-  ink-2, mono for codes/counts. Fewer, larger, purposeful — never grids of
-  identical mini-cards.
+- Cards: surface, 1px line border, `rounded-card` + `shadow-card`; title
+  semibold, metadata ink-2, mono for codes/counts. Fewer, larger,
+  purposeful — never grids of identical mini-cards.
 - Fact strips: `dl` of uppercase mono labels + semibold values (experiment
   detail meta, workspace stats).
-- Buttons: primary foreground fill; secondary line-bordered; destructive
-  actions (member removal) use two-step confirm inline.
-- Accent appearances are allow-listed: active nav pill, `NavLink` nav links
-  (§8.1), selection rings, focus rings, progress traces, diagrams.
-  Body copy and metadata never use accent as plain text color.
+- Buttons: primary orange fill (white label); secondary line-bordered;
+  destructive actions (member removal) use two-step confirm inline.
+- Color appearances are allow-listed: teal for section eyebrows, active
+  nav pill, `NavLink` links (§8.1), selection rings, focus rings, and
+  diagrams; orange for primary buttons, progress traces, and attention
+  states. Body copy and metadata never use either family as plain text
+  color.
 
 ## 16. Loading, Error, and Discovery States
 

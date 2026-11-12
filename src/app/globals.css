@@ -3,49 +3,90 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * ScienceLab design tokens (docs/UI_DESIGN.md §0).
- * One accent across both themes; light mode is a luminance shift, not a
- * different identity. Components consume these tokens, not raw palettes.
+ * ScienceLab design tokens — PDF identity (docs/UI_DESIGN.md §0).
+ *
+ * Two families only: teal (structure/bands/links) and orange (actions/
+ * progress). White on #0B7A96 (5.4:1) and on #C2410C (5.9:1) both pass AA;
+ * neither main color is lightened in either theme — dark mode changes the
+ * neutral field around them and uses lighter cuts of teal for text/graphics.
  */
 :root {
-  --background: #fafaf9;
-  --foreground: #171717;
-  --secondary: #525252;
-  --muted: #737373;
+  color-scheme: light;
+
+  /* Neutral field */
+  --background: #f3f6f7;
+  --foreground: #10242b;
+  --secondary: #35505a;
+  --muted: #4a6068;
   --surface: #ffffff;
-  --raised: #f5f5f4;
-  --line: rgba(0, 0, 0, 0.1);
-  --accent: #20c9c3;
-  --accent-ink: #0b6e6a;
-  --circuit-accent: var(--accent);
+  --raised: #e9eff0;
+  --line: #e1e8ea;
+
+  /* Teal — structure, bands, links. Unchanged across themes. */
+  --teal: #0b7a96;
+  --teal-deep: #0b6e88;
+  --teal-ink: #0b5f75;
+  --teal-light: #1190ae;
+  --teal-pale: #ddf3f8;
+  --accent: #0b7a96;
+  --accent-ink: #0b6e88;
+
+  /* Orange — actions and progress. Unchanged across themes. */
+  --orange: #c2410c;
+  --orange-hover: #9a3412;
+  --orange-tint: #fff1e8;
+  --orange-tint-ink: #7a2e0a;
+
+  /* Progress traces + completion glow share the orange family; there is no
+     third warm color in the identity. */
+  --copper: #c2410c;
+  --copper-glow: #c2410c;
+
+  /* Text that sits ON a teal band (bands are identical in both themes). */
+  --on-band: #ffffff;
+  --on-band-soft: #e3f6fa;
+  --on-band-muted: #bfe9f3;
+  --on-band-nav: #d8f1f7;
+  --on-band-eyebrow: #9adcec;
+  --band-divider: #3c93ab;
+  --subjects-ink: #a9bec4;
+
   --error: #dc2626;
-  /* Warm copper: LED glow, progress, completion. Teal stays interactive;
-     copper never acts as a link, focus, or active-nav color. */
-  --copper: #d97a2b;
-  --copper-glow: #f5a524;
-  /* Illustration linework: neutral graphite + copper highlights, never
-     the interactive teal — diagrams must not read as clickable. */
-  --diagram-line: #6b6f76;
+  --diagram-line: #4a6068;
   --diagram-glow: var(--copper-glow);
+  /* Diagram accent follows the interactive teal; never copper. */
+  --circuit-accent: var(--accent);
 }
 
 /* Class-driven theme (toggled manually, defaults from OS via head script). */
 .dark {
-  --background: #0c0a09;
-  --foreground: #f5f5f5;
-  --secondary: #a3a3a3;
-  --muted: #737373;
-  --surface: #151210;
-  --raised: #1e1a16;
-  --line: rgba(255, 255, 255, 0.12);
-  --accent: #20c9c3;
-  --accent-ink: #5eead4;
-  --circuit-accent: var(--accent);
+  color-scheme: dark;
+
+  /* Neutral field shifts; teal and orange bands do not. */
+  --background: #0a181d;
+  --foreground: #e9f2f4;
+  --secondary: #a3bac1;
+  --muted: #7c959d;
+  --surface: #11272e;
+  --raised: #17343d;
+  --line: #1f3c44;
+
+  /* Lighter cuts of teal so text and graphics stay legible on the dark
+     field. The teal bands themselves keep #0b7a96. */
+  --accent: #1190ae;
+  --accent-ink: #9adcec;
+
+  /* Warm accent deepened for a dark field; same hue family. */
+  --copper: #e06b2c;
+  --copper-glow: #f07438;
+
+  --orange-tint: #2b1710;
+  --orange-tint-ink: #efa079;
+
   --error: #f87171;
-  --copper: #e08a3c;
-  --copper-glow: #f5a524;
-  --diagram-line: #8a8f98;
+  --diagram-line: #7c959d;
   --diagram-glow: var(--copper-glow);
+  --circuit-accent: var(--accent);
 }
 
 @theme inline {
@@ -53,6 +94,7 @@
   --color-foreground: var(--foreground);
   --color-canvas: var(--background);
   --color-surface: var(--surface);
+  --color-card: var(--surface);
   --color-raised: var(--raised);
   --color-line: var(--line);
   --color-ink: var(--foreground);
@@ -60,26 +102,68 @@
   --color-ink-3: var(--muted);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
+  --color-teal: var(--teal);
+  --color-teal-deep: var(--teal-deep);
+  --color-teal-ink: var(--teal-ink);
+  --color-teal-light: var(--teal-light);
+  --color-teal-pale: var(--teal-pale);
+  --color-orange: var(--orange);
+  --color-orange-hover: var(--orange-hover);
+  --color-orange-tint: var(--orange-tint);
+  --color-orange-tint-ink: var(--orange-tint-ink);
+  --color-on-band: var(--on-band);
+  --color-on-band-soft: var(--on-band-soft);
+  --color-on-band-muted: var(--on-band-muted);
+  --color-on-band-nav: var(--on-band-nav);
+  --color-on-band-eyebrow: var(--on-band-eyebrow);
+  --color-band-divider: var(--band-divider);
+  --color-subjects-ink: var(--subjects-ink);
   --color-error: var(--error);
   --color-copper: var(--copper);
   --color-copper-glow: var(--copper-glow);
   --color-diagram-line: var(--diagram-line);
   --color-diagram-glow: var(--diagram-glow);
-  --font-sans: var(--font-geist-sans);
+
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-display);
+
+  /* Geometry + depth: identical in both themes, so they live here only. */
+  --radius-btn: 8px;
+  --radius-card: 14px;
+  --radius-panel: 16px;
+  --shadow-card: 0 1px 3px rgba(16, 36, 43, 0.08);
+  --shadow-hero: 0 24px 60px rgba(4, 50, 63, 0.35);
+
+  /* Type scale (docs/UI_DESIGN.md §0). */
+  --text-eyebrow: 0.8125rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.16em;
+  --text-eyebrow--font-weight: 600;
+  --text-logo: 1.375rem;
+  --text-logo--line-height: 1.2;
+  --text-logo--letter-spacing: 0.14em;
+  --text-logo--font-weight: 700;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 /* Consistent, accent-colored keyboard focus across all interactive elements. */
 :where(a, button, input, [tabindex]):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/*
+ * On a teal band the accent is the same hue as the band, so the ring would
+ * vanish. Swap to the pale cut for the whole band.
+ */
+.band :where(a, button, input, [tabindex]):focus-visible {
+  outline-color: var(--on-band-eyebrow);
 }
 
 /* Account dropdown entrance: fade + slight rise. Motion only, no layout shift. */

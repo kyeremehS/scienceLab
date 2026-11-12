@@ -6,7 +6,9 @@ plus a private window): one Teacher, one Student. The seeded experiment is
 
 ## 0. Preconditions
 
-- [ ] App loads at its URL; landing page renders with Learn/Start actions.
+- [ ] App loads at its URL; landing page renders with the hero statement,
+      Get started / Log in actions, and the section nav (Features, For
+      teachers, For students, How it works, FAQ).
 - [ ] `/api/health/db` returns `{"status":"ok"}`.
 - [ ] A published experiment exists in the catalogue.
 
