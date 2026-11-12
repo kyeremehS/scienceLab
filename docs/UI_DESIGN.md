@@ -67,6 +67,8 @@ Components consume these tokens, never raw palette values:
 | Band divider (`--band-divider`) | `#3C93AB` | `#3C93AB` |
 | Subjects strip (`--subjects-ink`) | `#A9BEC4` | `#4A6068` |
 | Error (`text-error`) | `#DC2626` | `#F87171` |
+| Success (`text-success`: correct, completed) | `#15803D` | `#34D399` |
+| Warning (`text-warning`: attention states, bold or icon-paired only) | `#B45309` | `#FBBF24` |
 | Progress traces (`text-copper`, orange family) | `#C2410C` | `#E06B2C` |
 | Copper glow (`--copper-glow`: illustration highlights) | `#C2410C` | `#F07438` |
 | Diagram linework (`--diagram-line`) | `#4A6068` | `#7C959D` |
@@ -75,7 +77,9 @@ Components consume these tokens, never raw palette values:
 | Depth (`shadow-card` / `shadow-hero`) | `0 1px 3px rgba(16,36,43,.08)` / `0 24px 60px rgba(4,50,63,.35)` | Same |
 
 Two color families only: **teal** (structure, bands, links, focus) and
-**orange** (primary actions, progress, attention). Teal and orange bands
+**orange** (primary actions, progress, attention). Semantic state colors
+(`error`, `success`, `warning`) are functional only — status text and
+icons, never decoration or brand emphasis. Teal and orange bands
 are identical in both themes; dark mode shifts the neutral field around
 them and uses lighter cuts of teal for text and graphics. White on
 `#0B7A96` (5.4:1) and on `#C2410C` (5.9:1) both pass AA — neither main
@@ -253,7 +257,8 @@ All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
 - Radii outside the token set (`rounded-btn` 8px, `rounded-card` 14px,
   `rounded-panel` 16px), or shadows beyond `shadow-card` / `shadow-hero`
   (the account dropdown's menu elevation is the one exception, §13).
-- Hues beyond teal + orange + neutrals + error (§0); raw hex values in
+- Hues beyond the §0 token families — teal, orange, neutrals, and the
+  semantic state colors (`error`, `success`, `warning`); raw hex values in
   components — tokens only.
 - Terms/privacy links, onboarding wizards, social-login buttons, or any field beyond name/email/password(+confirm)/role.
 - Client-side enforcement of any server rule (role, gating, eligibility).

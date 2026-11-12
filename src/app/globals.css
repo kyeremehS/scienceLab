@@ -52,6 +52,8 @@
   --subjects-ink: #a9bec4;
 
   --error: #dc2626;
+  --success: #15803d;
+  --warning: #b45309;
   --diagram-line: #4a6068;
   --diagram-glow: var(--copper-glow);
   /* Diagram accent follows the interactive teal; never copper. */
@@ -84,6 +86,8 @@
   --orange-tint-ink: #efa079;
 
   --error: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
   --diagram-line: #7c959d;
   --diagram-glow: var(--copper-glow);
   --circuit-accent: var(--accent);
@@ -119,6 +123,8 @@
   --color-band-divider: var(--band-divider);
   --color-subjects-ink: var(--subjects-ink);
   --color-error: var(--error);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-copper: var(--copper);
   --color-copper-glow: var(--copper-glow);
   --color-diagram-line: var(--diagram-line);

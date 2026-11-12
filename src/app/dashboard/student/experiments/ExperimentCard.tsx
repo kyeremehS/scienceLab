@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge } from "@/app/ui/Badge";
 import { ExperimentVisual } from "./ExperimentVisual";
 
 export interface ExperimentCardData {
@@ -49,11 +50,7 @@ export function ExperimentCard({
           <span className="rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-2">
             {experiment.difficulty}
           </span>
-          {assigned ? (
-            <span className="rounded-md bg-accent/[0.08] px-2 py-0.5 text-xs font-medium text-accent-ink">
-              Assigned
-            </span>
-          ) : null}
+          {assigned ? <Badge tone="accent">Assigned</Badge> : null}
         </div>
         <p className="line-clamp-2 min-h-[3.25rem] font-display text-lg font-semibold leading-snug tracking-tight">{experiment.title}</p>
         <div className="flex items-center gap-4 text-sm text-ink-2">

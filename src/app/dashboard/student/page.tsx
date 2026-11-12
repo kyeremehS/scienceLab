@@ -7,6 +7,7 @@ import { assessmentSubmissions, assignments, classes, classMemberships, users } 
 import { experimentAttempts, experimentSteps, experimentVersions } from "@/db/schema";
 import { stepProgress } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
+import { Badge } from "@/app/ui/Badge";
 import { FirstStepsChecklist } from "./FirstStepsChecklist";
 import { CatalogueExplorer } from "./CatalogueExplorer";
 
@@ -258,17 +259,17 @@ export default async function StudentDashboard() {
                 className={`flex items-center justify-between gap-4 py-3 ${i !== assignedWork.length - 1 ? "border-b border-line" : ""}`}
               >
                 <span className="flex min-w-0 items-center gap-3">
-                  <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] ${
+                  <Badge
+                    tone={
                       a.status === "COMPLETED"
-                        ? "bg-success/10 text-success"
+                        ? "success"
                         : a.status === "IN_PROGRESS"
-                          ? "bg-accent/[0.08] text-accent-ink"
-                          : "bg-raised text-ink-2"
-                    }`}
+                          ? "accent"
+                          : "neutral"
+                    }
                   >
                     {a.status.replace("_", " ")}
-                  </span>
+                  </Badge>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold">{a.title}</span>
                     <span className="block truncate text-xs text-ink-3">
