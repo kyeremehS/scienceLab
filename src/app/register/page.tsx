@@ -64,7 +64,7 @@ export default function RegisterPage() {
             minLength={2}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="rounded-lg border border-line bg-transparent px-3 py-2"
+            className="rounded-btn border border-line bg-transparent px-3 py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-line bg-transparent px-3 py-2"
+            className="rounded-btn border border-line bg-transparent px-3 py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -114,7 +114,7 @@ export default function RegisterPage() {
             ).map((option) => (
               <label
                 key={option.value}
-                className="cursor-pointer rounded-lg border border-line px-3 py-2.5 text-sm transition-colors has-checked:border-accent has-checked:bg-accent/[0.05]"
+                className="cursor-pointer rounded-btn border border-line px-3 py-2.5 text-sm transition-colors has-checked:border-accent has-checked:bg-accent/[0.05]"
               >
                 <input
                   type="radio"
@@ -146,7 +146,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
+          className="w-full rounded-btn bg-orange px-7 py-[15px] text-[16px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover disabled:pointer-events-none disabled:opacity-50"
         >
           Create account
         </button>

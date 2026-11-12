@@ -22,12 +22,12 @@ export function AuthLayout({
       <div className="flex flex-col justify-center bg-surface px-8 py-8 text-ink min-[480px]:py-10 lg:w-[45%] lg:items-end lg:px-12">
         <div className="mx-auto w-full max-w-md">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold tracking-[0.2em]">SCIENCELAB</p>
+            <p className="font-display text-logo uppercase">ScienceLab</p>
             <div className="lg:hidden">
               <ThemeToggle />
             </div>
           </div>
-          <p className="mt-4 text-xl font-semibold tracking-tight lg:text-3xl">
+          <p className="mt-4 font-display text-xl font-semibold tracking-tight lg:text-3xl">
             Learn science by doing.
           </p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-ink-2">
@@ -45,7 +45,7 @@ export function AuthLayout({
           <ThemeToggle />
         </div>
         <div className="w-full max-w-[520px]">
-          <h1 className="text-2xl font-semibold tracking-tight">{heading}</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">{heading}</h1>
           <p className="mt-1 text-sm text-ink-2">{subheading}</p>
           <div className="mt-6">{children}</div>
         </div>

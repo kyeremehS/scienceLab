@@ -77,7 +77,7 @@ function ResetForm({ token }: { token: string | null }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity disabled:opacity-50"
+        className="w-full rounded-btn bg-orange px-7 py-[15px] text-[16px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover disabled:pointer-events-none disabled:opacity-50"
       >
         Set new password
       </button>
