@@ -52,7 +52,7 @@ unrelated containers.
 | `gap-4` (16px) | grouped | fields inside one form section |
 | `p-5` / `gap-5` | card interior | default Card padding |
 | `gap-6` | grid gutter | between cards in the 12-col grid |
-| `p-8` / `gap-8` | macro | between page sections, sidebar internal sections |
+| `p-8` / `gap-8` | macro | between page sections, top-bar content sections |
 
 Rule of thumb applied throughout: **padding inside a container is always
 smaller than the gap between containers.** A stat card uses `p-4` between
@@ -74,24 +74,23 @@ containment reads before adjacency does.
 
 ## 4. Breakpoints
 
-| Breakpoint | Sidebar | Grid | Notes |
+| Breakpoint | Top bar | Grid | Notes |
 |---|---|---|---|
-| `< 768px` (base) | Hidden; becomes a slide-in `Sheet` drawer, triggered by a hamburger in the sticky header | `grid-cols-1`, every card stacks full-width | Primary action moves to a fixed bottom bar |
-| `768–1023px` (`md`) | Collapses to a 72px icon rail (`md:w-[72px]`, labels hidden, tooltips on hover) | `md:grid-cols-6` — 2/3+1/3 split becomes `col-span-4`/`col-span-2` | Secondary rail content may collapse into an accordion |
-| `≥ 1024px` (`lg`) | Full 280px rail with labels | `lg:grid-cols-12`, full 8/4 or 9/3 split | Full layout as specified above |
+| `< 768px` (base) | Nav collapses behind a hamburger; the expanded panel drops down under the bar on the same teal | `grid-cols-1`, every card stacks full-width | Primary action moves to a fixed bottom bar |
+| `768–1023px` (`md`) | Text-only nav links visible in the bar (no icons) | `md:grid-cols-6` — 2/3+1/3 split becomes `col-span-4`/`col-span-2` | Secondary content may collapse into an accordion |
+| `≥ 1024px` (`lg`) | Same bar; account name shown beside the avatar | `lg:grid-cols-12`, full 8/4 or 9/3 split | Full layout as specified above |
 
 ## 5. Interactive zones (sticky / scroll / fixed)
 
 Mapped independently per page below, but the shared contract:
 
-- **Sticky header** — `sticky top-0 z-30 h-16 backdrop-blur bg-background/90
-  border-b`. Always present, always the same height, so vertical rhythm
-  doesn't shift between pages.
-- **Sidebar scroll** — the sidebar's nav list scrolls independently
-  (`overflow-y-auto`) from main content; the teacher/student identity
-  block at the bottom of the sidebar stays pinned (`mt-auto`).
-- **Main scroll** — `overflow-y-auto` on the content region only, so the
-  header and sidebar never move.
+- **Sticky top bar** — `band sticky top-0 z-30 bg-teal` with an `h-16`
+  inner row (wordmark, nav, account controls). Always present, always
+  the same height, so vertical rhythm doesn't shift between pages. The
+  teal is opaque (no backdrop-blur): bands keep the same color in both
+  themes (UI_DESIGN.md §0).
+- **Main scroll** — the page scrolls as one document; the top bar never
+  moves, so the nav stays reachable from any scroll position.
 - **Fixed action bar** — reserved for the *one* primary commitment
   action per page (Assign Experiment, Save & Continue, Publish). Desktop:
   lives in the sticky header's right side. Mobile: drops to a

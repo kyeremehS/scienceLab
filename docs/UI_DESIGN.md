@@ -212,7 +212,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
   metadata (sm ink-2, mono where codes/counts).
 - Spacing: form fields `gap-4`, sections `gap-1` label-to-input, page padding `px-4 sm:px-6`, dashboard sections `gap-10`.
 - Content width, global: every authenticated `main` is `max-w-6xl` so card
-  grids use the space between sidebar and browser edge; grids add a third
+  grids use the space under the top bar out to the browser edge; grids add a third
   column at `lg` where cards would otherwise stretch.
 
 ## 8. Color Usage
@@ -237,7 +237,7 @@ All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
 - Hover shifts to `text-accent` (token) with a `150ms` color transition.
 - Arrow links (`←` / `→`) render the arrow as a separate `aria-hidden`
   span with a `6px` flex gap to the label.
-- Title links (e.g. class names), buttons, and sidebar nav keep their own
+- Title links (e.g. class names), buttons, and top-bar nav keep their own
   treatments — `NavLink` is for inline navigation only.
 
 ## 8.2 Theme (light/dark)
@@ -335,37 +335,40 @@ data exists.
 
 ## 13. Authenticated App Shell
 
-Authenticated pages render inside a persistent sidebar shell
-(`dashboard/layout.tsx` + `AppShell`). Top strip handles identity, sidebar
-handles actions — never duplicated. Per-page floating controls are forbidden.
+Authenticated pages render inside a persistent top-bar shell
+(`dashboard/layout.tsx` + `AppShell`) — solid teal bar across the top of
+every dashboard page, per the all-screens PDF. The former left sidebar is
+gone; the bar carries identity, navigation, and account controls together,
+and never duplicates them per page. Per-page floating controls are forbidden.
 
-- Sidebar (desktop, `w-60`, surface): single-line wordmark; icon + label
-  nav (Student: Dashboard, Experiments, My Classes; Teacher: Dashboard,
-  Classes — no dead entries). No account controls in the sidebar.
-  Active route: subtle accent-tinted surface + ink
-  text (`aria-current="page"`). The sidebar is complete
-  navigation: every primary destination is reachable from it, so
-  dashboards stay quick-access summaries (hero next-action, real-number
-  stats, entry-point lists) and never the only path to a capability.
-- Profile block (both viewports): unit pinned to the right — avatar
-  circle, then a left-aligned text column with the name on its own line
-  and the role (`Student`/`Teacher`) on the next line starting at the
-  same left edge as the name, plus a chevron. A theme icon sits beside
-  the trigger, next to the name. The whole block is a menu
-  trigger (`aria-haspopup="menu"`, `aria-expanded`, hover highlight):
-  clicking opens the account dropdown: `224px` wide, `bg-raised` (one
+- Top bar (both viewports, `bg-teal`, `h-16`, sticky): single-line
+  wordmark at the left (links to the role's dashboard home); then the
+  primary nav — text-only links (Student: Dashboard, My Classes,
+  Experiments; Teacher: Dashboard, Classes, Experiments — no dead
+  entries). Active route: darker teal pill (`bg-teal-deep`, `15px`
+  medium, `rounded-lg`, `px-3 py-1.5`) with on-band text and
+  `aria-current="page"`; inactive links use on-band-nav with an
+  on-band hover. Bands keep the same teal in both themes (§0), so bar
+  and nav tokens are theme-invariant. The bar is complete navigation:
+  every primary destination is reachable from it, so dashboards stay
+  quick-access summaries and never the only path to a capability.
+  Below `md` the nav collapses behind a hamburger (expanded panel
+  renders under the bar on the same teal, active pill included).
+- Account controls (in the bar, right side): theme toggle
+  (`tone="band"`), then the menu trigger — name (hidden below `sm`)
+  + avatar circle (on-band fill, teal initials) + chevron, hover
+  highlight. The whole trigger is the menu opener
+  (`aria-haspopup="menu"`, `aria-expanded`): clicking opens the
+  account dropdown: `224px` wide, `bg-raised` (one
   shade above card surfaces), `12px` radius, soft elevation shadow
   (`0 8px 24px rgba(0,0,0,0.4)` — menu-specific, distinct from
   `shadow-card` / `shadow-hero`),
   `150ms` fade-and-rise entrance (disabled under
   `prefers-reduced-motion`). Right edge pinned to the trigger (`right-0`,
-  `8px` gap). The menu holds the ghost Log out row (`40px`, `12px`
+  `8px` gap). The menu holds the Change-password link and the ghost
+  Log out row (`40px`, `12px`
   horizontal padding, muted rest, red hover). The menu closes
-  on outside click, Escape, navigation, or logout. Generous vertical
-  padding (`py-6`), relaxed avatar-to-text gap. Desktop renders it as a
-  full-width strip under the sidebar row; mobile renders the same block
-  under the top bar. Neither the sidebar nor the top bar carries account
-  controls; the drawer reveals nav links only.
+  on outside click, Escape, navigation, or logout.
 - Hero: live-state panel (date eyebrow + state-driven title, subline, and
   primary CTA), not decoration. Student: continue-experiment panel when an
   in-progress attempt exists, otherwise orientation (join/browse).

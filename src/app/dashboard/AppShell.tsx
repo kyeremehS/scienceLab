@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LogoutButton } from "../LogoutButton";
 import { ThemeToggle } from "../ThemeToggle";
 
@@ -19,7 +19,7 @@ export type ShellRole = "STUDENT" | "TEACHER";
 
 function ChevronDown() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-ink-3">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-on-band-nav">
       <path d="M6 9l6 6 6-6" />
     </svg>
   );
@@ -49,52 +49,31 @@ function AccountMenu({ onClose }: { onClose: () => void }) {
   );
 }
 
-function DashboardIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
-  );
-}
-
-function FlaskIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M9 3h6" />
-      <path d="M10 3v5.5L4.8 17a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 8.5V3" />
-      <line x1="7.5" y1="15" x2="16.5" y2="15" />
-    </svg>
-  );
-}
-
-function ClassesIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <rect x="3" y="4" width="18" height="6" rx="1.5" />
-      <rect x="3" y="14" width="18" height="6" rx="1.5" />
-    </svg>
-  );
-}
-
-const NAV: Record<ShellRole, { href: string; label: string; icon: () => React.ReactNode }[]> = {
+const NAV: Record<ShellRole, { href: string; label: string }[]> = {
   STUDENT: [
-    { href: "/dashboard/student", label: "Dashboard", icon: DashboardIcon },
-    { href: "/dashboard/student/experiments", label: "Experiments", icon: FlaskIcon },
-    { href: "/dashboard/student/classes", label: "My Classes", icon: ClassesIcon },
+    { href: "/dashboard/student", label: "Dashboard" },
+    { href: "/dashboard/student/classes", label: "My Classes" },
+    { href: "/dashboard/student/experiments", label: "Experiments" },
   ],
   TEACHER: [
-    { href: "/dashboard/teacher", label: "Dashboard", icon: DashboardIcon },
-    { href: "/dashboard/teacher/classes", label: "Classes", icon: ClassesIcon },
-    { href: "/dashboard/teacher/experiments", label: "Experiments", icon: FlaskIcon },
+    { href: "/dashboard/teacher", label: "Dashboard" },
+    { href: "/dashboard/teacher/classes", label: "Classes" },
+    { href: "/dashboard/teacher/experiments", label: "Experiments" },
   ],
 };
 
+const NAV_ITEM =
+  "rounded-lg px-3 py-1.5 text-[15px] font-medium transition-colors duration-150 no-underline";
+
+/**
+ * Dashboard chrome: solid teal top bar (wordmark, primary nav with a darker
+ * active pill, account controls) per the all-screens PDF — the left sidebar
+ * is gone. Bands keep the same teal in both themes (UI_DESIGN.md §0), so the
+ * bar and its on-band text tokens are theme-invariant. Below md the nav
+ * collapses into a hamburger panel.
+ */
 export function AppShell({ role, name, children }: { role: ShellRole; name: string; children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const links = NAV[role];
@@ -122,93 +101,79 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
     return !isRoot && pathname.startsWith(href);
   }
 
-  function go(href: string) {
+  function closeMenus() {
     setOpen(false);
     setMenuOpen(false);
-    router.push(href);
   }
 
-  const roleLabel = role === "STUDENT" ? "Student" : "Teacher";
+  const home = role === "STUDENT" ? "/dashboard/student" : "/dashboard/teacher";
 
   return (
-    <div className="flex min-h-full flex-1">
+    <div className="flex min-h-full flex-1 flex-col">
       <a
         href="#dashboard-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background"
       >
         Skip to content
       </a>
-      {/* Desktop sidebar: 280px rail, 72px icon rail on md */}
-      <aside className="sticky top-0 hidden h-screen shrink-0 flex-col border-r border-line bg-surface md:flex md:w-[72px] lg:w-[280px]">
-        <div className="flex h-16 shrink-0 items-center border-b border-line px-4 lg:px-6">
-          <p className="hidden whitespace-nowrap text-sm font-semibold tracking-[0.18em] lg:block">SCIENCELAB</p>
-          <p aria-hidden="true" className="text-sm font-semibold lg:hidden">SL</p>
-        </div>
-        <nav aria-label="Primary" className="flex-1 overflow-y-auto p-3">
-          <ul className="flex flex-col gap-1">
-            {links.map((l) => (
-              <li key={l.href}>
-                <Link
-                  href={l.href}
-                  onClick={() => setMenuOpen(false)}
-                  aria-current={isActive(l.href) ? "page" : undefined}
-                  title={l.label}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors md:justify-center lg:justify-start ${
-                    isActive(l.href)
-                      ? "bg-accent/[0.08] text-ink"
-                      : "text-ink-2 hover:bg-raised hover:text-ink"
-                  }`}
-                >
-                  <span aria-hidden="true" className={isActive(l.href) ? "text-accent-ink" : ""}>
-                    <l.icon />
-                  </span>
-                  <span className="hidden lg:inline">{l.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Desktop profile block + account menu */}
-        <div className="hidden border-b border-line bg-canvas px-6 py-6 md:block">
-          <div className="relative ml-auto w-fit" data-account-menu>
-            <div className="flex items-center gap-1">
+      <header className="band sticky top-0 z-30 bg-teal">
+        <div className="flex h-16 items-center gap-x-4 px-4 sm:px-6 lg:gap-x-8">
+          <Link
+            href={home}
+            onClick={closeMenus}
+            className="shrink-0 font-display text-logo uppercase text-on-band no-underline"
+          >
+            ScienceLab
+          </Link>
+
+          <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={closeMenus}
+                aria-current={isActive(l.href) ? "page" : undefined}
+                className={`${NAV_ITEM} ${
+                  isActive(l.href)
+                    ? "bg-teal-deep text-on-band"
+                    : "text-on-band-nav hover:text-on-band"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <ThemeToggle tone="band" />
+            <div className="relative" data-account-menu>
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
-                className="flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
+                className="flex cursor-pointer items-center gap-2 rounded-lg py-1 pl-1 pr-2 text-left transition-colors hover:bg-teal-deep sm:gap-3"
               >
+                <span className="hidden max-w-40 truncate text-[15px] font-medium text-on-band sm:block">
+                  {name}
+                </span>
                 <span
                   aria-hidden="true"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-on-band text-sm font-semibold text-teal"
                 >
                   {initials(name)}
                 </span>
-                <span className="min-w-0 text-left">
-                  <span className="block max-w-60 truncate text-base font-semibold leading-snug">{name}</span>
-                  <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
-                </span>
                 <ChevronDown />
               </button>
-              <ThemeToggle />
+              {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
             </div>
-            {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
-          </div>
-        </div>
-        {/* Mobile top bar */}
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-canvas px-4 py-3 md:hidden">
-          <p className="text-sm font-semibold tracking-[0.2em]">SCIENCELAB</p>
-          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-label={open ? "Close menu" : "Open menu"}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink-2"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-on-band md:hidden"
             >
               {open ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -224,61 +189,33 @@ export function AppShell({ role, name, children }: { role: ShellRole; name: stri
               )}
             </button>
           </div>
-        </header>
-        {/* Mobile profile block + account menu */}
-        <div className="border-b border-line bg-canvas px-4 py-6 md:hidden">
-          <div className="relative ml-auto w-fit" data-account-menu>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-expanded={menuOpen}
-                aria-haspopup="menu"
-                className="flex min-w-0 cursor-pointer items-center gap-4 rounded-lg px-2 py-1 text-left transition-colors hover:bg-raised"
-              >
-                <span
-                  aria-hidden="true"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
-                >
-                  {initials(name)}
-                </span>
-                <span className="min-w-0 text-left">
-                  <span className="block truncate text-base font-semibold leading-snug">{name}</span>
-                  <span className="mt-0.5 block text-sm leading-snug text-ink-3">{roleLabel}</span>
-                </span>
-                <ChevronDown />
-              </button>
-              <ThemeToggle />
-            </div>
-            {menuOpen ? <AccountMenu onClose={() => setMenuOpen(false)} /> : null}
-          </div>
         </div>
+
         {open ? (
-          <nav aria-label="Mobile" className="border-b border-line bg-surface px-4 py-3 md:hidden">
+          <nav aria-label="Mobile" className="border-t border-on-band/20 px-4 py-3 md:hidden">
             <ul className="flex flex-col gap-1">
               {links.map((l) => (
                 <li key={l.href}>
-                  <button
-                    type="button"
-                    onClick={() => go(l.href)}
+                  <Link
+                    href={l.href}
+                    onClick={closeMenus}
                     aria-current={isActive(l.href) ? "page" : undefined}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors hover:bg-raised ${
-                      isActive(l.href) ? "bg-raised text-ink" : "text-ink-2"
+                    className={`${NAV_ITEM} block ${
+                      isActive(l.href)
+                        ? "bg-teal-deep text-on-band"
+                        : "text-on-band-nav hover:text-on-band"
                     }`}
                   >
-                    <l.icon />
                     {l.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
-            <div className="mt-2 border-t border-line pt-3">
-              <LogoutButton />
-            </div>
           </nav>
         ) : null}
-        <div className="flex flex-1 flex-col" id="dashboard-content">{children}</div>
-      </div>
+      </header>
+
+      <div className="flex flex-1 flex-col" id="dashboard-content">{children}</div>
     </div>
   );
 }
