@@ -296,11 +296,10 @@ Restrained product emails, not marketing pages. Implementation:
 ## 12. Teacher UI System
 
 Dashboards answer three questions in order: what needs doing, what is
-managed, what is happening. Detail and index pages still mark sections
-with eyebrows (`text-eyebrow`: 13px semibold uppercase, 0.16em —
-CLASS CODE, ASSIGNED EXPERIMENTS); the two dashboards use display-type
-headings instead. Class names are the visual anchor on cards;
-codes are mono with a copy action.
+managed, what is happening. `text-eyebrow` (13px semibold uppercase,
+0.16em) is a landing-page device (§10); the authenticated app uses
+display-type headings and `PageHeader` title + subtitle instead. Class
+names are the visual anchor on cards; codes are mono with a copy action.
 
 - Empty states are honest: they name the missing capability and the phase
   that delivers it. Never fake data, never dead buttons, never card-sprawl
@@ -308,10 +307,9 @@ codes are mono with a copy action.
 - Index and detail pages share `PageHeader`: title + subtitle, utility
   controls (theme, logout) top-right on desktop and wrapped to their own row on
   mobile. The two dashboards replace it with the spec greeting header
-  (§12.2, §12.3).
-- Class detail order: workspace stat strip → tabs (Overview / Students /
-  Assignments with counts). Assignment and progress sections stay as honest
-  placeholders until Phases 6–7 implement them.
+  (§12.2, §12.3); the class detail replaces it with the spec breadcrumb
+  header (§12.4).
+- Class detail order: see §12.4 (spec p6).
 - Summary stats show only real numbers from live queries. No charts for
   charts' sake.
 
@@ -357,6 +355,25 @@ students, Create an assignment; a step is ticked once its state exists)
 above the **Needs attention** card with its honest empty state. Recent
 activity is deliberately absent — activity lives in the class, not on the
 top-level dashboard (`FR-TEA-04`).
+
+## 12.4 Class detail (spec p6)
+
+Breadcrumb `Classes / {name}` → display title with the teal-pale
+`Class code: {code}` pill (static text; the copy affordance lives in the
+Invite card) and the orange `New assignment` action, which deep-links
+`?tab=assignments`. Then an 8/4 grid. Left: the tabs — **Students**
+(default), **Assignments**, **Progress**, each with a count; selection is
+URL-driven (`?tab=`) so deep links and the back button stay honest.
+Students rows = name over `Joined {date}`, a centered progress bar +
+status pill (`done` pale teal = Done when every active assignment is
+completed, `neutral` = In progress once any attempt exists, `pending`
+warm tint = Not started; no pill when nothing is assigned), and
+right-aligned `Progress` link + `Remove`. Right column: the **Invite
+students** card ("Share the class code. Students join on their own." +
+teal `Copy class code` action button) above the **Class completion**
+tile (real %, or `—` while no work is assigned). The stat strip and the
+Overview tab are gone — class description lives on the classes list;
+code sharing lives in the header pill and Invite card.
 
 ## 13. Authenticated App Shell
 
