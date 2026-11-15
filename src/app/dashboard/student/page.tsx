@@ -3,13 +3,23 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { assessmentSubmissions, assignments, classes, classMemberships, users } from "@/db/schema";
+import { assignments, classes, classMemberships, users } from "@/db/schema";
 import { experimentAttempts, experimentSteps, experimentVersions } from "@/db/schema";
-import { stepProgress } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
-import { Badge } from "@/app/ui/Badge";
-import { FirstStepsChecklist } from "./FirstStepsChecklist";
+import { Badge, type BadgeTone } from "@/app/ui/Badge";
+import { Card } from "@/app/ui/Card";
+import { JoinClassForm } from "./JoinClassForm";
 import { CatalogueExplorer } from "./CatalogueExplorer";
+
+/** Spec status pills (pp.6–7): warm Not started, neutral In progress, pale teal Done. */
+const STATUS: Record<
+  "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED",
+  { label: string; tone: BadgeTone }
+> = {
+  NOT_STARTED: { label: "Not started", tone: "pending" },
+  IN_PROGRESS: { label: "In progress", tone: "neutral" },
+  COMPLETED: { label: "Done", tone: "done" },
+};
 
 export default async function StudentDashboard() {
   const user = await getPageUser();
@@ -83,336 +93,119 @@ export default async function StudentDashboard() {
     };
   });
 
-  // In-progress and recently completed attempts with live titles and scores.
-  const attemptMeta = await Promise.all(
-    myAttempts.map(async (a) => {
-      const vRows = await db
-        .select({ title: experimentVersions.title, versionId: experimentVersions.id })
-        .from(experimentVersions)
-        .where(eq(experimentVersions.id, a.experimentVersionId))
-        .limit(1);
-      const steps = await db
-        .select({ id: experimentSteps.id, order: experimentSteps.stepOrder, title: experimentSteps.title })
-        .from(experimentSteps)
-        .where(eq(experimentSteps.experimentVersionId, a.experimentVersionId));
-      const done = await db
-        .select({ id: stepProgress.id, stepId: stepProgress.experimentStepId })
-        .from(stepProgress)
-        .where(and(eq(stepProgress.attemptId, a.id), eq(stepProgress.status, "COMPLETED")));
-      const doneIds = new Set(done.map((d) => d.stepId));
-      const nextStep = steps
-        .filter((s) => !doneIds.has(s.id))
-        .sort((x, y) => x.order - y.order)[0] ?? null;
-      const subs = await db
-        .select({ score: assessmentSubmissions.score })
-        .from(assessmentSubmissions)
-        .where(eq(assessmentSubmissions.attemptId, a.id))
-        .limit(1);
-      return {
-        id: a.id,
-        experimentId: a.experimentId,
-        status: a.status,
-        title: vRows[0]?.title ?? "Experiment",
-        stepsCompleted: done.length,
-        stepsTotal: steps.length,
-        nextStepTitle: nextStep?.title ?? null,
-        score: subs[0]?.score ?? null,
-        completedAt: a.completedAt,
-      };
-    }),
-  );
-  const inProgress = attemptMeta.filter((a) => a.status === "IN_PROGRESS");
-  const completedAll = attemptMeta.filter((a) => a.status === "COMPLETED");
-  const scored = completedAll.filter((a) => a.score !== null);
-  const avgScore =
-    scored.length === 0 ? null : Math.round((scored.reduce((s, a) => s + Number(a.score), 0) / scored.length) * 100);
-  const recentlyCompleted = [...completedAll]
-    .sort((a, b) => +new Date(b.completedAt ?? 0) - +new Date(a.completedAt ?? 0))
-    .slice(0, 3);
-  const continuing = inProgress[0] ?? null;
-  // Clamp: when steps are done but observations/assessment remain, the
-  // current position is the last step, never total + 1.
-  const continuingPosition = continuing
-    ? Math.min(continuing.stepsCompleted + 1, Math.max(continuing.stepsTotal, 1))
-    : 0;
-
   const firstName = user.name.split(" ")[0];
-  const teachers = [...new Set(joined.map((c) => c.teacherName))];
-  const today = new Date().toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-  const activity = [...joined]
-    .sort((a, b) => +new Date(b.joinedAt) - +new Date(a.joinedAt))
-    .slice(0, 4);
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8">
-      {/* Hero row: continue (dominant) + progress summary (quiet) */}
+      <header>
+        <h1 className="font-display text-[40px] font-semibold leading-[1.05] tracking-tight sm:text-[52px]">
+          Hi, {firstName}.
+        </h1>
+        <p className="mt-3 text-base text-ink-2">Here is what&apos;s due next.</p>
+      </header>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <section
-          aria-labelledby="continue-heading"
-          className="flex flex-col justify-between gap-6 rounded-2xl border border-accent/25 bg-surface p-6 sm:p-8 lg:col-span-8"
-        >
-          {continuing ? (
-            <>
-              <div>
-                <p className="text-sm text-ink-2">Continue where you left off</p>
-                <h2 id="continue-heading" className="mt-1 font-display text-2xl font-semibold tracking-tight">
-                  {continuing.title}
-                </h2>
-                <p className="mt-1 text-sm text-ink-2">
-                  Step {continuingPosition} of {continuing.stepsTotal}
-                  {continuing.nextStepTitle ? ` — ${continuing.nextStepTitle}` : ""}
-                </p>
-              </div>
-              <div>
-                <div
-                  className="h-1.5 w-full overflow-hidden rounded-full bg-raised"
-                  role="progressbar"
-                  aria-valuenow={continuing.stepsCompleted}
-                  aria-valuemin={0}
-                  aria-valuemax={continuing.stepsTotal}
-                  aria-label="Attempt progress"
-                >
-                  <div
-                    className="h-full rounded-full bg-copper"
-                    style={{ width: `${continuing.stepsTotal > 0 ? Math.round((continuing.stepsCompleted / continuing.stepsTotal) * 100) : 0}%` }}
-                  />
-                </div>
-                <div className="mt-4 flex items-center justify-between gap-4">
-                  <span className="text-sm text-ink-2">
-                    {continuing.stepsCompleted} of {continuing.stepsTotal} steps done
-                  </span>
-                  <Link
-                    href={`/dashboard/student/attempts/${continuing.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"
-                  >
-                    Resume experiment
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <p className="text-sm text-ink-2">{today}</p>
-                <h2 id="continue-heading" className="mt-1 font-display text-2xl font-semibold tracking-tight">
-                  Good morning, {firstName}.
-                </h2>
-                <p className="mt-1 text-sm text-ink-2">
-                  {joined.length > 0
-                    ? "Continue your practical learning journey."
-                    : "Join a class or explore an experiment to begin."}
-                </p>
-              </div>
-              <div>
-                <NavLink href="/dashboard/student/experiments" arrow="forward">
-                  Browse experiments
-                </NavLink>
-              </div>
-            </>
-          )}
-        </section>
-
-        <section
-          aria-labelledby="progress-heading"
-          className="lg:col-span-4"
-        >
-          <h2 id="progress-heading" className="text-sm font-medium text-ink-2">Your progress</h2>
-          <dl className="mt-2 flex gap-6">
-            <div>
-              <dt className="text-xs text-ink-3">Completed</dt>
-              <dd className="mt-0.5 text-2xl font-semibold tracking-tight">{completedAll.length}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-3">In progress</dt>
-              <dd className="mt-0.5 text-2xl font-semibold tracking-tight">{inProgress.length}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-3">Avg score</dt>
-              <dd className="mt-0.5 text-2xl font-semibold tracking-tight">
-                {avgScore !== null ? `${avgScore}%` : "—"}
-              </dd>
-            </div>
-          </dl>
-          <p className="mt-1 text-xs text-ink-3">{joined.length} class{joined.length === 1 ? "" : "es"} joined</p>
-        </section>
-      </div>
-
-      {assignedWork.length > 0 ? (
-        <section aria-labelledby="assigned">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 id="assigned" className="font-display text-lg font-semibold tracking-tight">
-              Assigned by your teacher
+        <section aria-labelledby="assigned" className="min-w-0 lg:col-span-8">
+          <Card padded={false} className="h-full p-5 sm:p-6">
+            <h2
+              id="assigned"
+              className="border-b border-line pb-4 font-display text-lg font-semibold tracking-tight"
+            >
+              Assigned work
             </h2>
-            <p className="text-sm text-ink-3">{assignedWork.length} active</p>
-          </div>
-          <ul className="mt-3 flex flex-col">
-            {assignedWork.map((a, i) => (
-              <li
-                key={a.id}
-                className={`flex items-center justify-between gap-4 py-3 ${i !== assignedWork.length - 1 ? "border-b border-line" : ""}`}
-              >
-                <span className="flex min-w-0 items-center gap-3">
-                  <Badge
-                    tone={
-                      a.status === "COMPLETED"
-                        ? "success"
-                        : a.status === "IN_PROGRESS"
-                          ? "accent"
-                          : "neutral"
-                    }
-                  >
-                    {a.status.replace("_", " ")}
-                  </Badge>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold">{a.title}</span>
-                    <span className="block truncate text-xs text-ink-3">
-                      {a.className}
-                      {a.dueAt ? ` · Due ${new Date(a.dueAt).toLocaleDateString()}` : ""}
-                    </span>
-                  </span>
-                </span>
-                <NavLink
-                  href={a.attemptId ? `/dashboard/student/attempts/${a.attemptId}` : `/dashboard/student/experiments/${a.experimentId}`}
-                  arrow="forward"
-                  className="shrink-0"
-                >
-                  {a.status === "NOT_STARTED" ? "Start" : a.status === "COMPLETED" ? "Review" : "Continue"}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
+            {assignedWork.length === 0 ? (
+              <p className="py-5 text-sm text-ink-2">Nothing due right now.</p>
+            ) : (
+              <ul>
+                {assignedWork.map((a) => {
+                  const status = STATUS[a.status];
+                  const action =
+                    a.status === "NOT_STARTED" ? "Start" : a.status === "COMPLETED" ? "Review" : "Continue";
+                  return (
+                    <li
+                      key={a.id}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-line py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+                    >
+                      <span className="col-span-2 min-w-0 sm:col-span-1">
+                        <span className="block truncate text-sm font-semibold">{a.title}</span>
+                        <span className="block truncate text-sm text-ink-2">
+                          {a.className}
+                          {a.dueAt ? ` · Due ${new Date(a.dueAt).toLocaleDateString()}` : ""}
+                        </span>
+                      </span>
+                      <Badge tone={status.tone} className="justify-self-start sm:justify-self-center">
+                        {status.label}
+                      </Badge>
+                      <NavLink
+                        href={
+                          a.attemptId
+                            ? `/dashboard/student/attempts/${a.attemptId}`
+                            : `/dashboard/student/experiments/${a.experimentId}`
+                        }
+                        arrow="forward"
+                        className="justify-self-end"
+                      >
+                        {action}
+                      </NavLink>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Card>
         </section>
-      ) : null}
+
+        <div className="flex flex-col gap-6 lg:col-span-4">
+          <section aria-labelledby="join-class">
+            <Card>
+              <h2 id="join-class" className="font-display text-lg font-semibold tracking-tight">
+                Join a class
+              </h2>
+              <JoinClassForm />
+            </Card>
+          </section>
+
+          <section aria-labelledby="my-classes">
+            <Card padded={false} className="p-5 sm:p-6">
+              <h2
+                id="my-classes"
+                className="border-b border-line pb-4 font-display text-lg font-semibold tracking-tight"
+              >
+                My classes
+              </h2>
+              {joined.length === 0 ? (
+                <p className="py-4 text-sm text-ink-2">You haven&apos;t joined a class yet.</p>
+              ) : (
+                <ul>
+                  {joined.map((c) => (
+                    <li key={c.id} className="border-b border-line last:border-b-0">
+                      <Link
+                        href={`/dashboard/student/classes/${c.id}`}
+                        className="block py-4 text-sm font-semibold transition-colors duration-150 hover:text-accent-ink"
+                      >
+                        {c.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          </section>
+        </div>
+      </div>
 
       <section aria-labelledby="experiments">
         <div className="flex items-baseline justify-between">
           <h2 id="experiments" className="font-display text-lg font-semibold tracking-tight">
             Explore the catalogue
           </h2>
-          <NavLink href="/dashboard/student/experiments">
-            Browse all
-          </NavLink>
+          <NavLink href="/dashboard/student/experiments">Browse all</NavLink>
         </div>
         <CatalogueExplorer
           experiments={experimentsWithCounts}
           assignedExperimentIds={new Set(assignedWork.map((a) => a.experimentId))}
         />
       </section>
-
-      <section aria-labelledby="my-classes">
-        <h2 id="my-classes" className="font-display text-lg font-semibold tracking-tight">My classes</h2>
-        {joined.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-2">
-            You haven&apos;t joined a class yet — see the first steps below.
-          </p>
-        ) : (
-          <p className="mt-2 text-sm text-ink-2">
-            You&apos;re in {joined.length} class{joined.length === 1 ? "" : "es"} —{" "}
-            <NavLink href="/dashboard/student/classes">
-              view classes or join another
-            </NavLink>
-            .
-          </p>
-        )}
-      </section>
-
-      {recentlyCompleted.length > 0 ? (
-        <section aria-labelledby="recently-completed">
-          <h2 id="recently-completed" className="font-display text-lg font-semibold tracking-tight">Recently completed</h2>
-          <ul className="mt-1 flex flex-col">
-            {recentlyCompleted.map((a, i) => (
-              <li
-                key={a.id}
-                className={`flex items-center justify-between gap-4 py-3 ${i !== recentlyCompleted.length - 1 ? "border-b border-line" : ""}`}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">{a.title}</span>
-                  <span className="mt-0.5 flex gap-4 text-xs text-ink-3">
-                    <span>Score {a.score !== null ? `${Math.round(Number(a.score) * 100)}%` : "—"}</span>
-                    <span>{a.completedAt ? new Date(a.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""}</span>
-                  </span>
-                </span>
-                <Link
-                  href={`/dashboard/student/attempts/${a.id}`}
-                  className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-accent-ink"
-                >
-                  Review
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
-        <div className="min-w-0">
-          <h2 id="teachers" className="text-sm font-medium text-ink-2">
-            Your teachers
-          </h2>
-          {teachers.length === 0 ? (
-            <p className="mt-2 max-w-[42ch] text-sm text-ink-2">
-              No teachers yet — join a class with a code from your teacher.
-            </p>
-          ) : (
-              <ul className="mt-3 flex flex-col gap-3">
-                {teachers.map((t) => (
-                  <li key={t} className="flex items-center gap-3">
-                    <span
-                      aria-hidden="true"
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-sm font-semibold text-accent-ink"
-                    >
-                      {t.split(" ").map((p) => p[0] ?? "").join("").slice(0, 2).toUpperCase()}
-                    </span>
-                    <span className="text-sm font-medium">{t}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="mt-6 border-t border-line pt-6">
-            <h2 id="activity" className="text-sm font-medium text-ink-2">
-              Recent activity
-            </h2>
-            {activity.length === 0 ? (
-              <p className="mt-2 max-w-[42ch] text-sm text-ink-2">
-                Your learning activity appears here as you start experimenting.
-              </p>
-            ) : (
-              <ul className="mt-3 flex flex-col gap-2 text-sm">
-                {activity.map((a) => (
-                  <li key={a.id} className="flex items-baseline justify-between gap-3">
-                    <p className="font-medium">Joined {a.name}</p>
-                    <p className="shrink-0 text-xs text-ink-3">
-                      {new Date(a.joinedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-        <section
-          aria-labelledby="first-steps"
-          className="min-w-0 border-l-2 border-copper pl-4 sm:pl-5"
-        >
-          <h2 id="first-steps" className="font-display text-lg font-semibold tracking-tight">First steps</h2>
-          <p className="mt-1 text-sm text-ink-2">Your next actions toward finishing a first experiment.</p>
-          <div className="mt-3">
-            <FirstStepsChecklist joinedClass={joined.length > 0} />
-          </div>
-        </section>
-      </div>
     </main>
   );
 }

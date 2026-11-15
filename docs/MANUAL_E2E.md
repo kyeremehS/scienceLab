@@ -48,13 +48,13 @@ plus a private window): one Teacher, one Student. The seeded experiment is
 
 | # | Steps | Expected |
 |---|---|---|
-| 4.1 | Student dashboard shows Assigned work with the circuit. | Status Not Started; Start link present. |
+| 4.1 | Student dashboard shows Assigned work above the catalogue. | Status pill `Not started`; Start link present. |
 | 4.2 | Open the experiment, read objectives/materials/safety, Start. | Workspace opens at Step 1 of 5. |
 | 4.3 | Jump to Step 3 via the dots, then press "Mark step complete". | Review allowed; completion refused with "Complete step 1 first". |
 | 4.4 | Complete Step 1, record the required observation, continue through all 5 steps. | Progress trace advances; observations editable while in progress. |
 | 4.5 | AI Help: expand, ask "My LED isn't lighting". | Contextual troubleshooting (or OFFLINE HELP fallback without a key); navigation never blocked. |
 | 4.6 | Assessment appears; answer all, Submit. | Score + feedback shown; Submit locks (no resubmit). |
-| 4.7 | Complete experiment. | Status COMPLETED; dashboard Recently completed lists it with the score. |
+| 4.7 | Complete experiment. | Status COMPLETED; result page shows the score, dashboard Assigned work row reads `Done` with a Review link. |
 | 4.8 | Try editing an observation and resubmitting. | Both refused — completed work is read-only. |
 
 ## 5. Gating and independence

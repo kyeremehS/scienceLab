@@ -15,7 +15,7 @@ The MVP must demonstrate one complete, believable practical STEM learning journe
 
 ### 1.2 Student learning journey
 
-- Student dashboard (assigned vs independent, in-progress, recently completed, overall progress).
+- Student dashboard (assigned work with status, joined classes, independent catalogue).
 - Experiment catalogue + experiment details (objectives, materials, safety, duration, step overview).
 - Assignment-gated independent starts (server-enforced).
 - Start/resume with one attempt per experiment.

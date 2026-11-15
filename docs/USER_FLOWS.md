@@ -61,12 +61,15 @@ Entry point after login. Simple starting point, not complex analytics.
 
 The dashboard shows, as separate areas:
 
-- Assigned experiments (required current work from all active classes).
-- Experiments in progress (incomplete attempts, resumable).
-- Recently completed experiments.
-- Overall progress (completed / in-progress / assigned; see §1.13).
+- Assigned experiments (required current work from all active classes) with
+  their status and a link that starts, continues, or reviews each one.
+- The classes the student has joined, plus the code form to join another.
+- Independently available experiments (the catalogue).
 
 Assigned work and independently available experiments are presented separately so the student understands what is required vs optional.
+
+Step position, scores, and resume live on the attempt and experiment detail
+pages (`FR-STU-08`, `FR-STU-09`, `FR-STU-30`).
 
 ---
 
@@ -313,13 +316,16 @@ COMPLETED attempt
 ### 1.14 Progress tracking (`FR-STU-30`)
 
 ```text
-Dashboard / Progress
-  → See: experiments completed, in progress,
-    assessment performance, assigned progress,
-    independent progress, overall progress
+Dashboard
+  → See assigned work with a per-assignment status
+    (not started / in progress / done)
+Attempt and result pages
+  → See step position, completion state, assessment score
+Experiment detail
+  → Start, resume, or review the single attempt
 ```
 
-No complex analytics engine in the MVP. Progress is derived from persisted attempts, observations, and assessment results.
+No complex analytics engine in the MVP. Progress is derived from persisted attempts, observations, and assessment results. The dashboard does not aggregate totals.
 
 ---
 

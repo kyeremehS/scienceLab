@@ -128,14 +128,17 @@ A student can view their learning dashboard.
 
 The dashboard provides useful information including:
 
-- Assigned experiments
-- Experiments in progress
-- Recently completed experiments
-- Overall progress
+- Assigned experiments, each with its status (not started, in progress, done)
+- The classes the student has joined, plus the form to join another class with a code
+- Independently available experiments (the catalogue)
 
 The dashboard is a starting point for learning, not a complex analytics system.
 
 Assigned experiments and independently available experiments are presented as separate areas.
+
+Step position, completion state, scores, and resume stay on the attempt and
+experiment detail pages (`FR-STU-08`, `FR-STU-09`, `FR-STU-30`); the
+dashboard links to them per assignment.
 
 ---
 
@@ -490,14 +493,14 @@ A student can view simple learning progress.
 
 Progress can include:
 
-* Experiments completed
-* Experiments in progress
-* Assessment performance
-* Assigned experiment progress
-* Independent experiment progress
-* Overall progress
+* Assigned experiment progress (dashboard: a per-assignment status — not started, in progress, done)
+* Experiments in progress (attempt page: step position and resume)
+* Experiments completed and assessment performance (attempt result page)
+* Independent experiment progress (experiment detail: start, resume, or review)
 
-The MVP does not require a complex learning analytics engine.
+The MVP does not require a complex learning analytics engine. Progress is
+derived from persisted attempts, observations, and assessment results; the
+dashboard does not aggregate totals.
 
 ---
 

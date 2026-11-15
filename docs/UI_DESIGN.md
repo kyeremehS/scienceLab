@@ -322,16 +322,24 @@ elements (auth circuit, empty-state motif, workspace diagrams in Phase 4+),
 never decoration. ScienceLab must not read as Linear-with-a-science-logo:
 the student experience stays experiential, the teacher one managerial.
 
-## 12.2 Student dashboard target (lands with Phases 4–7 data)
+## 12.2 Student dashboard (spec p7)
 
-CONTINUE EXPERIMENT (current attempt: experiment, step x/y clamped to the
-total, next action, copper progress trace, Continue CTA with chevron —
-dominant card: larger padding, stronger border) → YOUR ASSIGNED WORK
-(per-assignment progress) → RECENTLY COMPLETED. Catalogue cards carry a
-per-topic motif (circuit / flask / leaf, graphite + copper glow), topic
-and level in separate slots, and a featured first item (double width +
-Assigned marker where applicable). No part is built or faked before its
-data exists.
+Greeting header bare on the canvas (`Hi, {first name}.` over `Here is what's
+due next.`), then an 8/4 grid. Left: the **Assigned work** card — heading on
+a hairline rule, each row = title over class name, a centered status pill
+(`pending` warm tint = Not started, `neutral` = In progress, `done` pale
+teal = Done), and a right-aligned Start / Continue / Review `NavLink` per
+status; honest empty state when nothing is assigned. Right column: the
+**Join a class** card (sentence-case placeholder `Enter class code`,
+full-width orange `Join`, visually hidden label for assistive tech) above
+the **My classes** card (bold class rows on hairline dividers, each linking
+to that class detail; honest empty state). The retained **Explore the
+catalogue** section sits below the grid. Catalogue cards carry a per-topic
+motif (circuit / flask / leaf, graphite + copper glow), topic and level in
+separate slots, and a featured first item (double width + Assigned marker
+where applicable). No part is built or faked before its data exists.
+Resume-from-detail is intact (`StartExperimentButton` start-or-resume,
+`FR-STU-08`/`FR-STU-09`), so no continue hero is needed.
 
 ## 13. Authenticated App Shell
 
@@ -369,10 +377,10 @@ and never duplicates them per page. Per-page floating controls are forbidden.
   Log out row (`40px`, `12px`
   horizontal padding, muted rest, red hover). The menu closes
   on outside click, Escape, navigation, or logout.
-- Hero: live-state panel (date eyebrow + state-driven title, subline, and
-  primary CTA), not decoration. Student: continue-experiment panel when an
-  in-progress attempt exists, otherwise orientation (join/browse).
-  Teacher: operational summary + manage-classes CTA.
+- Hero: live-state header, not decoration. Student: bare greeting on the
+  canvas (`Hi, {first name}.` + `Here is what's due next.`); state lives in
+  the cards below, not in a hero panel. Teacher: operational summary +
+  manage-classes CTA.
 - Summary cards: 3–4 real numbers only. Context sections (teachers /
   upcoming / activity from live queries; honest empties otherwise) sit
   below the main content in one quiet row, not beside it.

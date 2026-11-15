@@ -76,8 +76,9 @@ test("student completes an experiment end to end", async ({ page }) => {
     page.locator("dl", { hasText: "Score" }).getByText("Completed", { exact: true }),
   ).toBeVisible();
 
-  // Dashboard reflects the completed work.
+  // Dashboard reflects the completed work: the catalogue keeps the finished
+  // experiment discoverable (the dashboard no longer lists recent completions).
   await page.goto("/dashboard/student");
-  await expect(page.getByText("Recently completed")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Assigned work" })).toBeVisible();
   await expect(page.getByText("Building a Simple Electrical Circuit").first()).toBeVisible();
 });
