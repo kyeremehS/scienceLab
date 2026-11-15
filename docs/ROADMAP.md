@@ -28,7 +28,7 @@ The MVP must demonstrate one complete, believable practical STEM learning journe
 
 ### 1.3 Teacher teaching journey
 
-- Teacher dashboard (classes, active assignments, activity, quick actions).
+- Teacher dashboard (classes, active assignments, class progress, setup checklist, needs attention).
 - Class creation with system-generated codes; multiple classes allowed; code sharing.
 - Student joining via code; duplicate prevention; member listing; removal preserving history.
 - Experiment assignment (published experiments to owned classes, optional start/due dates); no duplicate active assignment per experiment per class; assignments create no attempts.

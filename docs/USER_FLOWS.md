@@ -351,12 +351,16 @@ Teacher self-registration is allowed in the MVP.
 
 High-level overview, not complex analytics:
 
-- Classes owned.
-- Active assignments.
-- Class activity.
-- Quick actions (create class, assign experiment).
+- Classes owned, each with its student count and completion.
+- Active assignments (count).
+- Class progress (`No assigned work` until something is assigned).
+- Setup checklist: create your classes → invite students → create an
+  assignment; a step is ticked once its state exists.
+- Needs attention: students who have not started assigned work (and low
+  assessment scores).
+- Quick actions (invite students → classes list, open a class).
 
-Individual student performance is viewed inside the relevant class, not on the top-level dashboard.
+Individual student performance is viewed inside the relevant class, not on the top-level dashboard. Recent activity is not aggregated at the top level.
 
 ---
 

@@ -598,12 +598,18 @@ A teacher can view a dashboard containing high-level information such as:
 
 * Classes
 * Active assignments
-* Class activity
+* Class progress (per class: students and completion)
+* A setup checklist — create your classes, invite students, create an
+  assignment — ticking each step off once its state exists
+* Students who need attention (assigned work not started, low score)
 * Quick actions
 
 The dashboard does not provide complex analytics.
 
 Individual student performance is viewed within the relevant class.
+
+Recent activity is not shown on the top-level dashboard; it lives inside
+the relevant class.
 
 ---
 

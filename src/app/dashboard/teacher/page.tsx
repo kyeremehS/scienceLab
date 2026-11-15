@@ -1,10 +1,13 @@
+import Link from "next/link";
 import { NavLink } from "@/app/NavLink";
 import { redirect } from "next/navigation";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { assessmentSubmissions, assignments, classes, classMemberships, experimentAttempts, experimentVersions, users } from "@/db/schema";
 import { getPageUser } from "@/lib/page-session";
-import { Hero, StatCards } from "../Hero";
+import { Badge } from "@/app/ui/Badge";
+import { Card } from "@/app/ui/Card";
+import { StatCards } from "@/app/ui/StatCards";
 
 export default async function TeacherDashboard() {
   const user = await getPageUser();
@@ -38,10 +41,9 @@ export default async function TeacherDashboard() {
           .from(assignments)
           .where(and(inArray(assignments.classId, ownedIds), eq(assignments.status, "ACTIVE")));
 
-  // Per-class progress + attention signals + activity, all from real learning state.
+  // Per-class progress + attention signals, all from real learning state.
   type AttentionItem = { classId: string; className: string; studentId: string; studentName: string; reason: string };
   const attention: AttentionItem[] = [];
-  const activity: { title: string; detail: string; at: Date }[] = [];
   const classProgressList = await Promise.all(
     withMembers.map(async (c) => {
       const assigned = await db
@@ -52,7 +54,6 @@ export default async function TeacherDashboard() {
       let done = 0;
       let total = 0;
       for (const m of c.members) {
-        activity.push({ title: `Joined ${c.name}`, detail: m.studentName, at: new Date(m.joinedAt) });
         for (const a of assigned) {
           total += 1;
           const attRows = await db
@@ -69,7 +70,6 @@ export default async function TeacherDashboard() {
           }
           if (att.status === "COMPLETED") {
             done += 1;
-            activity.push({ title: `Completed ${a.title}`, detail: m.studentName, at: new Date(att.completedAt ?? m.joinedAt) });
           } else {
             const subs = await db
               .select({ score: assessmentSubmissions.score })
@@ -84,15 +84,12 @@ export default async function TeacherDashboard() {
       }
       return {
         ...c,
-        assignedTitles: assigned.map((a) => a.title),
         completionPct: total === 0 ? null : Math.round((done / total) * 100),
       };
     }),
   );
   const pcts = classProgressList.map((c) => c.completionPct).filter((p): p is number => p !== null);
   const avgCompletion = pcts.length === 0 ? null : Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length);
-  activity.sort((a, b) => +b.at - +a.at);
-  const recentActivity = activity.slice(0, 6);
 
   const firstName = user.name.split(" ")[0];
   const today = new Date().toLocaleDateString("en-US", {
@@ -101,14 +98,31 @@ export default async function TeacherDashboard() {
     year: "numeric",
   });
 
+  // Get started checklist (p5): a step is ticked once its state exists.
+  const steps: { done: boolean; label: string }[] = [
+    { done: owned.length > 0, label: "Create your classes" },
+    { done: totalStudents > 0, label: "Invite students" },
+    { done: activeAssignmentCount > 0, label: "Create an assignment" },
+  ];
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-      <Hero
-        eyebrow={today}
-        title={`Good morning, ${firstName}.`}
-        subtitle={`You manage ${owned.length} class${owned.length === 1 ? "" : "es"} and ${totalStudents} student${totalStudents === 1 ? "" : "s"}.`}
-        cta={{ label: "Manage classes →", href: "/dashboard/teacher/classes" }}
-      />
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-mono text-xs font-medium uppercase tracking-wider text-teal dark:text-teal-light">
+            {today}
+          </p>
+          <h1 className="mt-2 font-display text-[40px] font-semibold leading-[1.05] tracking-tight sm:text-[52px]">
+            Good morning, {firstName}.
+          </h1>
+        </div>
+        <Link
+          href="/dashboard/teacher/classes"
+          className="mt-1 shrink-0 rounded-btn bg-orange px-7 py-[15px] text-[16px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover"
+        >
+          Invite students
+        </Link>
+      </header>
 
       <StatCards
         stats={[
@@ -120,131 +134,108 @@ export default async function TeacherDashboard() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <section
-          aria-labelledby="class-progress"
-          className="flex flex-col rounded-xl border border-line bg-surface p-5 lg:col-span-8"
-        >
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 id="class-progress" className="text-base font-semibold tracking-tight">
+        <section aria-labelledby="class-progress" className="min-w-0 lg:col-span-8">
+          <Card padded={false} className="h-full p-5 sm:p-6">
+            <h2
+              id="class-progress"
+              className="border-b border-line pb-4 font-display text-lg font-semibold tracking-tight"
+            >
               Class progress
             </h2>
-            <NavLink href="/dashboard/teacher/classes" className="shrink-0">
-              Manage classes
-            </NavLink>
-          </div>
-          {classProgressList.length === 0 ? (
-            <p className="mt-3 text-sm text-ink-2">
-              No classes yet.{" "}
-              <NavLink href="/dashboard/teacher/classes">
-                Create your first class
-              </NavLink>{" "}
-              and share its code so students can join.
-            </p>
-          ) : (
-            <div className="mt-3 flex flex-col">
-              {classProgressList.map((c, i) => (
-                <div
-                  key={c.id}
-                  className={`flex items-center gap-4 py-4 ${i !== classProgressList.length - 1 ? "border-b border-line" : ""}`}
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="truncate text-sm font-medium">{c.name}</p>
-                      <span className="shrink-0 font-mono text-xs text-ink-3">
-                        {c.completionPct === null ? "NO ASSIGNED WORK" : `${c.completionPct}%`}
-                      </span>
-                    </div>
-                    <p className="mt-0.5 truncate font-mono text-xs text-ink-3">
-                      {c.members.length} STUDENT{c.members.length === 1 ? "" : "S"}
-                      {c.assignedTitles.length > 0 ? ` · ASSIGNED: ${c.assignedTitles.join(", ").toUpperCase()}` : ""}
-                    </p>
-                    {c.completionPct !== null ? (
-                      <div
-                        className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-raised"
-                        role="progressbar"
-                        aria-valuenow={c.completionPct}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`${c.name} completion`}
-                      >
-                        <div className="h-full rounded-full bg-accent" style={{ width: `${c.completionPct}%` }} />
-                      </div>
-                    ) : null}
-                  </div>
-                  <NavLink
-                    href={`/dashboard/teacher/classes/${c.id}`}
-                    arrow="forward"
-                    className="shrink-0"
+            {classProgressList.length === 0 ? (
+              <p className="py-5 text-sm text-ink-2">
+                No classes yet.{" "}
+                <NavLink href="/dashboard/teacher/classes">
+                  Create your first class
+                </NavLink>{" "}
+                and share its code so students can join.
+              </p>
+            ) : (
+              <div>
+                {classProgressList.map((c) => (
+                  <div
+                    key={c.id}
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-line py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
                   >
-                    Open
-                  </NavLink>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section
-          aria-labelledby="needs-attention"
-          className="flex h-fit flex-col rounded-xl border border-line bg-surface p-5 lg:col-span-4"
-        >
-          <h2 id="needs-attention" className="text-base font-semibold tracking-tight">
-            Needs attention
-          </h2>
-          {attention.length === 0 ? (
-            <p className="mt-2 text-sm text-ink-2">
-              Nothing flagged — every student with assigned work has started.
-            </p>
-          ) : (
-            <ul className="mt-3 flex flex-col gap-2">
-              {attention.map((f) => (
-                <li key={`${f.studentId}-${f.reason}`} className="rounded-lg bg-raised px-3 py-2">
-                  <p className="text-sm font-medium">
+                    <div className="col-span-2 min-w-0 sm:col-span-1">
+                      <p className="truncate text-sm font-semibold">{c.name}</p>
+                      <p className="truncate text-sm text-ink-2">
+                        {c.members.length} student{c.members.length === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                    <Badge tone="neutral" className="justify-self-start sm:justify-self-center">
+                      {c.completionPct === null ? "No assigned work" : `${c.completionPct}%`}
+                    </Badge>
                     <NavLink
-                      href={`/dashboard/teacher/classes/${f.classId}/students/${f.studentId}`}
+                      href={`/dashboard/teacher/classes/${c.id}`}
+                      arrow="forward"
+                      className="justify-self-end"
                     >
-                      {f.studentName}
+                      Open
                     </NavLink>
-                  </p>
-                  <p className="mt-0.5 text-xs text-ink-2">{f.reason}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </section>
-      </div>
 
-      <section
-        aria-labelledby="recent-activity"
-        className="flex flex-col rounded-xl border border-line bg-surface p-5"
-      >
-        <h2 id="recent-activity" className="text-base font-semibold tracking-tight">
-          Recent activity
-        </h2>
-        {recentActivity.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-2">
-            Joins and completions appear here as your classes get going.
-          </p>
-        ) : (
-          <ul className="mt-3 flex flex-col">
-            {recentActivity.map((a, i) => (
-              <li
-                key={`${a.title}-${a.detail}-${i}`}
-                className={`flex items-center gap-3 py-2.5 ${i !== recentActivity.length - 1 ? "border-b border-line" : ""}`}
+        <div className="flex flex-col gap-6 lg:col-span-4">
+          <section aria-labelledby="get-started">
+            <div className="rounded-xl bg-teal p-5 text-on-band sm:p-6">
+              <h2
+                id="get-started"
+                className="border-b border-white/25 pb-4 font-display text-lg font-semibold tracking-tight"
               >
-                <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-accent" />
-                <p className="min-w-0 flex-1 truncate text-sm">
-                  <span className="font-medium">{a.title}</span>{" "}
-                  <span className="text-ink-3">{a.detail}</span>
+                Get started
+              </h2>
+              <ol className="mt-1">
+                {steps.map((s, i) => (
+                  <li
+                    key={s.label}
+                    className="flex items-baseline gap-3 border-b border-white/25 py-4 text-[15px] last:border-b-0"
+                  >
+                    <span aria-hidden="true" className="w-5 shrink-0">
+                      {s.done ? "✓" : `${i + 1}.`}
+                    </span>
+                    <span>{s.label}</span>
+                    <span className="sr-only">{s.done ? "(done)" : "(not done)"}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+
+          <section aria-labelledby="needs-attention">
+            <Card>
+              <h2
+                id="needs-attention"
+                className="font-display text-lg font-semibold tracking-tight"
+              >
+                Needs attention
+              </h2>
+              {attention.length === 0 ? (
+                <p className="mt-2 text-sm text-ink-2">
+                  Nothing flagged. Every student with assigned work has started.
                 </p>
-                <span className="shrink-0 text-xs text-ink-3">
-                  {a.at.toLocaleDateString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+              ) : (
+                <ul className="mt-3 flex flex-col gap-2">
+                  {attention.map((f) => (
+                    <li key={`${f.studentId}-${f.reason}`} className="rounded-lg bg-raised px-3 py-2">
+                      <p className="text-sm font-medium">
+                        <NavLink href={`/dashboard/teacher/classes/${f.classId}/students/${f.studentId}`}>
+                          {f.studentName}
+                        </NavLink>
+                      </p>
+                      <p className="mt-0.5 text-xs text-ink-2">{f.reason}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          </section>
+        </div>
+      </div>
     </main>
   );
 }

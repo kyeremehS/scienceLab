@@ -20,17 +20,17 @@ textures, spacing, and interaction states — not decoration.
 
 ### Layout philosophy
 
-Sidebar + hero-as-current-state + summary cards + content cards, with
+Top-nav shell + greeting header + summary cards + content cards, with
 context sections below the main content — never a side rail competing
 with it. One containment rule per page: bordered boxes only where they
 earn it (the hero action card, browsable catalogue tiles); lists,
 meta rows, and passive info use spacing and hairline dividers instead —
 never a mix of boxes and bare rows for the same kind of content. The
 dashboard answers "what should I do next?", not "what records
-exist?". The hero shows the student's live
-learning state (continue panel when an attempt exists, orientation
-otherwise); the teacher hero shows operational state. Every block is
-backed by live queries; upcoming slots are omitted or honestly labeled —
+exist?". The student dashboard greets by name and hands the next action
+to the Assigned work card; the teacher dashboard opens on the date
+eyebrow, a greeting, and the Invite students action, then real stats and
+class progress. Every block is backed by live queries; upcoming slots are omitted or honestly labeled —
 never faked.
 
 Actionable content (checklists, next actions) gets more width and a
@@ -296,23 +296,24 @@ Restrained product emails, not marketing pages. Implementation:
 ## 12. Teacher UI System
 
 Dashboards answer three questions in order: what needs doing, what is
-managed, what is happening. Section eyebrows (`text-eyebrow`: 13px
-semibold uppercase, 0.16em)
-separate YOUR CLASSES / ACTIVE ASSIGNMENTS / RECENT ACTIVITY (teacher) and
-equivalent student sections. Class names are the visual anchor on cards;
+managed, what is happening. Detail and index pages still mark sections
+with eyebrows (`text-eyebrow`: 13px semibold uppercase, 0.16em —
+CLASS CODE, ASSIGNED EXPERIMENTS); the two dashboards use display-type
+headings instead. Class names are the visual anchor on cards;
 codes are mono with a copy action.
 
 - Empty states are honest: they name the missing capability and the phase
   that delivers it. Never fake data, never dead buttons, never card-sprawl
   for its own sake — a serious tool, not a SaaS admin template.
-- Authenticated pages share `PageHeader`: title + subtitle, utility controls
-  (theme, logout) top-right on desktop and wrapped to their own row on
-  mobile. Same header on every dashboard and detail page.
+- Index and detail pages share `PageHeader`: title + subtitle, utility
+  controls (theme, logout) top-right on desktop and wrapped to their own row on
+  mobile. The two dashboards replace it with the spec greeting header
+  (§12.2, §12.3).
 - Class detail order: workspace stat strip → tabs (Overview / Students /
   Assignments with counts). Assignment and progress sections stay as honest
   placeholders until Phases 6–7 implement them.
-- Summary stats show only real numbers (class/student counts from live
-  queries; assignments honestly 0 until Phase 7). No charts for charts' sake.
+- Summary stats show only real numbers from live queries. No charts for
+  charts' sake.
 
 ## 12.1 Product visual language
 
@@ -340,6 +341,22 @@ separate slots, and a featured first item (double width + Assigned marker
 where applicable). No part is built or faked before its data exists.
 Resume-from-detail is intact (`StartExperimentButton` start-or-resume,
 `FR-STU-08`/`FR-STU-09`), so no continue hero is needed.
+
+## 12.3 Teacher dashboard (spec p5)
+
+Bare header on the canvas: teal uppercase date eyebrow, `Good morning,
+{first name}.`, and the orange `Invite students` action pinned right (→ the
+classes list, where codes are shared). Four summary tiles in one row
+(Classes, Students, Active assignments, Avg. completion — `—` while no work
+is assigned). Then an 8/4 grid: the **Class progress** card on the left —
+heading on a hairline rule, each row = class name over `N students`, a
+centered neutral pill (`No assigned work`, or the completion % once work is
+assigned), and a right-aligned `Open →` — paired with a right column holding
+the teal **Get started** checklist (✓ / 2. / 3.: Create your classes, Invite
+students, Create an assignment; a step is ticked once its state exists)
+above the **Needs attention** card with its honest empty state. Recent
+activity is deliberately absent — activity lives in the class, not on the
+top-level dashboard (`FR-TEA-04`).
 
 ## 13. Authenticated App Shell
 
@@ -379,8 +396,9 @@ and never duplicates them per page. Per-page floating controls are forbidden.
   on outside click, Escape, navigation, or logout.
 - Hero: live-state header, not decoration. Student: bare greeting on the
   canvas (`Hi, {first name}.` + `Here is what's due next.`); state lives in
-  the cards below, not in a hero panel. Teacher: operational summary +
-  manage-classes CTA.
+  the cards below, not in a hero panel. Teacher: teal date eyebrow +
+  `Good morning, {first name}.` with the orange Invite students action on
+  the right.
 - Summary cards: 3–4 real numbers only. Context sections (teachers /
   upcoming / activity from live queries; honest empties otherwise) sit
   below the main content in one quiet row, not beside it.
