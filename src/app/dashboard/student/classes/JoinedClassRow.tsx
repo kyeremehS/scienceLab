@@ -98,7 +98,7 @@ export function JoinedClassRow({ classInfo }: { classInfo: JoinedClass }) {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="shrink-0 self-center text-[13px] font-medium text-[#6366F1]"
+        className="shrink-0 self-center text-[13px] font-medium text-ink-2 transition-colors duration-150 hover:text-error"
       >
         Leave
       </button>

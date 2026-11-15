@@ -74,7 +74,7 @@ export function JoinClassForm({ compact = false }: { compact?: boolean }) {
         disabled={pending}
         className={`w-full rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-50 ${
           compact
-            ? "bg-foreground text-background transition-opacity"
+            ? "bg-orange text-white transition-colors duration-150 hover:bg-orange-hover"
             : "bg-orange py-3 text-[15px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover"
         }`}
       >

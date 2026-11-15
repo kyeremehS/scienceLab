@@ -24,7 +24,7 @@ export function JoinClassDialog() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-sm font-medium text-[#6366F1]"
+        className="text-sm font-medium text-accent-ink transition-colors duration-150 hover:text-accent"
       >
         + Join a class
       </button>

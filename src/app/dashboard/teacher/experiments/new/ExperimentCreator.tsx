@@ -120,6 +120,7 @@ export function ExperimentCreator() {
                     <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"
+                        className="accent-[var(--accent)]"
                         checked={o.required}
                         onChange={(e) => {
                           const observations = s.observations.map((x, j) => (j === k ? { ...x, required: e.target.checked } : x));
@@ -140,7 +141,7 @@ export function ExperimentCreator() {
                 <button
                   type="button"
                   onClick={() => patchStep(i, { observations: [...s.observations, { prompt: "", required: true }] })}
-                  className="mt-2 text-[13px] font-medium text-[#5dcaa5]"
+                  className="mt-2 text-[13px] font-medium text-accent-ink transition-colors duration-150 hover:text-accent"
                 >
                   + Add observation
                 </button>
@@ -187,6 +188,7 @@ export function ExperimentCreator() {
                     <label key={k} className="flex items-center gap-2 text-sm">
                       <input
                         type="radio"
+                        className="accent-[var(--accent)]"
                         name={`correct-${i}`}
                         checked={q.expectedAnswer === opt && opt !== ""}
                         onChange={() => patchQuestion(i, { expectedAnswer: opt })}
@@ -222,7 +224,7 @@ export function ExperimentCreator() {
                     <button
                       type="button"
                       onClick={() => patchQuestion(i, { options: [...q.options, ""] })}
-                      className="self-start text-[13px] font-medium text-[#5dcaa5]"
+                      className="self-start text-[13px] font-medium text-accent-ink transition-colors duration-150 hover:text-accent"
                     >
                       + Add option
                     </button>

@@ -46,11 +46,11 @@ Components consume these tokens, never raw palette values:
 |---|---|---|
 | Page background (`--background`/`bg-canvas`) | `#F3F6F7` (cool off-white) | `#0A181D` (cool teal-black) |
 | Surface (`bg-surface`) | `#FFFFFF` | `#11272E` |
-| Elevated (`bg-raised`, hovers) | `#E9EFF0` | `#17343D` |
-| Border (`border-line`) | `#E1E8EA` | `#1F3C44` |
+| Elevated (`bg-raised`, hovers, pills) | `#E9EFF0` | `#1B3D47` (lifted one step so pills separate from cards) |
+| Border (`border-line`) | `#E1E8EA` | `#24444F` (lifted one step so dividers read on the dark field) |
 | Primary text (`text-ink`) | `#10242B` | `#E9F2F4` |
 | Secondary text (`text-ink-2`) | `#35505A` | `#A3BAC1` |
-| Muted text (`text-ink-3`) | `#4A6068` | `#7C959D` |
+| Muted text (`text-ink-3`) | `#4A6068` | `#8AA3AB` (lifted for AA on raised surfaces) |
 | Teal band (`--teal`: header, hero, feature band) | `#0B7A96` | `#0B7A96` (unchanged) |
 | Deep teal (`--teal-deep`: footer band, links on white) | `#0B6E88` | `#0B6E88` (unchanged) |
 | Teal ink (`--teal-ink`: text on white buttons) | `#0B5F75` | `#0B5F75` (unchanged) |
@@ -65,7 +65,8 @@ Components consume these tokens, never raw palette values:
 | Orange tint text (`--orange-tint-ink`) | `#7A2E0A` | `#EFA079` |
 | On-band text (`--on-band` / `-soft` / `-muted` / `-nav` / `-eyebrow`) | `#FFFFFF` / `#E3F6FA` / `#BFE9F3` / `#D8F1F7` / `#9ADCEC` | Same (bands identical) |
 | Band divider (`--band-divider`) | `#3C93AB` | `#3C93AB` |
-| Subjects strip (`--subjects-ink`) | `#A9BEC4` | `#4A6068` |
+| Subjects strip | Renders `text-ink` (`--subjects-ink` retired) | Same |
+| Step 3 badge (`--step-badge`; How it works) | `#35505A` (white text) | `#2C444E` (stays dark — never inverts to white) |
 | Error (`text-error`) | `#DC2626` | `#F87171` |
 | Success (`text-success`: correct, completed) | `#15803D` | `#34D399` |
 | Warning (`text-warning`: attention states, bold or icon-paired only) | `#B45309` | `#FBBF24` |
@@ -246,7 +247,10 @@ All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
 
 ## 9. Do Not Use
 
-- Purple/blue gradients, glassmorphism, floating blobs, AI sparkles, stock photos.
+- Purple/blue gradients, glassmorphism, floating blobs, AI sparkles, or
+  decorative imagery outside the identity. Photography is limited to the
+  user-provided photos in the landing Welcome block and the two audience
+  cards (§10); no other screen uses photos.
 - Radii outside the token set (`rounded-btn` 8px, `rounded-card` 14px,
   `rounded-panel` 16px), or shadows beyond `shadow-card` / `shadow-hero`
   (the account dropdown's menu elevation is the one exception, §13).
@@ -276,20 +280,23 @@ The landing page follows the PDF spec across three pages:
   attention:` callout).
 - **Subject strip (`SubjectStrip`)**: muted `bg-raised` bar with
   `PHYSICS · CHEMISTRY · BIOLOGY`.
-- **Welcome (`WelcomeSection`)**: centered `WELCOME` eyebrow, `Advances of
-  science, made easier.`, and supporting paragraph.
+- **Welcome (`WelcomeSection`)**: two-column — `WELCOME` eyebrow, `Advances of
+  science, made easier.`, and supporting paragraph on the left; the science
+  photo (`/science picture.jpg`, `rounded-card` + line border) on the right.
 - **Features (`FeatureGrid`)**: teal band with centered `FEATURES` /
   `Everything a science class needs` and 6 white cards in a 3×2 grid
   (`Classes`, `Assignments`, `Progress tracking`, `Needs attention`,
   `Easy joining`, `Safe and private`), each topped by a pale-teal circular
   icon badge.
 - **Audience (`AudienceSection`)**: two side-by-side white cards on the
-  canvas — `FOR TEACHERS` (`Run your classes without the paperwork`, 4 `✓`
-  bullets, orange `Start as a teacher`) and `FOR STUDENTS` (`Know exactly
+  canvas, each opening with a photo banner (`h-44`/`sm:h-52`, `object-cover`,
+  line border beneath) — the teacher-demo photo for `FOR TEACHERS` (`Run your
+  classes without the paperwork`, 4 `✓` bullets, orange `Start as a
+  teacher`) and the bright-lab photo for `FOR STUDENTS` (`Know exactly
   what to do next`, 4 `✓` bullets, teal `Join a class`).
 - **How it works (`HowItWorks`)**: vertical 3-step sequence (`1` orange
-  `Create a class`, `2` teal `Invite your students`, `3` ink `Assign and
-  track`).
+  `Create a class`, `2` teal `Invite your students`, `3` slate
+  `--step-badge` `Assign and track` — dark slate in both themes).
 - **FAQ (`FaqSection`)**: centered `FAQ` / `Questions, answered` with white
   disclosure cards (`<details>/<summary>`). The `[YOUR PRICING DETAIL]`
   placeholder question is omitted until pricing exists.

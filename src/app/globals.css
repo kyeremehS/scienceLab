@@ -49,7 +49,6 @@
   --on-band-nav: #d8f1f7;
   --on-band-eyebrow: #9adcec;
   --band-divider: #3c93ab;
-  --subjects-ink: #a9bec4;
 
   --error: #dc2626;
   --success: #15803d;
@@ -58,20 +57,24 @@
   --diagram-glow: var(--copper-glow);
   /* Diagram accent follows the interactive teal; never copper. */
   --circuit-accent: var(--accent);
+  /* How-it-works step 3 badge (slate; stays dark in both themes). */
+  --step-badge: #35505a;
 }
 
 /* Class-driven theme (toggled manually, defaults from OS via head script). */
 .dark {
   color-scheme: dark;
 
-  /* Neutral field shifts; teal and orange bands do not. */
+  /* Neutral field shifts; teal and orange bands do not. Raised/border/
+     muted are lifted one step so pills, dividers, and small text separate
+     cleanly from cards instead of sinking into the dark field. */
   --background: #0a181d;
   --foreground: #e9f2f4;
   --secondary: #a3bac1;
-  --muted: #7c959d;
+  --muted: #8aa3ab;
   --surface: #11272e;
-  --raised: #17343d;
-  --line: #1f3c44;
+  --raised: #1b3d47;
+  --line: #24444f;
 
   /* Lighter cuts of teal so text and graphics stay legible on the dark
      field. The teal bands themselves keep #0b7a96. */
@@ -91,6 +94,9 @@
   --diagram-line: #7c959d;
   --diagram-glow: var(--copper-glow);
   --circuit-accent: var(--accent);
+  /* Step 3 badge stays a dark slate on the dark field (never inverts to a
+     white circle next to the orange/teal badges). */
+  --step-badge: #2c444e;
 }
 
 @theme inline {
@@ -121,7 +127,6 @@
   --color-on-band-nav: var(--on-band-nav);
   --color-on-band-eyebrow: var(--on-band-eyebrow);
   --color-band-divider: var(--band-divider);
-  --color-subjects-ink: var(--subjects-ink);
   --color-error: var(--error);
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -129,6 +134,7 @@
   --color-copper-glow: var(--copper-glow);
   --color-diagram-line: var(--diagram-line);
   --color-diagram-glow: var(--diagram-glow);
+  --color-step-badge: var(--step-badge);
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);

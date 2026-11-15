@@ -38,6 +38,10 @@ export default async function Home() {
                 "Get flagged when a student needs a nudge",
               ]}
               ctaLabel="Start as a teacher"
+              photo={{
+                src: "/pexels-tima-miroshnichenko-5427855.jpg",
+                alt: "A teacher demonstrating an experiment to students wearing safety goggles",
+              }}
               tone="orange"
             />
             <AudienceSection
@@ -51,6 +55,10 @@ export default async function Home() {
                 "Pick up where you left off on any device",
               ]}
               ctaLabel="Join a class"
+              photo={{
+                src: "/pexels-mikhail-nilov-8924160.jpg",
+                alt: "Students measuring colored liquids with flasks and a microscope in a bright lab",
+              }}
               tone="teal"
             />
           </div>

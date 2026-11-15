@@ -232,7 +232,7 @@ export function AssessmentSection({
                         value={opt}
                         checked={answers[q.id] === opt}
                         onChange={() => setAnswers((a) => ({ ...a, [q.id]: opt }))}
-                        className="mt-0.5 accent-[#20C9C3]"
+                        className="mt-0.5 accent-[var(--accent)]"
                       />
                       <span>{opt}</span>
                     </label>

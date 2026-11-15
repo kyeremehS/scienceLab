@@ -263,7 +263,7 @@ export function AssignmentsManager({ classId }: { classId: string }) {
                             setEditDue(toInputValue(a.dueAt));
                             setConfirmClose(null);
                           }}
-                          className="text-[13px] font-medium text-[#5dcaa5]"
+                          className="text-[13px] font-medium text-accent-ink transition-colors duration-150 hover:text-accent"
                         >
                           Edit dates
                         </button>
@@ -273,7 +273,7 @@ export function AssignmentsManager({ classId }: { classId: string }) {
                             setConfirmClose(a.id);
                             setEditingId(null);
                           }}
-                          className="text-[13px] font-medium text-[#5dcaa5]"
+                          className="text-[13px] font-medium text-accent-ink transition-colors duration-150 hover:text-accent"
                         >
                           Close…
                         </button>

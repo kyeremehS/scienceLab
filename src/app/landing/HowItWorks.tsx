@@ -15,7 +15,7 @@ const STEPS = [
     n: "3",
     title: "Assign and track",
     body: "Hand out work and watch completion come in.",
-    badgeClass: "bg-ink text-surface",
+    badgeClass: "bg-step-badge text-white",
   },
 ];
 

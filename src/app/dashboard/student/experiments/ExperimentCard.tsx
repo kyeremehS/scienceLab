@@ -39,7 +39,7 @@ export function ExperimentCard({
         featured ? "sm:col-span-2" : ""
       }`}
     >
-      <div className="flex h-44 shrink-0 items-center justify-center border-b border-line bg-canvas px-4">
+      <div className="flex h-44 shrink-0 items-center justify-center border-b border-line bg-canvas px-4 dark:bg-raised">
         <ExperimentVisual topic={experiment.topic} className="h-full w-auto max-w-full" />
       </div>
       <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
