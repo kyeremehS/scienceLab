@@ -24,7 +24,10 @@ test("student completes an experiment end to end", async ({ page }) => {
   // Discover and open the seeded experiment.
   await page.getByRole("link", { name: "Browse all" }).click();
   await expect(page).toHaveURL(/\/dashboard\/student\/experiments$/);
-  await page.getByRole("link", { name: "View experiment" }).first().click();
+  await page
+    .locator("li", { hasText: "Building a Simple Electrical Circuit" })
+    .getByRole("link", { name: "View experiment" })
+    .click();
   await expect(page.getByRole("heading", { name: "Building a Simple Electrical Circuit" })).toBeVisible();
 
   // Start and enter the workspace.

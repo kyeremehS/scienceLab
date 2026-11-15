@@ -40,13 +40,14 @@ test("teacher runs a class end to end with a student", async ({ browser }) => {
   await expect(student).toHaveURL(/\/dashboard\/student$/);
 
   await student.getByRole("link", { name: "My Classes" }).click();
+  await student.getByRole("button", { name: "Join a class" }).click();
   await student.getByLabel("Class code").fill(code);
   await student.getByRole("button", { name: "Join class" }).click();
   await expect(student.getByText(`E2E Physics ${tag}`)).toBeVisible();
 
   // Teacher assigns the seeded experiment.
   await teacher.getByRole("tab", { name: "Assignments" }).click();
-  await teacher.getByLabel("Experiment").selectOption({ index: 1 });
+  await teacher.getByLabel("Experiment").selectOption({ label: "Building a Simple Electrical Circuit" });
   await teacher.getByRole("button", { name: "Assign experiment" }).click();
   await expect(
     teacher.locator("li", { hasText: "Building a Simple Electrical Circuit" }),

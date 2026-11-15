@@ -211,7 +211,7 @@ async function callOpenRouter(
   stream: boolean,
   timeoutMs: number,
 ): Promise<Response | null> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) return null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
