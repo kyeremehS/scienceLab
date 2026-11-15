@@ -9,6 +9,7 @@ export function PasswordInput({
   autoComplete,
   required = true,
   minLength,
+  placeholder,
   value,
   onChange,
   describedBy,
@@ -18,6 +19,7 @@ export function PasswordInput({
   autoComplete: string;
   required?: boolean;
   minLength?: number;
+  placeholder?: string;
   value: string;
   onChange: (value: string) => void;
   describedBy?: string;
@@ -33,10 +35,11 @@ export function PasswordInput({
         autoComplete={autoComplete}
         required={required}
         minLength={minLength}
+        placeholder={placeholder}
         aria-describedby={describedBy}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-btn border border-line bg-transparent py-2 pl-3 pr-11"
+        className="w-full rounded-btn border border-line bg-surface py-2.5 pl-3.5 pr-11 placeholder:text-ink-3"
       />
       <button
         type="button"

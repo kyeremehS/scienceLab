@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { LearningLoopDiagram } from "../LearningLoopDiagram";
 import { ClassProgressMock } from "./ClassProgressMock";
 
 /**
- * Hero on the main teal band. PDF layout (eyebrow, statement, subtext, two
- * actions, product panel) with UI_DESIGN.md §10 brand copy — the statement
- * and the two actions stay as §10 specifies.
+ * Hero on the main teal band (spec p1): eyebrow, statement, subtext, two
+ * actions (Create your first class / See how it works), and the Class
+ * progress preview panel.
  */
 export function LandingHero() {
   return (
@@ -16,27 +15,26 @@ export function LandingHero() {
             For teachers and students
           </p>
           <h1 className="font-display text-[40px] font-medium leading-[1.05] tracking-tight text-on-band sm:text-[62px]">
-            Learn science by doing.
+            Serving science, one class at a time.
           </h1>
           <p className="max-w-xl text-[18px] leading-[1.65] text-on-band-muted lg:text-[19px]">
-            Understand, prepare, perform, observe, reflect, and assess —
-            practical experiments with structured digital guidance.
+            Set up your classes, hand out assignments and see who has started,
+            all in one calm workspace for Physics, Chemistry and Biology.
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
               href="/register"
               className="rounded-btn bg-orange px-7 py-[15px] text-[16px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover"
             >
-              Get started
+              Create your first class
             </Link>
-            <Link
-              href="/login"
-              className="rounded-btn border border-on-band-eyebrow px-7 py-[15px] text-[16px] font-semibold text-on-band-soft transition-colors duration-150 hover:bg-white/10"
+            <a
+              href="#how-it-works"
+              className="rounded-btn border border-on-band-eyebrow px-7 py-[15px] text-[16px] font-semibold text-on-band-soft no-underline transition-colors duration-150 hover:bg-white/10"
             >
-              Log in
-            </Link>
+              See how it works
+            </a>
           </div>
-          <LearningLoopDiagram className="mt-2 w-full max-w-md text-on-band-muted" />
         </div>
 
         <ClassProgressMock className="lg:mt-4" />

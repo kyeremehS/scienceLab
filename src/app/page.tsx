@@ -25,30 +25,36 @@ export default async function Home() {
         <SubjectStrip />
         <WelcomeSection />
         <FeatureGrid />
-        <AudienceSection
-          id="for-teachers"
-          eyebrow="For teachers"
-          heading="Run your classes without the paperwork"
-          bullets={[
-            "Set up Physics, Chemistry and Biology classes in minutes",
-            "Assign work to any class and set it live",
-            "Track who has started and who has finished",
-            "Get flagged when a student needs a nudge",
-          ]}
-          ctaLabel="Start as a teacher"
-        />
-        <AudienceSection
-          id="for-students"
-          eyebrow="For students"
-          heading="Know exactly what to do next"
-          bullets={[
-            "Join a class with a code from your teacher",
-            "See all your assigned work in one place",
-            "Know what to do next at a glance",
-            "Pick up where you left off on any device",
-          ]}
-          ctaLabel="Join a class"
-        />
+        <div className="px-8 py-16 lg:py-24">
+          <div className="mx-auto grid max-w-[1200px] gap-8 lg:grid-cols-2">
+            <AudienceSection
+              id="for-teachers"
+              eyebrow="For teachers"
+              heading="Run your classes without the paperwork"
+              bullets={[
+                "Set up Physics, Chemistry and Biology classes in minutes",
+                "Assign work to any class and set it live",
+                "Track who has started and who has finished",
+                "Get flagged when a student needs a nudge",
+              ]}
+              ctaLabel="Start as a teacher"
+              tone="orange"
+            />
+            <AudienceSection
+              id="for-students"
+              eyebrow="For students"
+              heading="Know exactly what to do next"
+              bullets={[
+                "Join a class with a code from your teacher",
+                "See all your assigned work in one place",
+                "Know what to do next at a glance",
+                "Pick up where you left off on any device",
+              ]}
+              ctaLabel="Join a class"
+              tone="teal"
+            />
+          </div>
+        </div>
         <HowItWorks />
         <FaqSection />
         <FinalCta />

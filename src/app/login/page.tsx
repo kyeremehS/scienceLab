@@ -38,9 +38,9 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout heading="Welcome back" subheading="Sign in to continue learning.">
+    <AuthLayout heading="Welcome back" subheading="Sign in to your account.">
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label htmlFor="email" className="text-sm font-medium">Email</label>
           <input
             id="email"
@@ -48,17 +48,22 @@ export default function LoginPage() {
             type="email"
             autoComplete="email"
             required
+            placeholder="you@school.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-btn border border-line bg-transparent px-3 py-2"
+            className="rounded-btn border border-line bg-surface px-3.5 py-2.5 placeholder:text-ink-3"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm font-medium">Password</label>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-baseline justify-between">
+            <label htmlFor="password" className="text-sm font-medium">Password</label>
+            <NavLink href="/forgot-password">Forgot password?</NavLink>
+          </div>
           <PasswordInput
             id="password"
             name="password"
             autoComplete="current-password"
+            placeholder="Your password"
             value={password}
             onChange={setPassword}
           />
@@ -69,16 +74,13 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-btn bg-orange px-7 py-[15px] text-[16px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover disabled:pointer-events-none disabled:opacity-50"
+          className="mt-1 w-full rounded-btn bg-orange px-7 py-[15px] text-[16px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover disabled:pointer-events-none disabled:opacity-50"
         >
           Sign in
         </button>
       </form>
-      <p className="mt-4 text-sm text-ink-2">
-        <NavLink href="/forgot-password">Forgot password?</NavLink>
-      </p>
-      <p className="mt-2 text-sm text-ink-2">
-        No account yet? <NavLink href="/register">Register</NavLink>
+      <p className="mt-5 text-center text-sm text-ink-2">
+        New here? <NavLink href="/register">Create an account</NavLink>
       </p>
     </AuthLayout>
   );

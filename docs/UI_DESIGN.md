@@ -118,46 +118,39 @@ Modern scientific publication + educational product + restrained interface.
 - Scientific identity comes from **content-relevant illustration** (the simple electrical circuit — the MVP's first experiment), a faint measurement-grid backdrop, and precise typography — never from decorative gradients, blobs, or stock imagery.
 - Depth is restrained: 1px borders (token line) plus the two depth tokens — `shadow-card` on cards, `shadow-hero` on the hero panel. Radii: `rounded-btn` (inputs, buttons), `rounded-card` (cards), `rounded-panel` (panels).
 
-## 2. Auth Experience
+## 2. Auth Experience (spec p4)
 
 ### 2.1 Layout (desktop ≥1024px)
 
 Split screen:
 
-- **Left ~45%**: panel holding one composed, vertically centered block:
-  ScienceLab wordmark, the statement "Learn science by doing.", supporting
-  text, then the line-art circuit illustration. No large gaps between block
-  elements. The panel follows the active theme (light: surface/ink;
-  dark: near-black/off-white) with the circuit accent adapting via
-  `--circuit-accent` — the whole page flips as one surface, never half-lit.
-- **Right ~55%**: plain background, vertically centered form column capped at
-  520px (`max-w-[520px]`), pulled toward the divider (`lg:justify-start` with
-  left padding) so the middle gap stays narrow. The two surfaces stay
-  distinct (panel `surface` vs page `canvas`) with no hard divider.
+- **Left 50% (`lg:w-1/2`)**: solid teal band (`band bg-teal text-on-band`,
+  unchanged in dark mode per §0) arranged vertically with `justify-between`:
+  top row holds the `SCIENCELAB` wordmark (`Link` to `/`), middle block holds
+  the display headline `Serving science, one class at a time.` over
+  `Classes, assignments and progress for Physics, Chemistry and Biology.`,
+  and bottom holds `© 2026 ScienceLab`.
+- **Right 50%**: canvas background (`bg-canvas`), vertically centered form
+  column capped at 420px (`max-w-[420px]`), with the theme toggle in the
+  top-right corner.
 
 ### 2.2 Layout (mobile <1024px)
 
-Single column, stacked as one flow: compact brand block (wordmark, statement,
-short description, circuit illustration at natural width), then the form
-column. The mobile page must not feel like the squeezed desktop split — brand
-and form are sequential sections, each vertically compact.
-
-Circuit prominence tiers:
-
-- `<480px`: small circuit (`max-w-[280px]`); the form gets priority.
-- `480–1023px`: medium circuit (`max-w-sm`).
-- `≥1024px`: full circuit (`max-w-md`) in the split-screen brand panel.
-
-The brand panel is a full-bleed surface on mobile (no framed/bordered
-container). The page uses normal document flow with no locked viewport
-heights, so an open keyboard scrolls naturally and the form stays usable.
+Single column, stacked as one flow: full-bleed teal brand header block
+(wordmark + mobile `ThemeToggle tone="band"`, statement, subcopy, copyright)
+above the form column. The page uses normal document flow with no locked
+viewport heights, so an open keyboard scrolls naturally and the form stays
+usable.
 
 ### 2.3 Login
 
-- Heading `Welcome back`, subheading `Sign in to continue learning.`
-- Fields: Email, Password (with in-field eye-icon toggle, `aria-label` + `aria-pressed`).
-- Primary button: full-width `Sign in` (static label, disabled while pending).
-- Secondary: `Forgot password?`, then `No account yet? Register`.
+- Heading `Welcome back`, subheading `Sign in to your account.`
+- Fields: Email (`you@school.edu` placeholder), Password (`Your password`
+  placeholder, with in-field eye-icon toggle, `aria-label` + `aria-pressed`,
+  and `Forgot password?` inline with the label row).
+- Primary button: full-width orange `Sign in` (static label, disabled while
+  pending).
+- Secondary: centered `New here? Create an account` (`NavLink` to `/register`).
 - Errors shown in a single `role="alert"` paragraph above the button: invalid input messages from server, or generic `Invalid email or password.` Never indicate which field failed.
 
 ### 2.4 Registration
@@ -220,7 +213,7 @@ heights, so an open keyboard scrolls naturally and the form stays usable.
 | Token | Light | Dark |
 |---|---|---|
 | Page background (form side) | token canvas | token canvas |
-| Brand panel | token surface | token surface |
+| Brand panel (auth / hero / features) | token teal (`#0B7A96`) | Same (teal band unchanged) |
 | Primary text | token ink | token ink |
 | Secondary text | token ink-2 | token ink-2 |
 | Borders | token line | token line |
@@ -265,15 +258,48 @@ All back/nav-style links site-wide render through `src/app/NavLink.tsx`:
 - Statistics, charts, or progress bars without real backing data.
 - Non-functional navigation entries (no dead links; search arrives with the catalogue in Phase 3).
 
-## 10. Landing Alignment
+## 10. Landing Alignment (spec pp.1–3)
 
-The landing page shares the brand language: wordmark, `Learn science by doing.`
-statement, product-loop subtext, and the same two actions (Get started / Log in). It must not introduce components, colors, or illustration styles that contradict this document.
+The landing page follows the PDF spec across three pages:
 
-Below the actions sits a LearningLoopDiagram (Learn → Perform → Observe →
-Reflect → Assess with a return arc) — visually distinct from the auth circuit,
-tied to the product loop. CTA buttons use `rounded-btn` geometry (8px);
-cards and panels use `rounded-card` / `rounded-panel`.
+- **Header (`LandingHeader`)**: sticky teal bar (`bg-teal`) with `SCIENCELAB`
+  wordmark, section anchors (`Features`, `For teachers`, `For students`,
+  `How it works`, `FAQ`), `Sign in`, white `Get started` button
+  (`bg-white text-teal-ink`), and `ThemeToggle tone="band"`.
+- **Hero (`LandingHero` + `ClassProgressMock`)**: teal band with eyebrow
+  `FOR TEACHERS AND STUDENTS`, display headline `Serving science, one class at
+  a time.`, subcopy `Set up your classes, hand out assignments and see who has
+  started, all in one calm workspace for Physics, Chemistry and Biology.`,
+  orange `Create your first class` (`/register`) + bordered `See how it works`
+  (`#how-it-works`), paired with the `ClassProgressMock` card (`Physics /
+  Chemistry / Biology` with `Open` labels and the warm-tinted `Needs
+  attention:` callout).
+- **Subject strip (`SubjectStrip`)**: muted `bg-raised` bar with
+  `PHYSICS · CHEMISTRY · BIOLOGY`.
+- **Welcome (`WelcomeSection`)**: centered `WELCOME` eyebrow, `Advances of
+  science, made easier.`, and supporting paragraph.
+- **Features (`FeatureGrid`)**: teal band with centered `FEATURES` /
+  `Everything a science class needs` and 6 white cards in a 3×2 grid
+  (`Classes`, `Assignments`, `Progress tracking`, `Needs attention`,
+  `Easy joining`, `Safe and private`), each topped by a pale-teal circular
+  icon badge.
+- **Audience (`AudienceSection`)**: two side-by-side white cards on the
+  canvas — `FOR TEACHERS` (`Run your classes without the paperwork`, 4 `✓`
+  bullets, orange `Start as a teacher`) and `FOR STUDENTS` (`Know exactly
+  what to do next`, 4 `✓` bullets, teal `Join a class`).
+- **How it works (`HowItWorks`)**: vertical 3-step sequence (`1` orange
+  `Create a class`, `2` teal `Invite your students`, `3` ink `Assign and
+  track`).
+- **FAQ (`FaqSection`)**: centered `FAQ` / `Questions, answered` with white
+  disclosure cards (`<details>/<summary>`). The `[YOUR PRICING DETAIL]`
+  placeholder question is omitted until pricing exists.
+- **Final CTA (`FinalCta`)**: centered orange band (`Ready to run your first
+  class?`, `Create a class, invite your students and assign work today.`,
+  white `Get started` button).
+- **Footer (`LandingFooter`)**: deep-teal band with wordmark + tagline,
+  `Product` and `Account` link columns, and copyright line. The PDF's
+  `CONTACT` (`[YOUR SUPPORT EMAIL]`, `[YOUR LOCATION]`) and `Privacy / Terms`
+  entries are omitted until real values and pages exist (no dead links, §9).
 
 ## 11. Transactional Email
 

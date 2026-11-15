@@ -46,7 +46,7 @@ export function LandingHeader() {
           </Link>
           <Link
             href="/register"
-            className="rounded-btn bg-orange px-7 py-[15px] text-[15px] font-semibold text-white transition-colors duration-150 hover:bg-orange-hover"
+            className="rounded-btn bg-white px-5 py-2.5 text-[15px] font-semibold text-teal-ink transition-colors duration-150 hover:bg-white/90"
           >
             Get started
           </Link>
